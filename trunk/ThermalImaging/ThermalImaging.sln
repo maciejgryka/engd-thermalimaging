@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThermalImaging", "ThermalImaging\ThermalImaging.vcproj", "{0EC42D6D-8DD1-4DE0-A3A4-DC9270274586}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FeaturePointRemoval", "FeaturePointRemoval\FeaturePointRemoval.vcproj", "{6071BA26-7862-43B3-A85B-726420FC2D14}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcproj", "{DDB8C808-5BC9-48B1-886C-66983BD621D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,11 +17,16 @@ Global
 		{0EC42D6D-8DD1-4DE0-A3A4-DC9270274586}.Debug|Win32.Build.0 = Debug|Win32
 		{0EC42D6D-8DD1-4DE0-A3A4-DC9270274586}.Release|Win32.ActiveCfg = Release|Win32
 		{0EC42D6D-8DD1-4DE0-A3A4-DC9270274586}.Release|Win32.Build.0 = Release|Win32
+		{6071BA26-7862-43B3-A85B-726420FC2D14}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6071BA26-7862-43B3-A85B-726420FC2D14}.Debug|Win32.Build.0 = Debug|Win32
+		{6071BA26-7862-43B3-A85B-726420FC2D14}.Release|Win32.ActiveCfg = Release|Win32
+		{6071BA26-7862-43B3-A85B-726420FC2D14}.Release|Win32.Build.0 = Release|Win32
+		{DDB8C808-5BC9-48B1-886C-66983BD621D4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DDB8C808-5BC9-48B1-886C-66983BD621D4}.Debug|Win32.Build.0 = Debug|Win32
+		{DDB8C808-5BC9-48B1-886C-66983BD621D4}.Release|Win32.ActiveCfg = Release|Win32
+		{DDB8C808-5BC9-48B1-886C-66983BD621D4}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		QtVersion = 4.6.2
 	EndGlobalSection
 EndGlobal

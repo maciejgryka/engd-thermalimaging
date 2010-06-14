@@ -39,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\GeneratedFiles;C:\Qt\4.6.2\include;.\GeneratedFiles\$(ConfigurationName);C:\Qt\4.6.2\include\QtCore;C:\Qt\4.6.2\include\QtGui;C:\Qt\4.6.2\include\QtOpenGL;.\"
+				AdditionalIncludeDirectories=".\GeneratedFiles;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.\"
 				PreprocessorDefinitions="UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_THREAD_SUPPORT,QT_NO_DEBUG,NDEBUG,QT_CORE_LIB,QT_GUI_LIB,QT_OPENGL_LIB;QT_DLL"
 				RuntimeLibrary="2"
 				TreatWChar_tAsBuiltInType="false"
@@ -56,9 +56,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="C:\Qt\4.6.2\lib\qtmain.lib C:\Qt\4.6.2\lib\QtCore4.lib C:\Qt\4.6.2\lib\QtGui4.lib C:\Qt\4.6.2\lib\QtOpenGL4.lib opengl32.lib glu32.lib glew32.lib"
+				AdditionalDependencies=" qtmain.lib QtCore4.lib QtGui4.lib QtOpenGL4.lib opengl32.lib glu32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
-				AdditionalLibraryDirectories="C:\Qt\4.6.2\lib"
+				AdditionalLibraryDirectories="$(QTDIR)\lib"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 			/>
@@ -109,7 +109,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\GeneratedFiles;C:\Qt\4.6.2\include;.\GeneratedFiles\$(ConfigurationName);C:\Qt\4.6.2\include\QtCore;C:\Qt\4.6.2\include\QtGui;C:\Qt\4.6.2\include\QtOpenGL;.\"
+				AdditionalIncludeDirectories=".\GeneratedFiles;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;.\"
 				PreprocessorDefinitions="UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_THREAD_SUPPORT,QT_CORE_LIB,QT_GUI_LIB,QT_OPENGL_LIB;QT_DLL"
 				RuntimeLibrary="3"
 				TreatWChar_tAsBuiltInType="false"
@@ -126,9 +126,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="C:\Qt\4.6.2\lib\qtmaind.lib C:\Qt\4.6.2\lib\QtCored4.lib C:\Qt\4.6.2\lib\QtGuid4.lib C:\Qt\4.6.2\lib\QtOpenGLd4.lib opengl32.lib glu32.lib glew32.lib"
+				AdditionalDependencies=" qtmaind.lib QtCored4.lib QtGuid4.lib QtOpenGLd4.lib opengl32.lib glu32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
-				AdditionalLibraryDirectories="C:\Qt\4.6.2\lib"
+				AdditionalLibraryDirectories="$(QTDIR)\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
@@ -184,7 +184,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Ply2OpenGL.cpp"
+				RelativePath=".\ply2opengl.cpp"
 				>
 			</File>
 			<File
@@ -212,15 +212,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\textfile.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\thermalimaging.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\WarpImage.cpp"
 				>
 			</File>
 		</Filter>
@@ -242,8 +234,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;C:\Qt\4.6.2\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;C:\Qt\4.6.2\include\QtCore\.&quot; -I&quot;C:\Qt\4.6.2\include\QtGui\.&quot; -I&quot;C:\Qt\4.6.2\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\MainGLWidget.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
-						AdditionalDependencies="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;;$(InputPath)"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\MainGLWidget.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
 				</FileConfiguration>
@@ -253,8 +245,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;C:\Qt\4.6.2\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;C:\Qt\4.6.2\include\QtCore\.&quot; -I&quot;C:\Qt\4.6.2\include\QtGui\.&quot; -I&quot;C:\Qt\4.6.2\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\MainGLWidget.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
-						AdditionalDependencies="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;;$(InputPath)"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\MainGLWidget.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
 				</FileConfiguration>
@@ -268,7 +260,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Ply2OpenGL.h"
+				RelativePath=".\ply2opengl.h"
 				>
 			</File>
 			<File
@@ -290,28 +282,6 @@
 			<File
 				RelativePath=".\Ransac.h"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Performing Custom Build Step"
-						CommandLine=""
-						AdditionalDependencies=""
-						Outputs=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Performing Custom Build Step"
-						CommandLine=""
-						AdditionalDependencies=""
-						Outputs=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\TestGLWidget.h"
@@ -322,8 +292,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;C:\Qt\4.6.2\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;C:\Qt\4.6.2\include\QtCore\.&quot; -I&quot;C:\Qt\4.6.2\include\QtGui\.&quot; -I&quot;C:\Qt\4.6.2\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\TestGLWidget.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
-						AdditionalDependencies="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;;$(InputPath)"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\TestGLWidget.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
 				</FileConfiguration>
@@ -333,15 +303,11 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;C:\Qt\4.6.2\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;C:\Qt\4.6.2\include\QtCore\.&quot; -I&quot;C:\Qt\4.6.2\include\QtGui\.&quot; -I&quot;C:\Qt\4.6.2\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\TestGLWidget.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
-						AdditionalDependencies="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;;$(InputPath)"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\TestGLWidget.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\textfile.h"
-				>
 			</File>
 			<File
 				RelativePath=".\thermalimaging.h"
@@ -352,8 +318,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;C:\Qt\4.6.2\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;C:\Qt\4.6.2\include\QtCore\.&quot; -I&quot;C:\Qt\4.6.2\include\QtGui\.&quot; -I&quot;C:\Qt\4.6.2\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\thermalimaging.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
-						AdditionalDependencies="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;;$(InputPath)"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\thermalimaging.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
 				</FileConfiguration>
@@ -363,15 +329,11 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;C:\Qt\4.6.2\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;C:\Qt\4.6.2\include\QtCore\.&quot; -I&quot;C:\Qt\4.6.2\include\QtGui\.&quot; -I&quot;C:\Qt\4.6.2\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\thermalimaging.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
-						AdditionalDependencies="&quot;C:\Qt\4.6.2\bin\moc.exe&quot;;$(InputPath)"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_DLL  -I&quot;.\GeneratedFiles\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\GeneratedFiles\$(ConfigurationName)\.&quot; -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtOpenGL\.&quot; -I&quot;.\.&quot; &quot;.\thermalimaging.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\WarpImage.h"
-				>
 			</File>
 		</Filter>
 		<Filter
@@ -388,8 +350,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Uic&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\uic.exe&quot; -o &quot;.\GeneratedFiles\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
-						AdditionalDependencies="C:\Qt\4.6.2\bin\uic.exe"
+						CommandLine="&quot;$(QTDIR)\bin\uic.exe&quot; -o &quot;.\GeneratedFiles\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe"
 						Outputs="&quot;.\GeneratedFiles\ui_$(InputName).h&quot;"
 					/>
 				</FileConfiguration>
@@ -399,8 +361,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Uic&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\uic.exe&quot; -o &quot;.\GeneratedFiles\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
-						AdditionalDependencies="C:\Qt\4.6.2\bin\uic.exe"
+						CommandLine="&quot;$(QTDIR)\bin\uic.exe&quot; -o &quot;.\GeneratedFiles\ui_$(InputName).h&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe"
 						Outputs="&quot;.\GeneratedFiles\ui_$(InputName).h&quot;"
 					/>
 				</FileConfiguration>
@@ -421,7 +383,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Rcc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\GeneratedFiles\qrc_$(InputName).cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\GeneratedFiles\qrc_$(InputName).cpp&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputPath)"
 						Outputs=".\GeneratedFiles\qrc_$(InputName).cpp"
 					/>
@@ -432,7 +394,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Rcc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;C:\Qt\4.6.2\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\GeneratedFiles\qrc_$(InputName).cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\rcc.exe&quot; -name &quot;$(InputName)&quot; -no-compress &quot;$(InputPath)&quot; -o .\GeneratedFiles\qrc_$(InputName).cpp&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputPath)"
 						Outputs=".\GeneratedFiles\qrc_$(InputName).cpp"
 					/>
@@ -468,28 +430,6 @@
 			<File
 				RelativePath=".\GeneratedFiles\ui_thermalimaging.h"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Performing Custom Build Step"
-						CommandLine=""
-						AdditionalDependencies=""
-						Outputs=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Performing Custom Build Step"
-						CommandLine=""
-						AdditionalDependencies=""
-						Outputs=""
-					/>
-				</FileConfiguration>
 			</File>
 			<Filter
 				Name="Release"
@@ -589,6 +529,10 @@
 		<Global
 			Name="MocOptions"
 			Value=""
+		/>
+		<Global
+			Name="QtVersion Win32"
+			Value="2009.1"
 		/>
 		<Global
 			Name="RccDir"

@@ -42,21 +42,30 @@
 #ifndef MAINGLWIDGET
 #define MAINGLWIDGET
 
-#define NOMINMAX			// Required for Eigen
+#define NOMINMAX
 
-#include <GL/glew.h>		// GLEW includes gl.h and glu.h
+#include <Eigen/Eigen>
+USING_PART_OF_NAMESPACE_EIGEN
+
 #include <QtGui>
 #include <QGLWidget>
-#include <QVector3D>
-#include <QVector2D>
-#include <windows.h>		// Header File For Windows
+//#include <QVector3D>
+//#include <QVector2D>
+//#include <windows.h>		// Header File For Windows
 #include <stdio.h>			// Header File For Standard Input/Output
-//#include <gl\gl.h>			// Header File For The OpenGL32 Library
-//#include <gl\glu.h>			// Header File For The GLu32 Library
+#include <gl\gl.h>			// Header File For The OpenGL32 Library
+#include <gl\glu.h>			// Header File For The GLu32 Library
 #include <gl\glaux.h>
+#include <iostream>
+#include <stdlib.h>
+
+using namespace std;
 
 #include "Ply2OpenGL.h"
-#include "textfile.h"		// utility class for reading textfiles - REPLACE WITH QT
+#include "Ransac.h"
+#include "RandomPointCloud.h"
+#include "PlaneLimitFinder.h"
+#include "PlaneCalculator.h"
 
 class QGLShaderProgram;
 
@@ -66,7 +75,7 @@ class MainGLWidget : public QGLWidget
 
 public:
     MainGLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
-	~MainGLWidget();
+    ~MainGLWidget();
 	void LoadGLTextures();
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
@@ -75,13 +84,13 @@ public:
 
 public slots:
 	void thermalVisualPercent(int);
+	void executeRansac();
 
 signals:
     void clicked();
 
 protected:
     void initializeGL();
-	void initializeShaders();
     void paintGL();
     void resizeGL(int width, int height);
 	void keyPressEvent(QKeyEvent *event);
@@ -90,6 +99,21 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 
 private:
+	int* pointsUsed;
+	int nPoints;
+	float** points;
+	float** colors;
+
+	bool ranRansac;
+	int planesFound;
+	float** plane;
+	int** bestPointCombinations;
+
+	Ransac* ransac;
+	Ply2OpenGL* extractor;
+	RandomPointCloud* rpc;
+	PlaneCalculator* pc;
+	
 
     QColor clearColor;
     QPoint lastPos;
@@ -98,13 +122,8 @@ private:
     int zRot;
 	GLuint	texture[3];
     GLuint textures[6];
-	GLuint v, f, p; //vector and fragment shaders and shader program
-	GLuint textureId;
-	
-	Ply2OpenGL plyParser;
-    float* vertices;
-	float* texCoords;
-    int* indices;
+    //QVector<QVector3D> vertices;
+    //QVector<QVector2D> texCoords;
 
 	GLuint	filter;				// Which Filter To Use
 	bool	light;				// Lighting ON/OFF
@@ -115,6 +134,7 @@ private:
 	GLfloat LightAmbient[4];
 	GLfloat LightDiffuse[4];
 	GLfloat LightPosition[4];
+
 
 	
 

@@ -1,10 +1,10 @@
 #ifndef THERMALIMAGING_H
 #define THERMALIMAGING_H
 
+#define NOMINMAX
+
 #include <QtGui/QMainWindow>
 #include "ui_thermalimaging.h"
-#include "MainGLWidget.h"
-
 #include "TestGLWidget.h"
 
 class ThermalImaging : public QMainWindow

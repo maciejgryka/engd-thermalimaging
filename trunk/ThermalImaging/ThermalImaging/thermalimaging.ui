@@ -25,7 +25,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="MainGLWidget" name="mainWid" native="true"/>
+      <widget class="TestGLWidget" name="mainWid" native="true"/>
      </item>
      <item>
       <widget class="QSlider" name="thermalVisualSlider">
@@ -52,6 +52,19 @@
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="ransacButton">
+    <property name="geometry">
+     <rect>
+      <x>840</x>
+      <y>630</y>
+      <width>75</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>RANSAC</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -59,7 +72,7 @@
      <x>0</x>
      <y>0</y>
      <width>1068</width>
-     <height>26</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>
@@ -76,9 +89,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>MainGLWidget</class>
+   <class>TestGLWidget</class>
    <extends>QWidget</extends>
-   <header>MainGLWidget.h</header>
+   <header>TestGLWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
