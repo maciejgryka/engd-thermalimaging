@@ -163,8 +163,12 @@ void TestGLWidget::initializeGL()
 	q->subdivide();
 
 	int** g = q->toGrid();
-	Grid* grid = new Grid();
+	grid = new Grid();
 	grid->setGrid(g,q->getSize());
+	grid->setBoundaries(boundaries);
+	grid->dilateAndErode(3);
+	grid->erodeAndDilate(1);
+	grid->calculateBorder();
 
 	
 }
@@ -182,8 +186,9 @@ void TestGLWidget::paintGL()
     glRotatef(yRot / 16.0f, 0.0f, 1.0f, 0.0f);
     glRotatef(zRot / 16.0f, 0.0f, 0.0f, 1.0f);
 
-	
-	q->drawQuad();
+	//q->drawQuad();
+	//grid->drawGrid();
+	grid->drawAsPolygon();
 	glPointSize(10.0f);
 	glBegin(GL_POINTS);
 	for (int i = 0; i < npop; i++) {

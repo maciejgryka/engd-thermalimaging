@@ -1,10 +1,10 @@
 /********************************************************************************
-** Form generated from reading UI file 'thermalimaging.ui'
+** Form generated from reading ui file 'thermalimaging.ui'
 **
-** Created: Thu 10. Jun 13:13:30 2010
-**      by: Qt User Interface Compiler version 4.6.2
+** Created: Fri 11. Jun 11:07:30 2010
+**      by: Qt User Interface Compiler version 4.5.0
 **
-** WARNING! All changes made in this file will be lost when recompiling UI file!
+** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
 
 #ifndef UI_THERMALIMAGING_H
@@ -18,12 +18,12 @@
 #include <QtGui/QLCDNumber>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenuBar>
+#include <QtGui/QPushButton>
 #include <QtGui/QSlider>
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
-#include "MainGLWidget.h"
 #include "TestGLWidget.h"
 
 QT_BEGIN_NAMESPACE
@@ -34,9 +34,10 @@ public:
     QWidget *centralWidget;
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
-    MainGLWidget *mainWid;
+    TestGLWidget *mainWid;
     QSlider *thermalVisualSlider;
     QLCDNumber *lcdNumber;
+    QPushButton *ransacButton;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -53,10 +54,10 @@ public:
         verticalLayoutWidget->setGeometry(QRect(20, 10, 991, 601));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setSpacing(6);
-        verticalLayout->setContentsMargins(11, 11, 11, 11);
+        verticalLayout->setMargin(11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
-        mainWid = new MainGLWidget(verticalLayoutWidget);
+        mainWid = new TestGLWidget(verticalLayoutWidget);
         mainWid->setObjectName(QString::fromUtf8("mainWid"));
 
         verticalLayout->addWidget(mainWid);
@@ -72,10 +73,13 @@ public:
         lcdNumber = new QLCDNumber(centralWidget);
         lcdNumber->setObjectName(QString::fromUtf8("lcdNumber"));
         lcdNumber->setGeometry(QRect(230, 640, 64, 23));
+        ransacButton = new QPushButton(centralWidget);
+        ransacButton->setObjectName(QString::fromUtf8("ransacButton"));
+        ransacButton->setGeometry(QRect(840, 630, 75, 25));
         ThermalImagingClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(ThermalImagingClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1068, 26));
+        menuBar->setGeometry(QRect(0, 0, 1068, 27));
         ThermalImagingClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(ThermalImagingClass);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
@@ -92,6 +96,8 @@ public:
     void retranslateUi(QMainWindow *ThermalImagingClass)
     {
         ThermalImagingClass->setWindowTitle(QApplication::translate("ThermalImagingClass", "ThermalImaging", 0, QApplication::UnicodeUTF8));
+        ransacButton->setText(QApplication::translate("ThermalImagingClass", "RANSAC", 0, QApplication::UnicodeUTF8));
+        Q_UNUSED(ThermalImagingClass);
     } // retranslateUi
 
 };

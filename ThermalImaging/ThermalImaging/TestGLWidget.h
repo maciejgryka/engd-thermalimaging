@@ -105,6 +105,7 @@ private:
 	int nclusters;
 
 	Quad* q;
+	Grid* grid;
 
 	float** colors;
 
