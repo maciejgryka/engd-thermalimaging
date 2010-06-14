@@ -96,10 +96,10 @@ private:
     int xRot;
     int yRot;
     int zRot;
-	GLuint	texture[4];
-    GLuint textures[6];
+	GLuint texture[2];
+    GLuint texLoc[2];
+	GLuint blendLoc;
 	GLuint v, f, p; //vector and fragment shaders and shader program
-	GLuint textureId;
 	
 	Ply2OpenGL plyParser;
     float* vertices;

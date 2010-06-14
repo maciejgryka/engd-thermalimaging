@@ -109,14 +109,14 @@ void MainGLWidget::LoadGLTextures()									// Load Bitmaps And Convert To Textu
 	QImage b;
 
 	// Load and assigne textures
-	if ( !b.load( QString("C:\\Work\\VS2008 Projects\\ThermalImaging\\ThermalImaging\\Data\\Glass.bmp" )) )
+	if ( !b.load( QString("C:\\Work\\VS2008 Projects\\ThermalImaging\\ThermalImaging\\images\\tex.png")) )
 	{
 		//b = QImage( 16, 16, 32 );
 		//b.fill( Qt::green.rgb());
 		cout << "Cannot load texture." << endl;
 	}
     
-	glGenTextures(4, texture);
+	glGenTextures(2, texture);
 	
 	t = QGLWidget::convertToGLFormat(b);
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
@@ -124,7 +124,7 @@ void MainGLWidget::LoadGLTextures()									// Load Bitmaps And Convert To Textu
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits());
 
-	if ( !b.load( QString("C:\\Work\\VS2008 Projects\\ThermalImaging\\ThermalImaging\\images\\side1.png" )) )
+	if ( !b.load( QString("C:\\Work\\VS2008 Projects\\ThermalImaging\\ThermalImaging\\images\\tex_therm.png" )) )
 	{
 		//b = QImage( 16, 16, 32 );
 		//b.fill( Qt::green.rgb());
@@ -137,31 +137,6 @@ void MainGLWidget::LoadGLTextures()									// Load Bitmaps And Convert To Textu
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits());
 
-	if (!b.load( QString("C:\\Work\\VS2008 Projects\\ThermalImaging\\ThermalImaging\\images\\test_tex2.jpg" )))
-	{
-		//b = QImage( 16, 16, 32 );
-		//b.fill( Qt::green.rgb());
-		cerr << "Cannot load texture." << endl;
-	}
-    
-	t = QGLWidget::convertToGLFormat(b);
-	glBindTexture( GL_TEXTURE_2D, texture[2]);
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	glTexImage2D( GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits() );
-
-	if (!b.load( QString("C:\\Work\\VS2008 Projects\\ThermalImaging\\ThermalImaging\\images\\wilkins_tex_top.jpg" )))
-	{
-		//b = QImage( 16, 16, 32 );
-		//b.fill( Qt::green.rgb());
-		cerr << "Cannot load texture." << endl;
-	}
-    
-	t = QGLWidget::convertToGLFormat(b);
-	glBindTexture( GL_TEXTURE_2D, texture[3]);
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	glTexImage2D( GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits() );
 
 	// Activate and bind textures
 	glActiveTexture(GL_TEXTURE0);
@@ -170,11 +145,10 @@ void MainGLWidget::LoadGLTextures()									// Load Bitmaps And Convert To Textu
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture[1]);
 
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, texture[2]);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, texture[3]);
+	//glActiveTexture(GL_TEXTURE2);
+	//glBindTexture(GL_TEXTURE_2D, texture[2]);
+	//glActiveTexture(GL_TEXTURE3);
+	//glBindTexture(GL_TEXTURE_2D, texture[3]);
 }
 
 void MainGLWidget::initializeGL()
@@ -203,7 +177,7 @@ void MainGLWidget::initializeGL()
 	glAlphaFunc(GL_GREATER,0.1f);
 
 
-	plyParser.readPlyFile("wilkins3d.ply");
+	plyParser.readPlyFile("Data\\wilkins3d2.ply");
 	vertices = plyParser.getVertices();
 	indices = plyParser.getIndices();
 	texCoords = plyParser.getTexCoords();
@@ -255,11 +229,10 @@ void MainGLWidget::initializeShaders()
 		cerr << "Shader " << f << " compile error: " << buffer << endl;
 	}
 
-	//int texture_location = glGetUniformLocation(p, "tex1");	// Setup communication between this and shaders
- //   glUniform1i(texture_location, texture[2]);
-
-	//texture_location = glGetUniformLocation(p, "tex2");		// Setup communication between this and shaders
- //   glUniform1i(texture_location, texture[1]);
+	// Setup communication between this and shaders
+	texLoc[0] = glGetUniformLocation(p, "tex1");
+	texLoc[1] = glGetUniformLocation(p, "tex2");
+	blendLoc = glGetUniformLocation(p, "blend");
 }
 
 void MainGLWidget::paintGL()
@@ -343,24 +316,17 @@ void MainGLWidget::paintGL()
 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	glVertexPointer(plyParser.getVertexSize(), GL_FLOAT, 0, vertices);
-	//glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
-	//glDrawElements(GL_TRIANGLES, plyParser.getNFaces()*plyParser.getVerticesPerFace(), GL_UNSIGNED_INT, indices);
 
-	//TODO: change to use sizes from plyParser not constants
+	glUniform1f(blendLoc, alpha);
 
-	int texLoc1 = glGetUniformLocation(p, "tex1");	// Setup communication between this and shaders
-	glUniform1i(texLoc1, 0);
-	int texLoc2 = glGetUniformLocation(p, "tex2");	// Setup communication between this and shaders
-	glUniform1i(texLoc2, 2);
-	
+	glUniform1i(texLoc[0], 0);
+	glUniform1i(texLoc[1], 1);
 	glBegin(GL_TRIANGLES);
-		for (int face = 0; face < 12 /*plyParser.getNFaces()*/; face++)
+		for (int face = 0; face < plyParser.getNFaces(); face++)
 		{
 			int texIndex = face * plyParser.getVerticesPerFace() * plyParser.getTexCoordSize();
-
 			glTexCoord2f(texCoords[texIndex], texCoords[texIndex+1]);
 			glArrayElement(indices[face*3]);
 			glTexCoord2f(texCoords[texIndex+2], texCoords[texIndex+3]);
@@ -370,26 +336,21 @@ void MainGLWidget::paintGL()
 		}
 	glEnd();
 
-	glUniform1i(texLoc1, 1);
-	glUniform1i(texLoc2, 3);
-	
-	//glBindTexture( GL_TEXTURE_2D, texture[1]);
-	glBegin(GL_TRIANGLES);
-		for (int face = 12; face < plyParser.getNFaces(); face++)
-		{
-			int texIndex = face * plyParser.getVerticesPerFace() * plyParser.getTexCoordSize();
+	//glUniform1i(texLoc[0], 1);
+	//glUniform1i(texLoc[1], 3);
+	//glBegin(GL_TRIANGLES);
+	//	for (int face = 12; face < plyParser.getNFaces(); face++)
+	//	{
+	//		int texIndex = face * plyParser.getVerticesPerFace() * plyParser.getTexCoordSize();
 
-			glTexCoord2f(texCoords[texIndex], texCoords[texIndex+1]);
-			glArrayElement(indices[face*3]);
-			glTexCoord2f(texCoords[texIndex+2], texCoords[texIndex+3]);
-			glArrayElement(indices[face*3 + 1]);
-			glTexCoord2f(texCoords[texIndex+4], texCoords[texIndex+5]);
-			glArrayElement(indices[face*3 + 2]);
-		}
-	glEnd();
-	
-	int blend_loc = glGetUniformLocation(p, "blend");
-	glUniform1f(blend_loc, alpha);
+	//		glTexCoord2f(texCoords[texIndex], texCoords[texIndex+1]);
+	//		glArrayElement(indices[face*3]);
+	//		glTexCoord2f(texCoords[texIndex+2], texCoords[texIndex+3]);
+	//		glArrayElement(indices[face*3 + 1]);
+	//		glTexCoord2f(texCoords[texIndex+4], texCoords[texIndex+5]);
+	//		glArrayElement(indices[face*3 + 2]);
+	//	}
+	//glEnd();
 }
 
 void MainGLWidget::resizeGL(int width, int height)
