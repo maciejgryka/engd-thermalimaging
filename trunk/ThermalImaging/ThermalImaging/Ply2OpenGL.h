@@ -2,16 +2,10 @@
 #define PLY2OPENGL
 
 #include <iostream>
-
-
-
 #include <QString>
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
-
-
-
 
 class Ply2OpenGL {
 
@@ -48,22 +42,9 @@ public:
 	//float* getNormals();
 
 private:
-
-
-
-
-
-	
 	float* vertices;
 	int* indices;
 	float* texCoords;
-	//float* colors;
-	//float* normals;
-
-	float* vertices;
-	int* indices;
-	float* texCoords;
-
 	//float* colors;
 	//float* normals;
 

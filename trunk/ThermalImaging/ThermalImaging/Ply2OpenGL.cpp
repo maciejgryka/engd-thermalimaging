@@ -7,54 +7,6 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 
 
 	if (plyFile.open(QIODevice::ReadOnly))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	{
 		// Read the file
 		QTextStream stream(&plyFile);
@@ -109,16 +61,6 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 
 		// assign all the vertex values
 		for (int vert = 0; vert < nVertices; vert++)
-
-
-
-
-
-
-
-
-
-
 		{
 			line = getL(stream);
 			QStringList lineList = line.split(" ");
@@ -127,83 +69,18 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 			vertices[vert*vertexSize + 1] = lineList.at(1).toFloat()/5;
 			vertices[vert*vertexSize + 2] = lineList.at(2).toFloat()/5;
 
-
-
 			//// write texture coordinates
 			//texCoords[vert*texCoordSize] = lineList.at(3).toFloat();
 			//texCoords[vert*texCoordSize + 1] = lineList.at(4).toFloat();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		}
 
 		// assign all the face values
 		for (int face = 0; face < nFaces; face++)
-
-
-
 		{
 			line = getL(stream);
 			QStringList lineList = line.split(" ");
-
-
-
-
-
-
-
-
-
-			
+		
 			if (lineList.at(0).toInt() != verticesPerFace)
-
-
-
-
-
-
-
-
-
-
-
-
 			{
 				std::cerr << "Error: number of vertices per face must be 3 (traingles only)." << std::endl;
 				return false;
@@ -238,9 +115,6 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 		}
 	}
 	return true;
-
-
-
 }
 
 /// Get next line from the stream ignoring comments

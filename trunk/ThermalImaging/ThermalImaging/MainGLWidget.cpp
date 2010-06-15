@@ -145,10 +145,10 @@ void MainGLWidget::LoadGLTextures()									// Load Bitmaps And Convert To Textu
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture[1]);
 
-	//glActiveTexture(GL_TEXTURE2);
-	//glBindTexture(GL_TEXTURE_2D, texture[2]);
-	//glActiveTexture(GL_TEXTURE3);
-	//glBindTexture(GL_TEXTURE_2D, texture[3]);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, texture[2]);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, texture[3]);
 }
 
 void MainGLWidget::initializeGL()
@@ -335,22 +335,6 @@ void MainGLWidget::paintGL()
 			glArrayElement(indices[face*3 + 2]);
 		}
 	glEnd();
-
-	//glUniform1i(texLoc[0], 1);
-	//glUniform1i(texLoc[1], 3);
-	//glBegin(GL_TRIANGLES);
-	//	for (int face = 12; face < plyParser.getNFaces(); face++)
-	//	{
-	//		int texIndex = face * plyParser.getVerticesPerFace() * plyParser.getTexCoordSize();
-
-	//		glTexCoord2f(texCoords[texIndex], texCoords[texIndex+1]);
-	//		glArrayElement(indices[face*3]);
-	//		glTexCoord2f(texCoords[texIndex+2], texCoords[texIndex+3]);
-	//		glArrayElement(indices[face*3 + 1]);
-	//		glTexCoord2f(texCoords[texIndex+4], texCoords[texIndex+5]);
-	//		glArrayElement(indices[face*3 + 2]);
-	//	}
-	//glEnd();
 }
 
 void MainGLWidget::resizeGL(int width, int height)
