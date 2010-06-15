@@ -53,6 +53,10 @@ MainGLWidget::MainGLWidget(QWidget *parent, QGLWidget *shareWidget)
     xRot = 0;
     yRot = 0;
     zRot = 0;
+	xTrans = 0.0;
+	yTrans = 0.0;
+	zTrans = -10.0;
+	zoomDist = 0.0;
 
 	LightAmbient[0] = 0.5f;
 	LightAmbient[1] = 0.5f;
@@ -151,38 +155,6 @@ void MainGLWidget::LoadGLTextures()									// Load Bitmaps And Convert To Textu
 	glBindTexture(GL_TEXTURE_2D, texture[3]);
 }
 
-void MainGLWidget::initializeGL()
-{
-    //glEnable(GL_CULL_FACE);  //###########################
-
-	glewInit();
-	LoadGLTextures();								// Jump To Texture Loading Routine ( NEW )
-	initializeShaders();
-
-	glEnable(GL_TEXTURE_2D);							// Enable Texture Mapping ( NEW )
-	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);				// Black Background
-	glClearDepth(1.0f);									// Depth Buffer Setup
-	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
-	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
-
-	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);		// Setup The Ambient Light
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);		// Setup The Diffuse Light
-	glLightfv(GL_LIGHT1, GL_POSITION,LightPosition);	// Position The Light
-	glEnable(GL_LIGHT1);								// Enable Light One
-
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);					// Full Brightness.  100% Alpha
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);	// Set The Blending Function For Translucency
-	glAlphaFunc(GL_GREATER,0.1f);
-
-
-	plyParser.readPlyFile("Data\\wilkins3d2.ply");
-	vertices = plyParser.getVertices();
-	indices = plyParser.getIndices();
-	texCoords = plyParser.getTexCoords();
-}
-
 void MainGLWidget::initializeShaders()
 {
 	char *vs = NULL,*fs = NULL,*fs2 = NULL;
@@ -235,6 +207,37 @@ void MainGLWidget::initializeShaders()
 	blendLoc = glGetUniformLocation(p, "blend");
 }
 
+void MainGLWidget::initializeGL()
+{
+    //glEnable(GL_CULL_FACE);  //###########################
+
+	glewInit();
+	LoadGLTextures();								// Jump To Texture Loading Routine ( NEW )
+	initializeShaders();
+
+	glEnable(GL_TEXTURE_2D);							// Enable Texture Mapping ( NEW )
+	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);				// Black Background
+	glClearDepth(1.0f);									// Depth Buffer Setup
+	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
+	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
+
+	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);		// Setup The Ambient Light
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);		// Setup The Diffuse Light
+	glLightfv(GL_LIGHT1, GL_POSITION,LightPosition);	// Position The Light
+	glEnable(GL_LIGHT1);								// Enable Light One
+
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);					// Full Brightness.  100% Alpha
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);	// Set The Blending Function For Translucency
+	glAlphaFunc(GL_GREATER,0.1f);
+
+	plyParser.readPlyFile("Data\\wilkins3d2.ply");
+	vertices = plyParser.getVertices();
+	indices = plyParser.getIndices();
+	texCoords = plyParser.getTexCoords();
+}
+
 void MainGLWidget::paintGL()
 {
     qglClearColor(clearColor);
@@ -242,7 +245,7 @@ void MainGLWidget::paintGL()
 
     glLoadIdentity();
 
-    glTranslatef(0.0f, 0.0f, -10.0f);
+    glTranslatef(xTrans, yTrans, zTrans - zoomDist);
     glRotatef(xRot / 16.0f, 1.0f, 0.0f, 0.0f);
     glRotatef(yRot / 16.0f, 0.0f, 1.0f, 0.0f);
     glRotatef(zRot / 16.0f, 0.0f, 0.0f, 1.0f);	
@@ -352,22 +355,22 @@ void MainGLWidget::resizeGL(int width, int height)
 
 }
 
-void MainGLWidget::mousePressEvent(QMouseEvent *event)
+void MainGLWidget::mousePressEvent(QMouseEvent *e)
 {
-    lastPos = event->pos();
+    lastPos = e->pos();
 }
 
-void MainGLWidget::mouseMoveEvent(QMouseEvent *event)
+void MainGLWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    int dx = event->x() - lastPos.x();
-    int dy = event->y() - lastPos.y();
+    int dx = e->x() - lastPos.x();
+    int dy = e->y() - lastPos.y();
 
-    if (event->buttons() & Qt::LeftButton) {
+    if (e->buttons() & Qt::LeftButton) {
         rotateBy(8 * dy, 8 * dx, 0);
-    } else if (event->buttons() & Qt::RightButton) {
+    } else if (e->buttons() & Qt::RightButton) {
         rotateBy(8 * dy, 0, 8 * dx);
     }
-    lastPos = event->pos();
+    lastPos = e->pos();
 }
 
 void MainGLWidget::mouseReleaseEvent(QMouseEvent * /* event */)
@@ -375,33 +378,33 @@ void MainGLWidget::mouseReleaseEvent(QMouseEvent * /* event */)
     emit clicked();
 }
 
-void MainGLWidget::keyPressEvent( QKeyEvent *e )
+void MainGLWidget::wheelEvent(QWheelEvent *e)
 {
+	zoomDist -= e->delta()/100;
+	updateGL();
+}
+
+void MainGLWidget::keyPressEvent(QKeyEvent *e)
+{
+	float step = 0.3;
   switch( e->key() )
   {
-  case Qt::Key_L:
-    light = !light;
-      
-    if( light )
-      glEnable( GL_LIGHTING );
-    else    
-      glDisable( GL_LIGHTING );
-    
-    break;
-      
-  case Qt::Key_F:
-    filter++;
-    if( filter > 2 )
-      filter = 0;
-    
-    break;
-
-  case Qt::Key_Up:
-	  alpha -= 0.1f;
+  case Qt::Key_W:
+	  yTrans -= step;
 	  break;
-    
-  }
 
+  case Qt::Key_S:
+	  yTrans += step;
+	  break;
+
+  case Qt::Key_A:
+	  xTrans -= step;
+	  break;
+
+  case Qt::Key_D:
+	  xTrans += step;
+	  break;
+  }
   updateGL();
 }
 
