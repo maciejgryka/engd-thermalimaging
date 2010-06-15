@@ -57,6 +57,13 @@ TestGLWidget::TestGLWidget(QWidget *parent, QGLWidget *shareWidget)
     yRot = 0;
     zRot = 0;
 	noPlanes = 0;
+
+	xTrans = 0.0;
+	yTrans = 0.0;
+	zTrans = -10.0;
+	zoomDist = 0.0;
+
+	setFocusPolicy(Qt::StrongFocus);
 }
 
 TestGLWidget::~TestGLWidget()
@@ -98,8 +105,8 @@ void TestGLWidget::initializeGL()
 	PlaneCalculator* p = new PlaneCalculator();
 
 	noPlanes = 1;
-	int ps = 15000;
-	int o = 200;
+	ps = 1000;
+	o = 0;
 	rpc = new RandomPointCloud();
 	rpc->makePointCloud(3,ps,o);
 	//float** normal = rpc->getNormals();
@@ -194,11 +201,11 @@ void TestGLWidget::initializeGL()
 		grid[k] = new Grid();
 		grid[k]->setGrid(g,q[k]->getSize());
 		grid[k]->setBoundaries(boundaries);
-		grid[k]->dilateAndErode(1);
-		//grid[k]->erodeAndDilate(1);
+		grid[k]->dilateAndErode(3);
+		grid[k]->erodeAndDilate(1);
 		grid[k]->calculateBorder();
 		grid[k]->drawAsPolygon();
-		grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector());
+		//grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector());
 
 		planes[k]->setGrid(grid[k]);
 		planes[k]->setXBorder(grid[k]->getXBorder());
@@ -217,28 +224,38 @@ void TestGLWidget::paintGL()
 
     glLoadIdentity();
 
-    glTranslatef(0.0f, 0.0f, -10.0f);
+    glTranslatef(xTrans, yTrans, zTrans-zoomDist);
     glRotatef(xRot / 16.0f, 1.0f, 0.0f, 0.0f);
     glRotatef(yRot / 16.0f, 0.0f, 1.0f, 0.0f);
     glRotatef(zRot / 16.0f, 0.0f, 0.0f, 1.0f);
 
-	//q->drawQuad();
-	//grid->drawGrid();
+	
 	for (int k = 0; k < noPlanes; k++) {
+		q[k]->drawQuad();
+		planes[k]->getGrid()->drawGrid();
 		vector<float> xb = planes[k]->getXBorder();
 		vector<float> yb = planes[k]->getYBorder();
 		vector<float> zb = planes[k]->getZBorder();
 		glBegin(GL_POLYGON);
 		glColor3fv(planes[k]->getColor());
 		for (int i = 0; i < xb.size(); i++) {
-			glVertex3f(xb.at(i),yb.at(i),zb.at(i));
+			glVertex3f(xb.at(i),yb.at(i)+0.1f,zb.at(i));
+		}
+		glEnd();
+
+		glPointSize(5.0f);
+		glBegin(GL_POINTS);
+		for (int i = 0; i < planes[k]->getPointNumber(); i++) {
+			glColor3f(0.0f,0.0f,1.0f);
+			glVertex3fv(planes[k]->getPointsOnPlane()[i]);
 		}
 		glEnd();
 	}
 
+
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
-	for (int i = 0; i < 15200; i++) {
+	for (int i = 0; i < noPlanes * ps + o; i++) {
 		glColor3f(1.0f,0.0f,0.0f);
 		glVertex3fv(rpc->getPointCloud()[i]);
 	}
@@ -286,7 +303,32 @@ void TestGLWidget::mouseReleaseEvent(QMouseEvent * /* event */)
     emit clicked();
 }
 
-void TestGLWidget::keyPressEvent( QKeyEvent *e )
+void TestGLWidget::wheelEvent(QWheelEvent *e)
 {
+	zoomDist -= e->delta()/100;
+	updateGL();
+}
+
+void TestGLWidget::keyPressEvent(QKeyEvent *e)
+{
+	float step = 0.3;
+  switch( e->key() )
+  {
+  case Qt::Key_W:
+	  yTrans -= step;
+	  break;
+
+  case Qt::Key_S:
+	  yTrans += step;
+	  break;
+
+  case Qt::Key_A:
+	  xTrans -= step;
+	  break;
+
+  case Qt::Key_D:
+	  xTrans += step;
+	  break;
+  }
   updateGL();
 }

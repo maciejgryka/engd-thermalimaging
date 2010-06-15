@@ -6,7 +6,7 @@ void PointExtractor::collectPoints() {
 
 	//RandomPointCloud* c = new RandomPointCloud();
 	//c->makePointCloud(1000);
-	c = new Ply2OpenGL();
+	/*c = new Ply2OpenGL();
 	c->setFile();
 	c->createFiles();
 
@@ -14,7 +14,7 @@ void PointExtractor::collectPoints() {
 	colors = c->getColors();
 	normals = c->getNormals();
 	noPoints = c->getNumberOfPoints();
-
+*/
 	/*Ransac* r = new Ransac();
 	r->setPoints(c->convert2Matrix(c->getPoints()),1000);
 	r->setInlierDistance(1.0f);
@@ -25,17 +25,17 @@ void PointExtractor::collectPoints() {
 }
 
 float** PointExtractor::getPoints() {
-	return c->convert2Matrix(c->getPoints());
+	return NULL; //c->convert2Matrix(c->getPoints());
 }
 
 float** PointExtractor::getColors() {
-	return c->convert2Matrix(c->getColors());
+	return NULL; //return c->convert2Matrix(c->getColors());
 }
 
 float** PointExtractor::getNormals() {
-	return c->convert2Matrix(c->getNormals());
+	return NULL; //return c->convert2Matrix(c->getNormals());
 }
 
 int PointExtractor::getNumberOfPoints() {
-	return c->getNumberOfPoints();
+	return NULL; //return c->getNumberOfPoints();
 }

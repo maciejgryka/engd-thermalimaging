@@ -93,10 +93,11 @@ protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
-	void keyPressEvent(QKeyEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+	void keyPressEvent(QKeyEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+	void wheelEvent(QWheelEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
 
 private:
 
@@ -121,6 +122,13 @@ private:
 
 	int noPlanes;
 	
+	float xTrans;
+	float yTrans;
+	float zTrans;
+	float zoomDist;
+
+	int ps;
+	int o;
 
 };
 

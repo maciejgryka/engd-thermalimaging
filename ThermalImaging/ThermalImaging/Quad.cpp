@@ -1,6 +1,6 @@
 #include "Quad.h"
 
-#define MAXLEVELS 4
+#define MAXLEVELS 6
 
 Quad::Quad(int l, int* ps, int nps, float** pts, float* bs) {
 	subdivided = false;
@@ -41,17 +41,20 @@ Quad::~Quad() {
 void Quad::subdivide() {
 	if (numberOfPoints > 0 && level < MAXLEVELS) {
 		int* counters = new int[4];
+		for (int i = 0; i < numberOfPoints; i++) {
+			qDebug() << points[pointList[i]][0] << points[pointList[i]][2];
+		}
 		for (int i = 0; i < 4; i++) {
 			counters[i] = 0;
 		}
 		float xMid = boundaries[0] + (boundaries[2] - boundaries[0]) / 2.0f;
 		float zMid = boundaries[3] + (boundaries[1] - boundaries[3]) / 2.0f;
 		for (int i = 0; i < numberOfPoints; i++) {
-			if (points[i][0] < xMid && points[i][2] >= zMid)
+			if (points[pointList[i]][0] < xMid && points[pointList[i]][2] >= zMid)
 				counters[0]++;
-			else if (points[i][0] >= xMid && points[i][2] >= zMid)
+			else if (points[pointList[i]][0] >= xMid && points[pointList[i]][2] >= zMid)
 				counters[1]++;
-			else if (points[i][0] > xMid && points[i][2] < zMid)
+			else if (points[pointList[i]][0] > xMid && points[pointList[i]][2] < zMid)
 				counters[2]++;
 			else
 				counters[3]++;
@@ -63,17 +66,17 @@ void Quad::subdivide() {
 			counters[i] = 0;
 		}
 		for (int i = 0; i < numberOfPoints; i++) {
-			if (points[i][0] < xMid && points[i][2] >= zMid) {
+			if (points[pointList[i]][0] < xMid && points[pointList[i]][2] >= zMid) {
 				newPoints[0][counters[0]] = pointList[i];
 				counters[0]++;
-			} else if (points[i][0] >= xMid && points[i][2] >= zMid) {
+			} else if (points[pointList[i]][0] >= xMid && points[pointList[i]][2] >= zMid) {
 				newPoints[1][counters[1]] = pointList[i];
 				counters[1]++;
-			} else if (points[i][0] > xMid && points[i][2] < zMid) {
-				newPoints[2][counters[2]] = i;
+			} else if (points[pointList[i]][0] > xMid && points[pointList[i]][2] < zMid) {
+				newPoints[2][counters[2]] = pointList[i];
 				counters[2]++;
 			} else {
-				newPoints[3][counters[3]] = i;
+				newPoints[3][counters[3]] = pointList[i];
 				counters[3]++;
 			} 
 			
@@ -133,10 +136,10 @@ void Quad::drawQuad() {
 	} else if (!empty && !subdivided) {
 		glBegin(GL_QUADS);
 		glColor3f(1.0f,0.0f,1.0f);
-		glVertex3f(boundaries[0],0.0f,boundaries[1]);
-		glVertex3f(boundaries[2],0.0f,boundaries[1]);
-		glVertex3f(boundaries[2],0.0f,boundaries[3]);
-		glVertex3f(boundaries[0],0.0f,boundaries[3]);
+		glVertex3f(boundaries[0],-0.1f,boundaries[1]);
+		glVertex3f(boundaries[2],-0.1f,boundaries[1]);
+		glVertex3f(boundaries[2],-0.1f,boundaries[3]);
+		glVertex3f(boundaries[0],-0.1f,boundaries[3]);
 		//qDebug() << boundaries[0] << boundaries[1] << boundaries[2] << boundaries[3];
 		glEnd();
 	} else if (subdivided) {
