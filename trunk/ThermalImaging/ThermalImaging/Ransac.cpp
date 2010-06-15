@@ -28,7 +28,7 @@ void Ransac::setIterations(int is) {
 }
 
 int* Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vector3f &origin, Vector3f &normal, int* bestPoints) {
-	iterations = pointsLeft / 30;
+	//iterations = pointsLeft / 30;
 
 	int maxInliers = 0, inlier = 0;
 	//int bestPoints[3] = {-1,-1,-1};
