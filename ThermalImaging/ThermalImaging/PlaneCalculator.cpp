@@ -25,6 +25,22 @@ void PlaneCalculator::removeData() {
 	free(pointsOnPlane);
 }
 
+void PlaneCalculator::rotateBack() {
+	rotationMatrix = rotationMatrix.inverse();
+
+	Vector3f v;
+	for (int i = 0; i < numberOfPointsOnPlane; i++) {
+		v(0) = pointsOnPlane[i][0];
+		v(1) = pointsOnPlane[i][1];
+		v(2) = pointsOnPlane[i][2];
+		v = (v.transpose() * rotationMatrix).transpose();
+		pointsOnPlane[i][0] = v(0);
+		pointsOnPlane[i][1] = v(1);
+		pointsOnPlane[i][2] = v(2);
+	}
+	rotationMatrix = rotationMatrix.inverse();
+}
+
 void PlaneCalculator::rotate() {
 	Vector3f yAxis (0.0f,1.0f,0.0f);
 
@@ -47,7 +63,7 @@ void PlaneCalculator::rotate() {
 	z *= f;
 
 	// convert the quaternion to a matrix
-	MatrixXf matrix(3,3);
+	//rotationMatrix(3,3);
 
 	double ww = w*w;
 	double wx = w*x;
@@ -64,19 +80,19 @@ void PlaneCalculator::rotate() {
 
 	double s = ww - xx - yy - zz;
 
-	matrix(0,0) = xx*2 + s;
-	matrix(1,0) = (xy + wz)*2;
-	matrix(2,0) = (xz - wy)*2;
+	rotationMatrix(0,0) = xx*2 + s;
+	rotationMatrix(1,0) = (xy + wz)*2;
+	rotationMatrix(2,0) = (xz - wy)*2;
 	//matrix[3][0] = 0;
 
-	matrix(0,1) = (xy - wz)*2;
-	matrix(1,1) = yy*2 + s;
-	matrix(2,1) = (yz + wx)*2;
+	rotationMatrix(0,1) = (xy - wz)*2;
+	rotationMatrix(1,1) = yy*2 + s;
+	rotationMatrix(2,1) = (yz + wx)*2;
 	//matrix[3][1] = 0;
 
-	matrix(0,2) = (xz + wy)*2;
-	matrix(1,2) = (yz - wx)*2;
-	matrix(2,2) = zz*2 + s;
+	rotationMatrix(0,2) = (xz + wy)*2;
+	rotationMatrix(1,2) = (yz - wx)*2;
+	rotationMatrix(2,2) = zz*2 + s;
 
 	//qDebug() << matrix(0,0) << matrix(0,1) << matrix(0,2) << matrix(1,0) << matrix(1,1) << matrix(1,2) << matrix(2,0) << matrix(2,1) << matrix(2,2);
 
@@ -85,7 +101,7 @@ void PlaneCalculator::rotate() {
 		v(0) = pointsOnPlane[i][0];
 		v(1) = pointsOnPlane[i][1];
 		v(2) = pointsOnPlane[i][2];
-		v = (v.transpose() * matrix).transpose();
+		v = (v.transpose() * rotationMatrix).transpose();
 		pointsOnPlane[i][0] = v(0);
 		pointsOnPlane[i][1] = v(1);
 		pointsOnPlane[i][2] = v(2);
@@ -96,12 +112,15 @@ void PlaneCalculator::rotate() {
 
 void PlaneCalculator::removeYDimension() {
 	for (int i = 0; i < numberOfPointsOnPlane; i++) {
-		pointsOnPlane[i][1] = 0;
+		pointsOnPlane[i][1] = 0.0f;
 	}
 }
 
 void PlaneCalculator::toOrigin() {
 	if (numberOfPointsOnPlane > 0) {
+		for (int i = 0; i < 3; i++) {
+			translationVector(i) = pointsOnPlane[0][i];
+		}
 		for (int i = numberOfPointsOnPlane - 1; i >= 0; i--) {
 			for (int j = 0; j < 3; j++) {
 				pointsOnPlane[i][j] -= pointsOnPlane[0][j];
@@ -109,6 +128,19 @@ void PlaneCalculator::toOrigin() {
 		}
 	}
 }
+
+void PlaneCalculator::translateBack() {
+	if (numberOfPointsOnPlane > 0) {
+
+		for (int i = numberOfPointsOnPlane - 1; i >= 0; i--) {
+			for (int j = 0; j < 3; j++) {
+				pointsOnPlane[i][j] += translationVector(j);
+			}
+		}
+	}
+}
+
+
 
 void PlaneCalculator::setNormal(Vector3f norm) {
 	normal = norm.normalized();
@@ -129,4 +161,12 @@ void PlaneCalculator::setPoints(float** points, int* pointsUsed, int numberOfPoi
 		}
 
 	}
+}
+
+Matrix3f PlaneCalculator::getRotationMatrix() {
+	return rotationMatrix;
+}
+
+Vector3f PlaneCalculator::getTranslationVector() {
+	return translationVector;
 }

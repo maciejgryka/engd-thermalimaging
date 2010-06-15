@@ -22,6 +22,7 @@ public:
 	void setIterations(int);
 	void setPoints(float**,int);
 	int* findBestPlane(int, int&, Vector3f&, Vector3f&, int*);
+	int* Ransac::convertToNumberList(int*, int, int, int);
 
 
 private:

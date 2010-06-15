@@ -43,7 +43,7 @@ int* Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 		pos2 = rand() % numberOfPoints;
 		pos3 = rand() % numberOfPoints;
 		// ensure all points are different
-		while (pointsUsed[pos1] == 1 || pointsUsed[pos2] == 1 || pointsUsed[pos3] == 1 || pos1 == pos2 || pos2 == pos3 || pos1 == pos3) {
+		while (pointsUsed[pos1] != 0 || pointsUsed[pos2] != 0 || pointsUsed[pos3] != 0 || pos1 == pos2 || pos2 == pos3 || pos1 == pos3) {
 			pos1 = rand() % numberOfPoints;
 			pos2 = rand() % numberOfPoints;
 			pos3 = rand() % numberOfPoints;
@@ -97,7 +97,7 @@ int* Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 		if (dis < inlierDistance){
 			pointsOnPlane[pointsPlaced] = j;
 			pointsPlaced++;
-			pointsUsed[j] = 1;
+			pointsUsed[j] = planeNumber;
 		}
 	}
 
@@ -118,5 +118,15 @@ int* Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 
 }
 
-//void Ransac::
+int* Ransac::convertToNumberList(int* pointsUsed, int numberOfPoints, int numberOfPointsOnPlane, int planeNumber) {
+	int* numberList = new int [numberOfPointsOnPlane];
+	int count = 0;
+	for (int i = 0; i < numberOfPoints; i++) {
+		if (pointsUsed[i] == planeNumber) {
+			numberList[count] = i;
+			count++;
+		}
+	} 
+	return numberList;
+}
 
