@@ -14,6 +14,8 @@ private:
 	//PlaneLimitFinder* plf;
 	float** pointsOnPlane;
 	int numberOfPointsOnPlane;
+	Matrix3f rotationMatrix;
+	Vector3f translationVector;
 
 	Vector3f normal;
 
@@ -30,8 +32,14 @@ public:
 	void rotate();
 	void removeYDimension();
 
+	void rotateBack();
+	void translateBack();
+
 	float** getPointsOnPlane();
 	int getNumberOfPointsOnPlane();
+
+	Matrix3f getRotationMatrix();
+	Vector3f getTranslationVector();
 
 };
 

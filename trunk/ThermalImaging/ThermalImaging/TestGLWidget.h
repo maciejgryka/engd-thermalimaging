@@ -65,6 +65,7 @@ using namespace std;
 #include "RandomPointCloud.h"
 
 #include "PlaneLimitFinder.h"
+#include "PlaneInfo.h"
 
 #include "PlaneCalculator.h"
 #include "Quad.h"
@@ -104,8 +105,9 @@ private:
 	int* clusters;
 	int nclusters;
 
-	Quad* q;
-	Grid* grid;
+	Quad** q;
+	Grid** grid;
+	PlaneInfo** planes;
 
 	float** colors;
 
@@ -115,6 +117,9 @@ private:
     int yRot;
     int zRot;
 
+	RandomPointCloud* rpc;
+
+	int noPlanes;
 	
 
 };

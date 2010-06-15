@@ -152,11 +152,11 @@ void Grid::dilateAndErode(int k, bool eight) {
 	}
 	grid = tmp2;
 
-	/*qDebug() << "end";
+	qDebug() << "end";
 	for (int i = 0; i < gridSize; i++) {
 		qDebug() << grid[i][0] << grid[i][1] << grid[i][2] << grid[i][3] << grid[i][4] << grid[i][5] << grid[i][6] << grid[i][7] << grid[i][8] << grid[i][9]
 		<< grid[i][10] << grid[i][11] << grid[i][12] << grid[i][13] << grid[i][14] << grid[i][15];
-	}*/
+	}
 
 	for (int i = 0; i < gridSize + 2*(k+1); i++) {
 		free(tmp[i]);
@@ -185,7 +185,7 @@ void Grid::drawGrid() {
 			for (int j = 0; j < gridSize; j++) {
 				if (grid[i][j] == 1) {
 					glBegin(GL_QUADS);
-					glColor3f(1.0f,1.0f,1.0f);
+					glColor3f(1.0f,1.0f,0.0f);
 					glVertex3f(boundaries[0] + xStepSize * i,0.0f,boundaries[3] + zStepSize * (j + 1));
 					glVertex3f(boundaries[0] + xStepSize * (i + 1),0.0f,boundaries[3] + zStepSize * (j + 1));
 					glVertex3f(boundaries[0] + xStepSize * (i + 1),0.0f,boundaries[3] + zStepSize * j);
@@ -224,11 +224,11 @@ void Grid::calculateBorder() {
 		}
 	}
 
-	qDebug() << "border";
+	/*qDebug() << "border";
 	for (int i = 0; i < gridSize; i++) {
 		qDebug() << border[i][0] << border[i][1] << border[i][2] << border[i][3] << border[i][4] << border[i][5] << border[i][6] << border[i][7] << border[i][8] << border[i][9]
 		<< border[i][10] << border[i][11] << border[i][12] << border[i][13] << border[i][14] << border[i][15];
-	}
+	}*/
 	
 	
 }
@@ -237,6 +237,11 @@ void Grid::calculateBorder() {
 void Grid::drawAsPolygon() {
 	if (border == NULL) {
 		calculateBorder();
+	}
+	qDebug() << "border";
+	for (int i = 0; i < gridSize; i++) {
+		qDebug() << border[i][0] << border[i][1] << border[i][2] << border[i][3] << border[i][4] << border[i][5] << border[i][6] << border[i][7] << border[i][8] << border[i][9]
+		<< border[i][10] << border[i][11] << border[i][12] << border[i][13] << border[i][14] << border[i][15];
 	}
 	if (boundaries != NULL) {
 		float xStepSize = (boundaries[2] - boundaries[0])/ (float) gridSize;
@@ -253,49 +258,53 @@ void Grid::drawAsPolygon() {
 				}
 			}
 		}
-		glBegin(GL_POLYGON);
+		//glBegin(GL_POLYGON);
 		int currI = startI;
 		int currJ = startJ;
-		glColor3f(1.0f,1.0f,1.0f);
-		glVertex3f(boundaries[0] + ((float) currI + 0.5f) * xStepSize, 0.0f, boundaries[3] + ((float) currJ + 0.5f) * zStepSize);
-		int prevMov = -1;
+		//glColor3f(1.0f,1.0f,1.0f);
+		//glVertex3f(boundaries[0] + ((float) currI + 0.5f) * xStepSize, 0.0f, boundaries[3] + ((float) currJ + 0.5f) * zStepSize);
+		xBorder.push_back(boundaries[0] + ((float) currI + 0.5f) * xStepSize);
+		yBorder.push_back(0.0f);
+		zBorder.push_back(boundaries[3] + ((float) currJ + 0.5f) * zStepSize);
+		int prevMov = 1;
 		int steps = 0;
 
 		while (!(currI == startI && currJ == startJ && steps != 0)) {
-			int d;
+			int a, d;
 			bool found = false;
-			for (d = 0; d < 8 && !found; d++) {
-				if (d == 0 && d + prevMov != 7 && currI -1 >= 0 && currJ + 1 < gridSize && border[currI-1][currJ+1] == 1) {
+			for (a = 0; a < 8 && !found; a++) {
+				d = (prevMov + a + 6) % 8;
+				if (d == 0 && prevMov != 4 && currI -1 >= 0 && currJ + 1 < gridSize && border[currI-1][currJ+1] == 1) {
 					currI--;
 					currJ++;
 					found = true;
-				} else if(d == 1 && d + prevMov != 7 && currJ + 1 < gridSize && border[currI][currJ+1] == 1) {
+				} else if(d == 1 && prevMov != 5 && currJ + 1 < gridSize && border[currI][currJ+1] == 1) {
 					currJ++;
 					found = true;
-				} else if(d == 2 && d + prevMov != 7 && currI + 1 < gridSize  && currJ + 1 < gridSize && border[currI+1][currJ+1] == 1) {
+				} else if(d == 2 && prevMov != 6 && currI + 1 < gridSize  && currJ + 1 < gridSize && border[currI+1][currJ+1] == 1) {
 					currI++;
 					currJ++;
 					found = true;
-				} else if(d == 3 && d + prevMov != 7 && currI -1 >= 0 && border[currI-1][currJ] == 1) {
-					currI--;
-					found = true;
-				} else if(d == 4 && d + prevMov != 7 && currI + 1 < gridSize && border[currI+1][currJ] == 1) {
+				} else if(d == 3 && d + prevMov != 7 && currI + 1 < gridSize && border[currI+1][currJ] == 1) {
 					currI++;
 					found = true;
-				}  else if(d == 5 && d + prevMov != 7 && currI -1 >= 0 && currJ -1 >= 0 && border[currI-1][currJ-1] == 1) {
+				} else if(d == 4 && prevMov != 0 && currI + 1 < gridSize && currJ - 1 >= 0 && border[currI+1][currJ-1] == 1) {
+					currI++;
+					currJ--;
+					found = true;
+				}  else if(d == 5 && prevMov != 1 && currJ -1 >= 0 && border[currI][currJ-1] == 1) {
+					currJ--;
+					found = true;
+				} else if(d == 6 && prevMov != 2 && currI -1 >= 0 && currJ -1 >= 0 && border[currI-1][currJ-1] == 1) {
 					currI--;
 					currJ--;
 					found = true;
-				} else if(d == 6 && d + prevMov != 7 && currJ -1 >= 0 && border[currI][currJ-1] == 1) {
-					currJ--;
-					found = true;
-				} else if(d == 7 && d + prevMov != 7 && currI + 1 < gridSize && currJ -1 >= 0 && border[currI+1][currJ-1] == 1) {
-					currI++;
-					currJ--;
+				} else if(d == 7 && prevMov != 3 && currI -1 >= 0 && border[currI-1][currJ] == 1) {
+					currI--;
 					found = true;
 				} 
 			}
-			border[currI][currJ] = 8;
+			//border[currI][currJ] = 8;
 			/*qDebug() << "next";
 			for (int i = 0; i < gridSize; i++) {
 				qDebug() << border[i][0] << border[i][1] << border[i][2] << border[i][3] << border[i][4] << border[i][5] << border[i][6] << border[i][7] << border[i][8] << border[i][9]
@@ -303,14 +312,47 @@ void Grid::drawAsPolygon() {
 			}*/
 			border[currI][currJ] = 1;
 			d--;
-			qDebug() << d;
+			//qDebug() << a << d;
 			prevMov = d;
 			
-			glColor3f(1.0f,1.0f,1.0f);
-			glVertex3f(boundaries[0] + ((float) currI + 0.5f) * xStepSize, 0.0f, boundaries[3] + ((float) currJ + 0.5f) * zStepSize);
+			//glColor3f(1.0f,1.0f,1.0f);
+			//glVertex3f(boundaries[0] + ((float) currI + 0.5f) * xStepSize, 0.0f, boundaries[3] + ((float) currJ + 0.5f) * zStepSize);
+			xBorder.push_back(boundaries[0] + ((float) currI + 0.5f) * xStepSize);
+			yBorder.push_back(0.0f);
+			zBorder.push_back(boundaries[3] + ((float) currJ + 0.5f) * zStepSize);
 
 			steps++;
 		}
-		glEnd();
+		//glEnd();
 	}
+}
+
+vector<float> Grid::getXBorder() {
+	return xBorder;
+}
+
+vector<float> Grid::getYBorder() {
+	return yBorder;
+}
+
+vector<float> Grid::getZBorder() {
+	return zBorder;
+}
+
+void Grid::unrotateBorder(Matrix3f m, Vector3f t) {
+
+	m = m.inverse();
+
+	Vector3f v;
+	for (int i = 0; i < xBorder.size(); i++) {
+		v(0) = xBorder.at(i);
+		v(1) = 0.0f;
+		v(2) = zBorder.at(i);
+		v = (v.transpose() * m).transpose();
+		xBorder.at(i) = v(0) + t(0);
+		yBorder.at(i) = v(1) + t(1);
+		zBorder.at(i) = v(2) + t(2);
+	}
+	m = m.inverse();
+
 }
