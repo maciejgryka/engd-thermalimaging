@@ -38,6 +38,8 @@ public:
 
 	int getTexCoordSize() { return texCoordSize; };
 
+	float** toTwoDimensionalArray(float*);
+
 	//float* getColors();
 	//float* getNormals();
 
