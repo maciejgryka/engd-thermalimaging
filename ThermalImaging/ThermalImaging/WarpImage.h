@@ -13,7 +13,8 @@ class WarpImage {
 public:
 	WarpImage(){};
 	~WarpImage(){};
-	QImage warp(QImage &image, MatrixXf points1, MatrixXf points2);
+	QImage warpIntoTexture(QImage &image, MatrixXf points1, int texSizeX, int texSizeY);
+	QImage warp(QImage &image, MatrixXf points1, MatrixXf points2, int outSizeX, int outSizeY);
 
 private:
 	Matrix3f homography;
