@@ -1,9 +1,24 @@
 #include "WarpImage.h"
 
-QImage WarpImage::warp(QImage &image, MatrixXf points1, MatrixXf points2)
+QImage WarpImage::warpIntoTexture(QImage &image, MatrixXf points1, int texSizeX, int texSizeY)
+{
+	MatrixXf points2(2,5);
+	points2.fill(0.0f);
+
+	points2.col(0) << 0, 0;
+	points2.col(1) << texSizeX, 0;
+	points2.col(2) << texSizeX, texSizeY;
+	points2.col(3) << 0, texSizeY;
+	points2.col(4) << texSizeX/2, texSizeY/2;
+
+	return warp(image, points1, points2, texSizeX, texSizeY);
+}
+
+QImage WarpImage::warp(QImage &image, MatrixXf points1, MatrixXf points2, int outSizeX, int outSizeY)
 {
 	calculateHomography(points1, points2);
-	QImage newImage(image.size(), image.format());
+	QImage newImage(outSizeX, outSizeY, image.format());
+
 	newImage.fill(1);
 	
 	if (image.depth() == 8)
