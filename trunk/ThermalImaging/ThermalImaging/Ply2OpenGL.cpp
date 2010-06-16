@@ -129,3 +129,14 @@ QString Ply2OpenGL::getL(QTextStream &stream)
 		return getL(stream);
 	}
 }
+
+float** Ply2OpenGL::toTwoDimensionalArray(float* in) {
+	float** out = new float*[nVertices];
+	for (int i = 0; i < nVertices; i++) {
+		out[i] = new float[vertexSize];
+		for(int j = 0; j < vertexSize; j++) {
+			out[i][j] = in[i*vertexSize+j];
+		}
+	}
+	return out;
+}
