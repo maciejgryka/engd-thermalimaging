@@ -108,7 +108,7 @@ void TestGLWidget::initializeGL()
 	ps = 1000;
 	o = 0;
 	rpc = new RandomPointCloud();
-	rpc->makePointCloud(3,ps,o);
+	rpc->makePointCloud(1,ps,o);
 	//float** normal = rpc->getNormals();
 
 	Ransac* r = new Ransac();
@@ -292,8 +292,10 @@ void TestGLWidget::mouseMoveEvent(QMouseEvent *event)
 
     if (event->buttons() & Qt::LeftButton) {
         rotateBy(8 * dy, 8 * dx, 0);
-    } else if (event->buttons() & Qt::RightButton) {
-        rotateBy(8 * dy, 0, 8 * dx);
+    } else if (event->buttons() & Qt::MidButton) {
+        xTrans += dx/60.0;
+		yTrans -= dy/60.0;
+		updateGL();
     }
     lastPos = event->pos();
 }
@@ -312,14 +314,14 @@ void TestGLWidget::wheelEvent(QWheelEvent *e)
 void TestGLWidget::keyPressEvent(QKeyEvent *e)
 {
 	float step = 0.3;
-  switch( e->key() )
+  /*switch( e->key() )
   {
   case Qt::Key_W:
-	  yTrans -= step;
+	  yTrans += step;
 	  break;
 
   case Qt::Key_S:
-	  yTrans += step;
+	  yTrans -= step;
 	  break;
 
   case Qt::Key_A:
@@ -329,6 +331,6 @@ void TestGLWidget::keyPressEvent(QKeyEvent *e)
   case Qt::Key_D:
 	  xTrans += step;
 	  break;
-  }
+  }*/
   updateGL();
 }
