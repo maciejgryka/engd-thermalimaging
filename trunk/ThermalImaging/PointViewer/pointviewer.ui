@@ -20,31 +20,93 @@
       <x>10</x>
       <y>10</y>
       <width>1031</width>
-      <height>631</height>
+      <height>651</height>
      </rect>
     </property>
    </widget>
-   <widget class="MyEdit" name="pointShow">
+   <widget class="MyEdit" name="pointEdit">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>670</y>
-      <width>1021</width>
+      <x>130</x>
+      <y>680</y>
+      <width>821</width>
       <height>23</height>
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="showButton">
+   <widget class="QPushButton" name="pointButton">
     <property name="geometry">
      <rect>
-      <x>800</x>
-      <y>700</y>
+      <x>960</x>
+      <y>680</y>
       <width>75</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Show</string>
+     <string>Load Points</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="poitnLabel">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>680</y>
+      <width>91</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Point Numbers</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="pointFileLabel">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>710</y>
+      <width>53</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Point File</string>
+    </property>
+   </widget>
+   <widget class="MyEdit" name="pointFileEdit">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>710</y>
+      <width>731</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pointFileButton">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>710</y>
+      <width>75</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Point File</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="findPointFile">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>710</y>
+      <width>75</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Find Point File</string>
     </property>
    </widget>
   </widget>

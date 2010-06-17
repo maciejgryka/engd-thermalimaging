@@ -104,7 +104,8 @@ void PointShower::initializeGL()
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations							// Enable Light One
 
 	ply = new Ply2OpenGL();
-	ply->readPlyFile("C:\\Users\\localadmin\\Desktop\\union2.ply");
+	ply->readPlyFile(QFileDialog::getOpenFileName(this,
+		tr("Open Ply File"), "C:\\Users\\localadmin\\Desktop", tr("Ply Files (*.ply)")));
 	points = ply->toTwoDimensionalArray(ply->getVertices());
 	nPoints = ply->getNVertices();
 	marked = new bool[nPoints];
@@ -233,4 +234,31 @@ void PointShower::newPoints(QString text) {
 	}
 
 	updateGL();
+}
+
+void PointShower::newPointsFromFile(QString fileName) {
+	for (int i = 0; i < numberList.size(); i++) {
+		marked[numberList.at(i)] = false;
+	}
+	numberList.clear();
+	QFile file (fileName);
+	if (file.exists() && file.open(QIODevice::ReadOnly)) {
+		QTextStream stream(&file);
+		QString line = stream.readLine();
+		QStringList numberListString = line.split(" ", QString::SkipEmptyParts);
+		numberListString.sort();
+		for (int i = 0; i < numberListString.size(); i++) {
+			numberList.push_back(numberListString.at(i).toInt());
+			marked[numberListString.at(i).toInt()] = true;
+		}
+
+	}
+
+	updateGL();
+}
+
+void PointShower::getFile() {
+	QString fileName = QFileDialog::getOpenFileName(this,
+		tr("Open Image"),"C:\\Users\\localadmin\\Desktop", tr("Point file (*.txt)"));
+	emit enterFileLocation(fileName);
 }

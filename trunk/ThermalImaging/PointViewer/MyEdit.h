@@ -13,9 +13,11 @@ public:
 
 public slots:
 	void buttonClicked();
+	void requestedFile();
 
 signals:
 	void pushPoints(QString);
+	void pushFile(QString);
 
 };
 

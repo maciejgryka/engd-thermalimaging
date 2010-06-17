@@ -59,6 +59,9 @@ USING_PART_OF_NAMESPACE_EIGEN
 #include <stdlib.h>
 using namespace std;
 
+#include "QFile.h"
+#include "QTextStream.h"
+
 #include "Ply2OpenGL.h"
 
 
@@ -78,9 +81,12 @@ public:
 
 public slots:
 	void newPoints(QString);
+	void newPointsFromFile(QString);
+	void getFile();
 
 signals:
 	void clicked();
+	void enterFileLocation(QString);
 
 protected:
     void initializeGL();
