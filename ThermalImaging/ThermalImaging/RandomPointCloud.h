@@ -9,14 +9,14 @@ USING_PART_OF_NAMESPACE_EIGEN
 #include <stdlib.h>
 
 class RandomPointCloud {
+	// This class creates a random point cloud using the parameters provided
 
 private:
-	float **pointCloud;
-	float **colors;
-	bool used;
-	int elements;
-	int numberOfPlanes;
-	float** normals;
+	float **pointCloud; // the point cloud
+	float **colors;		// the colours of the different vertices
+	int elements;       // the number of points in total
+	int numberOfPlanes;	// the number of planes that have been created in the point cloud
+	float** normals;	// the normals of the planes
 
 	float getRandomAroundZero(float);
 	float getRandomOverZero(float);
