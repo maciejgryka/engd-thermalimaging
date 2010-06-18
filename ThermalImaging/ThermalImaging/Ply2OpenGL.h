@@ -47,6 +47,7 @@ private:
 	float* vertices;
 	int* indices;
 	float* texCoords;
+	QStringList text;
 	//float* colors;
 	//float* normals;
 
