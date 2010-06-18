@@ -10,37 +10,53 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 	{
 		// Read the file
 		QTextStream stream(&plyFile);
-		QString line;
-		QStringList header;
+		//QStringList
+		text = stream.readAll().split("\r\n");
+		int *comments = new int[text.size()];
 
-		bool inHeader = true;
-		//line = stream.readLine();
-		line = getL(stream);
+		int pos = 0;
+		int nComments = 0;
+		for (int i = 0; i < text.size(); i++) {
+			if (!text.at(i).startsWith("comment")) {
+				pos = i;
+				nComments = 0;
+			}
+			else {
+				nComments++;
+			}
+			comments[pos] = nComments + 1; 
+		}
+		int position = 0;
 
-		if (line.compare("ply"))
+		if (text[position].compare("ply"))
 		{
 			std::cout << "Not a valid .ply file." << std::endl;
 			return 0;
 		}
 
-		line = getL(stream);
+		position += comments[position];
 
-		if (line.compare("format ascii 1.0"))
+		if (text.at(position).compare("format ascii 1.0"))
 		{
 			std::cout << "Wrong format: only ascii 1.0 supported." << std::endl;
 			return 0;
 		}
 
+		QStringList lineList;
+		bool inHeader = true;
+
 		// analyse the PLY header
 		while (inHeader)
 		{
-			line = getL(stream);
+			position += comments[position];
 
-			if (!line.compare("end_header"))
+			if (!text.at(position).compare("end_header"))
 			{
 				inHeader = false;
+				break;
 			}
-			QStringList lineList = line.split(" ");
+
+			lineList = text.at(position).split(" ");
 			// assign memory to store all the information
 			if (!lineList.at(0).compare("element") && !lineList.at(1).compare("vertex"))
 			{
@@ -56,18 +72,18 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 				indices = new int[nFaces * verticesPerFace];
 				texCoords = new float[nFaces * verticesPerFace * texCoordSize];
 			}
-			header += line;
+			//header += line;
 		}
 
 		// assign all the vertex values
 		for (int vert = 0; vert < nVertices; vert++)
 		{
-			line = getL(stream);
-			QStringList lineList = line.split(" ");
+			position += comments[position];
+			lineList = text.at(position).split(" ");
 			// write vertices
-			vertices[vert*vertexSize]	  = lineList.at(0).toFloat()/5;
-			vertices[vert*vertexSize + 1] = lineList.at(1).toFloat()/5;
-			vertices[vert*vertexSize + 2] = lineList.at(2).toFloat()/5;
+			vertices[vert*vertexSize]	  = lineList.at(0).toFloat();
+			vertices[vert*vertexSize + 1] = lineList.at(1).toFloat();
+			vertices[vert*vertexSize + 2] = lineList.at(2).toFloat();
 
 			//// write texture coordinates
 			//texCoords[vert*texCoordSize] = lineList.at(3).toFloat();
@@ -77,8 +93,8 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 		// assign all the face values
 		for (int face = 0; face < nFaces; face++)
 		{
-			line = getL(stream);
-			QStringList lineList = line.split(" ");
+			position += comments[position];
+			lineList = text.at(position).split(" ");
 		
 			if (lineList.at(0).toInt() != verticesPerFace)
 			{
@@ -113,6 +129,8 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 			texCoords[face*verticesPerFace*texCoordSize + 4] = lineList.at( 9).toFloat();
 			texCoords[face*verticesPerFace*texCoordSize + 5] = lineList.at(10).toFloat();
 		}
+		delete[] comments;
+		comments = NULL;
 	}
 	return true;
 }
