@@ -79,12 +79,16 @@ private:
 
 	vector<int> bestPoints;
 	vector<vector<float> > corners;
+	vector<float> lineCoeffs;
 
 	vector<float> xBorder;
 	vector<float> yBorder;
 	vector<float> zBorder;
 
 	vector<int> pointsUsed;
+
+	int findLineCoeffs(int pointIndex, int lastLineIndex);
+	int findPointOnLine(int lineIndex, int currentPointIndex);
 };
 
 #endif
