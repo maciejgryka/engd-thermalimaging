@@ -8,10 +8,16 @@ using namespace std;
 
 class RansacPlaneEdge {
 public:
-	RansacPlaneEdge(){ maxInliers = 0; iterations = 1000;};
+	RansacPlaneEdge()
+	{ 
+		maxInliers = 0;
+		boundExtension = 0.5f;
+	};
+
 	~RansacPlaneEdge(){};
-	bool findBestEdge();
-	bool setXYZBorders(vector<float> xBorder, vector<float> yBorder, vector<float> zBorder) 
+	bool findEdges();
+	bool findBestEdge(vector<int> &pointsUsed);
+	bool setXYZBorders(const vector<float> &xBorder, const vector<float> &yBorder, const vector<float> &zBorder) 
 	{
 		this->xBorder = xBorder;
 		this->yBorder = yBorder;
@@ -25,17 +31,60 @@ public:
 		return true;
 	};
 
-	int* getBestPoints() { return bestPoints; };
+	bool setIterations(int iterations)
+	{
+		this->iterations = iterations;
+		return true;
+	};
+
+	bool setPercentOfChillPoints(float percent)
+	{
+		this->percentOfChillPoints = percent;
+		return true;
+	};
+
+	bool setBoundaries(float *boundaries)
+	{
+		this->boundaries = boundaries;
+		// extend the boundaries slightly
+		boundaries[0] -= boundExtension * abs(boundaries[2] - boundaries[0]);	// minX - boundExtension
+		boundaries[2] += boundExtension * abs(boundaries[2] - boundaries[0]);	// maxX - boundExtension
+		boundaries[3] -= boundExtension * abs(boundaries[1] - boundaries[3]);	// minZ - boundExtension
+		boundaries[1] += boundExtension * abs(boundaries[1] - boundaries[3]);	// maxZ - boundExtension
+
+		return true;
+	};
+
+	vector<int> getBestPoints() { 
+		return bestPoints; 
+	};
+	
+	vector<vector<float>> getCorners() { 
+		return corners; 
+	};
+	
+	vector<int> getPointsUsed() {return pointsUsed; };
+	vector<float> getXBorder() { return xBorder; };
+	vector<float> getYBorder() { return yBorder; };
+	vector<float> getZBorder() { return zBorder; };
 
 private:
-	float inlierDistance;
-	int iterations;
-	int maxInliers;
+	float inlierDistance;		// threshold to count point as an inlier
+	int maxInliers;				// number of inliers of the best line for far
+	int iterations;				// number of iterations of RANSAC
+	float percentOfChillPoints;	// number of points that can be left unassigned
 
-	int bestPoints[2];
+	float *boundaries;
+	float boundExtension;
+
+	vector<int> bestPoints;
+	vector<vector<float> > corners;
+
 	vector<float> xBorder;
 	vector<float> yBorder;
 	vector<float> zBorder;
+
+	vector<int> pointsUsed;
 };
 
 #endif
