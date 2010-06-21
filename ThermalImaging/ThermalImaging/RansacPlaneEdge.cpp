@@ -27,6 +27,9 @@ bool RansacPlaneEdge::findEdges()
 		{
 			a1 = (p0[1] - p1[1])/(p0[0] - p1[0]);
 			b1 = p0[1] - a1*p0[0];
+
+			lineCoeffs.push_back(a1);
+			lineCoeffs.push_back(b1);
 		}
 
 		for (int secondEdge(0); secondEdge < bestPoints.size()-1; secondEdge += 2)
@@ -78,6 +81,40 @@ bool RansacPlaneEdge::findEdges()
 			corners.push_back(tempCorners);
 		}
 	}
+
+	int *queue;							// holds corner indices in the right order
+	queue = new int[corners.size()];
+	int qPos = 0;
+
+	int lastLineIndex = -1;
+	bool checkedAll = false;
+	int corn(0);
+	while (!checkedAll)
+	{
+		// find right edge line
+		vector<float> lineCoeff;
+		int lineIndex = findLineCoeffs(corn, lastLineIndex);	// find line the explains this point and is different to the last line
+		lineCoeff.push_back(lineCoeffs.at(lineIndex));
+		lineCoeff.push_back(lineCoeffs.at(lineIndex+1));
+
+		// find another point on this line
+		int pointIndex = findPointOnLine(lineIndex, corn);
+
+		// add the right point index to the queue
+		queue[qPos] = pointIndex;
+		qPos++;
+		
+		lastLineIndex = lineIndex;
+		corn = pointIndex;
+		
+		if (pointIndex == 0) checkedAll = true;
+	}
+	// rearrange the coreners vector
+	vector<vector<float> > copyCorners = corners;
+	for (corn = 0; corn < corners.size(); corn++)
+	{
+		corners.at(corn) = copyCorners.at(queue[corn]);
+	}
 	return true;
 }
 
@@ -92,7 +129,7 @@ bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
 	currentBestPoints.push_back(0);
 	currentBestPoints.push_back(0);
 
-	// find two random points int(iterations) times
+	// find two random points iterations times
 	for (int iter = 0; iter < iterations; iter++)
 	{
 		int inlier = 0;
@@ -148,3 +185,40 @@ bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
 	
 	return false;
 }
+
+int RansacPlaneEdge::findLineCoeffs(int pointIndex, int lastLineIndex)
+{
+	vector<float> point = corners.at(pointIndex);
+	for (int line(0); line < lineCoeffs.size(); line+=2)
+	{
+		if (abs(point.at(2) - lineCoeffs.at(line)*point.at(0) - lineCoeffs.at(line+1)) < 0.01)
+		{
+			if (line != lastLineIndex) 
+			{
+				return line;
+			}
+		}
+	}
+	return -1;
+}
+
+int RansacPlaneEdge::findPointOnLine(int lineIndex, int currentPointIndex)
+{
+	vector<float> lineCoeff;
+	lineCoeff.push_back(lineCoeffs.at(lineIndex));
+	lineCoeff.push_back(lineCoeffs.at(lineIndex + 1));
+
+	for (int point(0); point < corners.size(); point++)
+	{
+		vector<float> p = corners.at(point);
+		if (abs(p.at(2) - lineCoeff.at(0) * p.at(0) - lineCoeff.at(1)) < 0.01)
+		{
+			if (point != currentPointIndex) 
+			{
+				return point;
+			}
+		}
+	}
+	return -1;
+}
+			
