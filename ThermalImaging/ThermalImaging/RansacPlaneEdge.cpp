@@ -30,6 +30,10 @@ bool RansacPlaneEdge::findEdges()
 
 			lineCoeffs.push_back(a1);
 			lineCoeffs.push_back(b1);
+		} else
+		{
+			lineCoeffs.push_back(-1);
+			lineCoeffs.push_back(-1);
 		}
 
 		for (int secondEdge(0); secondEdge < bestPoints.size()-1; secondEdge += 2)
@@ -60,7 +64,17 @@ bool RansacPlaneEdge::findEdges()
 			{
 				interX = p0[0];
 				interZ = a2*interX + b2;
-			} else
+			} 
+			//else if (a1 == 0.0)
+			//{
+			//	interZ = b1;
+			//	interX = (interZ - b2)/a2;
+			//} else if (a2 == 0.0)
+			//{
+			//	interZ = b2;
+			//	interX = (interZ - b1)/a1;
+			//} 
+			else
 			{
 				// intersection point of the two lines
 				interX = (b2 - b1)/(a1 - a2);
@@ -94,6 +108,10 @@ bool RansacPlaneEdge::findEdges()
 		// find right edge line
 		vector<float> lineCoeff;
 		int lineIndex = findLineCoeffs(corn, lastLineIndex);	// find line the explains this point and is different to the last line
+		
+		if (lineIndex == -1)
+			break;
+
 		lineCoeff.push_back(lineCoeffs.at(lineIndex));
 		lineCoeff.push_back(lineCoeffs.at(lineIndex+1));
 
@@ -110,6 +128,8 @@ bool RansacPlaneEdge::findEdges()
 		if (pointIndex == 0) checkedAll = true;
 	}
 	// rearrange the coreners vector
+	if (!checkedAll) return false;
+
 	vector<vector<float> > copyCorners = corners;
 	for (corn = 0; corn < corners.size(); corn++)
 	{
@@ -191,6 +211,17 @@ int RansacPlaneEdge::findLineCoeffs(int pointIndex, int lastLineIndex)
 	vector<float> point = corners.at(pointIndex);
 	for (int line(0); line < lineCoeffs.size(); line+=2)
 	{
+		//// if both line coefficients are -1 the line is veritcal
+		//if (lineCoeffs.at(line) == -1 && lineCoeffs.at(line+1) == -1)
+		//{
+		//	if ((point.at(0) - corners.at(pointIndex).at(0)) < 0.01)
+		//	{
+		//		if (line != lastLineIndex) 
+		//		{
+		//			return line;
+		//		}
+		//	}
+		//}
 		if (abs(point.at(2) - lineCoeffs.at(line)*point.at(0) - lineCoeffs.at(line+1)) < 0.01)
 		{
 			if (line != lastLineIndex) 
@@ -211,6 +242,19 @@ int RansacPlaneEdge::findPointOnLine(int lineIndex, int currentPointIndex)
 	for (int point(0); point < corners.size(); point++)
 	{
 		vector<float> p = corners.at(point);
+		
+		//// if both line coefficients are -1 the line is veritcal
+		//if (lineCoeffs.at(lineIndex) == -1 && lineCoeffs.at(lineIndex+1) == -1)
+		//{
+		//	if ((p.at(0) - corners.at(currentPointIndex).at(0)) < 0.01)
+		//	{
+		//		if (point != currentPointIndex) 
+		//		{
+		//			return point;
+		//		}
+		//	}
+		//}
+		
 		if (abs(p.at(2) - lineCoeff.at(0) * p.at(0) - lineCoeff.at(1)) < 0.01)
 		{
 			if (point != currentPointIndex) 
