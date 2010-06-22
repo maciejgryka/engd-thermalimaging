@@ -18,23 +18,25 @@ bool RansacPlaneEdge::findEdges()
 		p1[0] = xBorder[bestPoints[firstEdge+1]];
 		p1[1] = zBorder[bestPoints[firstEdge+1]];
 
-		// y = a1*x + b1
-		float a1, b1;
+		// y = a1*x + c1
+		float a1, c1;
 
-		bool vert1 = (p0[0] == p1[0] ? true : false);	// vert1 is true if line1 is vertical (a1 = infinity)
+		a1 = (p0[1] - p1[1])/(p0[0] - p1[0]);
 
-		if (!vert1)
+		// if a1 is finite (line is non-vertical) we have y = a1*x + c1
+		// otherwise the line is vertical and c1 stores its constant x value
+		if (isFiniteNumber(a1))
 		{
-			a1 = (p0[1] - p1[1])/(p0[0] - p1[0]);
-			b1 = p0[1] - a1*p0[0];
-
-			lineCoeffs.push_back(a1);
-			lineCoeffs.push_back(b1);
+			c1 = p0[1] - a1*p0[0];
 		} else
 		{
-			lineCoeffs.push_back(-1);
-			lineCoeffs.push_back(-1);
+			c1 = p0[0];
 		}
+
+		vector<float> tempLine;
+		tempLine.push_back(a1);
+		tempLine.push_back(c1);
+		lineCoeffs.push_back(tempLine);
 
 		for (int secondEdge(0); secondEdge < bestPoints.size()-1; secondEdge += 2)
 		{
@@ -47,56 +49,64 @@ bool RansacPlaneEdge::findEdges()
 			p3[0] = xBorder[bestPoints[secondEdge+1]];
 			p3[1] = zBorder[bestPoints[secondEdge+1]];
 
-			bool vert2 = (p2[0] == p3[0] ? true : false);	// vert2 is true if line2 is vertical (a2 = infinity)
-			if (vert1 && vert2) continue;	// if vert1 and vert2 are true, then lines are parallel - don't bother
-			
-			// y = a2*x + b2
-			float a2, b2;
-			a2 = (p2[1] - p3[1])/(p2[0] - p3[0]);
-			b2 = p2[1] - a2*p2[0];
+			float a2, c2;
 
-			if (a1 == a2) continue;	// two lines are parallel - don't bother
+			a2 = (p2[1] - p3[1])/(p2[0] - p3[0]);
+
+			if (a2 == a1)		// if the slopes are the same, the lines are parallel - don't bother
+			{
+				continue;
+			}
+
+			// if a2 is finite (line is non-vertical) we have y = a2*x + c2
+			// otherwise the line is vertical and c2 stores its constant x value
+			if (isFiniteNumber(a2))
+			{
+				c2 = p2[1] - a2*p2[0];
+			} else
+			{
+				c2 = p2[0];
+			}
 
 			float interX;
 			float interZ;
 
-			if (vert1)				// if line1 is vertical and line2 isn't, simply calculate when line2 crosses line1
-			{
-				interX = p0[0];
-				interZ = a2*interX + b2;
-			} 
-			//else if (a1 == 0.0)
-			//{
-			//	interZ = b1;
-			//	interX = (interZ - b2)/a2;
-			//} else if (a2 == 0.0)
-			//{
-			//	interZ = b2;
-			//	interX = (interZ - b1)/a1;
-			//} 
-			else
+			if (isFiniteNumber(a1) && isFiniteNumber(a2))	// normal (non-vertical lines) case
 			{
 				// intersection point of the two lines
-				interX = (b2 - b1)/(a1 - a2);
-				interZ = a1*interX + b1;
+				interX = (c2 - c1)/(a1 - a2);
+				interZ = a1*interX + c1;
+			}
+			else if (!isFiniteNumber(a1) && !isFiniteNumber(a2))	// if both lines are vertical, don't bother
+			{														// shouldn't ever get to this point, as we're comparing a1 and a2 before...
+				continue;
+			}
+			else if (!isFiniteNumber(a1))					// if line1 is vertical and line2 isn't, calculate when line2 crosses line1
+			{
+				interX = c1;
+				interZ = a2*interX + c2;
+			}
+			else if (!isFiniteNumber(a2))					// if line2 is vertical and line1 isn't, calculate when line1 crosses line2
+			{
+				interX = c2;
+				interZ = a1*interX + c1;
 			}
 
 			// check if the intersection point is within boundaries
 			if (interX < boundaries[0] || interX > boundaries[2] || interZ < boundaries[3] || interZ > boundaries[1]) continue;
 
 			vector<float> tempCorners;
-			//vector<vector<float>> ttcorners;
 
 			tempCorners.push_back(interX);
 			tempCorners.push_back(0.0f);
 			tempCorners.push_back(interZ);
 
-			//ttcorners.push_back(tempCorners);
 			corners.push_back(tempCorners);
 		}
 	}
 
-	int *queue;							// holds corner indices in the right order
+	// Now that we have all the corners, we need to put ther in a nice order for later drawing.
+	int *queue;										// holds corner indices in the right order
 	queue = new int[corners.size()];
 	int qPos = 0;
 
@@ -106,16 +116,14 @@ bool RansacPlaneEdge::findEdges()
 	while (!checkedAll)
 	{
 		// find right edge line
-		vector<float> lineCoeff;
 		int lineIndex = findLineCoeffs(corn, lastLineIndex);	// find line the explains this point and is different to the last line
 		
 		if (lineIndex == -1)
 			break;
 
-		lineCoeff.push_back(lineCoeffs.at(lineIndex));
-		lineCoeff.push_back(lineCoeffs.at(lineIndex+1));
-
 		// find another point on this line
+		// ASSUMPTIONS: only neighbouring (edge-sharing) points are colinear; 
+		//				each edge contains exactly 2 points
 		int pointIndex = findPointOnLine(lineIndex, corn);
 
 		// add the right point index to the queue
@@ -127,9 +135,9 @@ bool RansacPlaneEdge::findEdges()
 		
 		if (pointIndex == 0) checkedAll = true;
 	}
-	// rearrange the coreners vector
 	if (!checkedAll) return false;
 
+	// rearrange the corners vector
 	vector<vector<float> > copyCorners = corners;
 	for (corn = 0; corn < corners.size(); corn++)
 	{
@@ -206,60 +214,46 @@ bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
 	return false;
 }
 
+/// Finds a line in lineCoeffs that explains the given point and is different than the last line
 int RansacPlaneEdge::findLineCoeffs(int pointIndex, int lastLineIndex)
 {
-	vector<float> point = corners.at(pointIndex);
-	for (int line(0); line < lineCoeffs.size(); line+=2)
+	for (int li(0); li < lineCoeffs.size(); li++)
 	{
-		//// if both line coefficients are -1 the line is veritcal
-		//if (lineCoeffs.at(line) == -1 && lineCoeffs.at(line+1) == -1)
-		//{
-		//	if ((point.at(0) - corners.at(pointIndex).at(0)) < 0.01)
-		//	{
-		//		if (line != lastLineIndex) 
-		//		{
-		//			return line;
-		//		}
-		//	}
-		//}
-		if (abs(point.at(2) - lineCoeffs.at(line)*point.at(0) - lineCoeffs.at(line+1)) < 0.01)
+
+		if (!isFiniteNumber(lineCoeffs.at(li).at(0)))	// if a is infinite, the line is vertical (x = c), so any point with x = c will be on it
 		{
-			if (line != lastLineIndex) 
+			if (li != lastLineIndex && corners.at(pointIndex).at(0) == lineCoeffs.at(li).at(1))
 			{
-				return line;
+				return li;
+			}
+		} else if (abs(corners.at(pointIndex).at(2) - lineCoeffs.at(li).at(0)*corners.at(pointIndex).at(0) - lineCoeffs.at(li).at(1)) < 0.01)
+		{
+			if (li != lastLineIndex) 
+			{
+				return li;
 			}
 		}
 	}
 	return -1;
 }
 
+/// Find a corner that lies on the given line and is different than the previous corner
 int RansacPlaneEdge::findPointOnLine(int lineIndex, int currentPointIndex)
 {
-	vector<float> lineCoeff;
-	lineCoeff.push_back(lineCoeffs.at(lineIndex));
-	lineCoeff.push_back(lineCoeffs.at(lineIndex + 1));
-
-	for (int point(0); point < corners.size(); point++)
+	for (int pi(0); pi < corners.size(); pi++)
 	{
-		vector<float> p = corners.at(point);
 		
-		//// if both line coefficients are -1 the line is veritcal
-		//if (lineCoeffs.at(lineIndex) == -1 && lineCoeffs.at(lineIndex+1) == -1)
-		//{
-		//	if ((p.at(0) - corners.at(currentPointIndex).at(0)) < 0.01)
-		//	{
-		//		if (point != currentPointIndex) 
-		//		{
-		//			return point;
-		//		}
-		//	}
-		//}
-		
-		if (abs(p.at(2) - lineCoeff.at(0) * p.at(0) - lineCoeff.at(1)) < 0.01)
+		if (!isFiniteNumber(lineCoeffs.at(lineIndex).at(0)))	// if a is infinite, the line is vertical, so we only need to check if point.x == c
 		{
-			if (point != currentPointIndex) 
+			if (pi != currentPointIndex && corners.at(pi).at(0) == lineCoeffs.at(lineIndex).at(1))
 			{
-				return point;
+				return pi;
+			}
+		} else if (abs(corners.at(pi).at(2) - lineCoeffs.at(lineIndex).at(0) * corners.at(pi).at(0) - lineCoeffs.at(lineIndex).at(1)) < 0.01)
+		{
+			if (pi != currentPointIndex) 
+			{
+				return pi;
 			}
 		}
 	}
