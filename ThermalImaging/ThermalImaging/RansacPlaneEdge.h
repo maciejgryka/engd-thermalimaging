@@ -79,7 +79,7 @@ private:
 
 	vector<int> bestPoints;
 	vector<vector<float> > corners;
-	vector<float> lineCoeffs;
+	vector<vector<float> > lineCoeffs;
 
 	vector<float> xBorder;
 	vector<float> yBorder;
@@ -89,6 +89,11 @@ private:
 
 	int findLineCoeffs(int pointIndex, int lastLineIndex);
 	int findPointOnLine(int lineIndex, int currentPointIndex);
+	
+	bool isFiniteNumber(double x)
+	{
+		return (x <= DBL_MAX && x >= -DBL_MAX);
+	}
 };
 
 #endif
