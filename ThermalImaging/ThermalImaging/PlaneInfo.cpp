@@ -64,7 +64,7 @@ vector<float>* PlaneInfo::getZBorder() {
 	return zBorder;
 }
 
-vector<vector<float>>* PlaneInfo::getCorners() {
+vector<vector<float> > PlaneInfo::getCorners() {
 	return corners;
 }
 
@@ -116,7 +116,7 @@ void PlaneInfo::setZBorder(vector<float>* b) {
 	zBorder = b;
 }
 
-void PlaneInfo::setCorners(vector<vector<float>>*c) {
+void PlaneInfo::setCorners(vector<vector<float> > c) {
 	corners = c;
 }
 

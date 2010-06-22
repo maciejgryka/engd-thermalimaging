@@ -36,7 +36,7 @@ private:
 	vector<float>* yBorder; // the y coordinates of the border
 	vector<float>* zBorder; // the z coordinates of the border
 
-	vector<vector<float>>* corners;
+	vector<vector<float> > corners;
 
 public:
 	PlaneInfo();
@@ -54,7 +54,7 @@ public:
 	vector<float>* getXBorder();
 	vector<float>* getYBorder();
 	vector<float>* getZBorder();
-	vector<vector<float>>* getCorners();
+	vector<vector<float> > getCorners();
 
 	void setNormal(Vector3f*);
 	void setTranslationVector(Vector3f*);
@@ -68,7 +68,7 @@ public:
 	void setXBorder(vector<float>*);
 	void setYBorder(vector<float>*);
 	void setZBorder(vector<float>*);
-	void setCorners(vector<vector<float>>*);
+	void setCorners(vector<vector<float> >);
 
 	void writePlane(QString);
 	void readPlane(QString);
