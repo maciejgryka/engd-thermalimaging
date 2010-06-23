@@ -224,11 +224,11 @@ void Grid::calculateBorder() {
 		}
 	}
 
-	/*qDebug() << "border";
+	qDebug() << "border";
 	for (int i = 0; i < gridSize; i++) {
 		qDebug() << border[i][0] << border[i][1] << border[i][2] << border[i][3] << border[i][4] << border[i][5] << border[i][6] << border[i][7] << border[i][8] << border[i][9]
 		<< border[i][10] << border[i][11] << border[i][12] << border[i][13] << border[i][14] << border[i][15];
-	}*/
+	}
 	
 	
 }

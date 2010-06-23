@@ -1,7 +1,6 @@
 #include "Quad.h"
 
-#define MAXLEVELS 6
-
+#define MAXLEVELS 3
 Quad::Quad(int l, int* ps, int nps, float** pts, float* bs) {
 	subdivided = false;
 	numberOfPoints = nps;

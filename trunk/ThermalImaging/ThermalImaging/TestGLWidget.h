@@ -101,6 +101,9 @@ protected:
 
 private:
 
+	float** points;
+	int nPoints;
+
 	float** pop;
 	int npop;
 	int* clusters;
@@ -119,6 +122,7 @@ private:
     int zRot;
 
 	RandomPointCloud* rpc;
+	Ply2OpenGL* ply;
 
 	int noPlanes;
 	

@@ -10,9 +10,6 @@ PlaneInfo::PlaneInfo(){
 	grid = NULL;
 	numberOfPoints = -1;
 	pointsOnPlane = NULL;
-	xBorder = NULL;
-	yBorder = NULL;
-	zBorder = NULL;
 }
 PlaneInfo::~PlaneInfo(){}
 
@@ -52,15 +49,15 @@ float** PlaneInfo::getPointsOnPlane() {
 	return pointsOnPlane;
 }
 
-vector<float>* PlaneInfo::getXBorder() {
+vector<float> PlaneInfo::getXBorder() {
 	return xBorder;
 }
 
-vector<float>* PlaneInfo::getYBorder() {
+vector<float> PlaneInfo::getYBorder() {
 	return yBorder;
 }
 
-vector<float>* PlaneInfo::getZBorder() {
+vector<float> PlaneInfo::getZBorder() {
 	return zBorder;
 }
 
@@ -104,15 +101,15 @@ void PlaneInfo::setPointsOnPlane(float** p) {
 	pointsOnPlane = p;
 }
 
-void PlaneInfo::setXBorder(vector<float>* b) {
+void PlaneInfo::setXBorder(vector<float> b) {
 	xBorder = b;
 }
 
-void PlaneInfo::setYBorder(vector<float>* b) {
+void PlaneInfo::setYBorder(vector<float> b) {
 	yBorder = b;
 }
 
-void PlaneInfo::setZBorder(vector<float>* b) {
+void PlaneInfo::setZBorder(vector<float> b) {
 	zBorder = b;
 }
 
@@ -144,7 +141,7 @@ void PlaneInfo::writePlane(QString fileName) {
 	QTextStream ts (&file);
 	ts << "0" << " " << numberOfPoints << "\r\n";
 	ts << (normal != NULL) << " " << (translationVector != NULL) << " " << (rotationMatrix != NULL) << " " 
-		<< (color != NULL) << " " << (pointsUsed != NULL) << " " << (xBorder != NULL) << "\r\n";
+		<< (color != NULL) << " " << (pointsUsed != NULL) << " " << (xBorder.size() != 0) << "\r\n";
 	if (normal != NULL) {
 		Vector3f n = *normal;
 		ts << n(0) << " " << n(1) << " " << n(2) << "\r\n";
@@ -168,18 +165,18 @@ void PlaneInfo::writePlane(QString fileName) {
 		}
 		ts << "\r\n";
 	}
-	if (xBorder != NULL) {
-		ts << xBorder->size() ;
-		for (int i = 0; i < xBorder->size(); i++) {
-			ts << xBorder->at(i) << " ";
+	if (xBorder.size() != 0) {
+		ts << xBorder.size() ;
+		for (int i = 0; i < xBorder.size(); i++) {
+			ts << xBorder.at(i) << " ";
 		}
 		ts << "\r\n";
-		for (int i = 0; i < xBorder->size(); i++) {
-			ts << yBorder->at(i) << " ";
+		for (int i = 0; i < xBorder.size(); i++) {
+			ts << yBorder.at(i) << " ";
 		}
 		ts << "\r\n";
-		for (int i = 0; i < xBorder->size(); i++) {
-			ts << zBorder->at(i) << " ";
+		for (int i = 0; i < xBorder.size(); i++) {
+			ts << zBorder.at(i) << " ";
 		}
 		ts << "\r\n";
 	}
@@ -264,11 +261,6 @@ void PlaneInfo::readPlane(QString fileName) {
 	}
 	if (whatInfo[5] == 1) {
 		int nBorderElements = ts.readLine().toInt();
-		if (xBorder != NULL) {
-			delete xBorder;
-			delete yBorder;
-			delete zBorder;
-		}
 		
 		vector<float> xb;
 		vector<float> yb;

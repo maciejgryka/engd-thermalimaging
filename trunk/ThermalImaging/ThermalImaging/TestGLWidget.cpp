@@ -104,17 +104,26 @@ void TestGLWidget::initializeGL()
 
 	PlaneCalculator* p = new PlaneCalculator();
 
+	//ply = new Ply2OpenGL();
+	//ply->readPlyFile("C:\\Users\\localadmin\\Documents\\Visual Studio 2008\\Projects\\ThermalImaging\\ThermalImaging\\Data\\box7\\union.ply");
+	//ply->readPlyFile("C:\\Users\\localadmin\\Desktop\\union.ply");
 	noPlanes = 1;
 	ps = 1000;
 	o = 0;
+	
 	rpc = new RandomPointCloud();
-	rpc->makePointCloud(1,ps,o);
-	//float** normal = rpc->getNormals();
+	rpc->makePointCloud(noPlanes,ps,o);
+
+	float** normal = rpc->getNormals();
+
+	nPoints = noPlanes*ps+o;
+	points = rpc->getPointCloud();
 
 	Ransac* r = new Ransac();
-	r->setInlierDistance(0.2f);
-	r->setIterations(1000);
-	r->setPoints(rpc->getPointCloud(),noPlanes*ps+o);
+	r->setInlierDistance(0.1f);
+	r->setIterations(10000);
+	//points = ply->toTwoDimensionalArray(ply->getVertices());
+	r->setPoints(points,nPoints);
 	int numberOfPointsOnBestPlane = 0;
 	Vector3f norm;
 	Vector3f ori;
@@ -123,95 +132,118 @@ void TestGLWidget::initializeGL()
 	grid = new Grid*[noPlanes];
 	planes = new PlaneInfo*[noPlanes];
 	for (int k = 0; k < noPlanes; k++) {
-		planes[k] = new PlaneInfo();
-		int *a = r->findBestPlane(k+1,numberOfPointsOnBestPlane,ori,norm,bestPoints);
-		planes[k]->setNormal(norm);
-		/*int *a = new int[ps];
-		for (int i = 0; i < ps; i++) {
-			a[i] = i;
+		planes[k] = NULL;
+ 		/*QFile file (QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg(k+1));
+		if (file.exists() && file.open(QIODevice::ReadOnly)) {
+			planes[k] = new PlaneInfo();
+			planes[k]->readPlane(QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg(k+1));
 		}*/
-		int* b = r->convertToNumberList(a,noPlanes*ps+o,numberOfPointsOnBestPlane, k+1);
-		float* cols = new float[3];
-		for (int i = 0; i < 3; i++) {
-			cols[i] = (float) rand() / (float) RAND_MAX;
+	}
+	int* pointList = new int[nPoints];
+	for (int i = 0; i < nPoints; i++) {
+		pointList[i] = 0;
+	}
+	for (int k = 0; k < noPlanes; k++) {
+		int* b;
+		if (planes[k] == NULL) {
+			
+			planes[k] = new PlaneInfo();
+			r->findBestPlane(k+1,numberOfPointsOnBestPlane,ori,norm,bestPoints, pointList);
+			planes[k]->setNormal(&norm);
+			/*int *a = new int[ps];
+			for (int i = 0; i < ps; i++) {
+				a[i] = i;
+			}*/
+			b = r->convertToNumberList(pointList,nPoints,numberOfPointsOnBestPlane, k+1);
+			r->printToFile(QString("C:\\Users\\localadmin\\Desktop\\data%1.txt").arg(k),b,numberOfPointsOnBestPlane);
+
+			float* cols = new float[3];
+			for (int i = 0; i < 3; i++) {
+				cols[i] = (float) rand() / (float) RAND_MAX;
+			}
+			planes[k]->setColor(cols);
+					
+			planes[k]->setPointsUsed(b);
+			p->setPoints(points,b,numberOfPointsOnBestPlane);
+			p->setNormal(norm);
+			p->toOrigin();
+			p->rotate();
+			p->removeYDimension();
+			b = p->getPointsUsed();
+			npop = p->getNumberOfPointsOnPlane();
+			planes[k]->setPointsUsed(b);
+			planes[k]->setPointNumber(npop);
+			planes[k]->setRotationMatrix(&p->getRotationMatrix());
+			planes[k]->setTranslationVector(&p->getTranslationVector());
+
+			planes[k]->writePlane(QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg((k+1)));
 		}
-		planes[k]->setColor(cols);
-				
-		planes[k]->setPointsUsed(b);
-		p->setPoints(rpc->getPointCloud(),b,numberOfPointsOnBestPlane);
-		p->setNormal(norm);
-		p->toOrigin();
-		p->rotate();
-		p->removeYDimension();
-		pop = p->getPointsOnPlane();
-		npop = p->getNumberOfPointsOnPlane();
-		planes[k]->setPointsOnPlane(pop);
-		planes[k]->setPointNumber(npop);
-		planes[k]->setRotationMatrix(p->getRotationMatrix());
-		planes[k]->setTranslationVector(p->getTranslationVector());
+		if (planes[k]->getXBorder().size() == 0) {
+			PlaneLimitFinder *plf = new PlaneLimitFinder();
+			
+			plf->setPoints(points);
+			plf->setPointsUsed(planes[k]->getPointsUsed(), npop);
+			plf->findLimits(0);
+			clusters = plf->getClusters();
+			nclusters = plf->getNumberOfClusters();
+			b = plf->findBiggestCluster(npop, pointList, "C:\\Users\\localadmin\\Desktop\\bigcluster.txt");
+			planes[k]->setPointsUsed(b);
+			planes[k]->setPointNumber(plf->getNumberOfPoints());
+			pop = plf->getPoints();
+			npop = plf->getNumberOfPoints();
 
-		PlaneLimitFinder *plf = new PlaneLimitFinder();
-		
-		plf->setPoints(pop, npop);
-		plf->findLimits(0);
-		clusters = plf->getClusters();
-		nclusters = plf->getNumberOfClusters();
+			float minX = +1000.0f;
+			float maxX = -1000.0f;
+			float minZ = +1000.0f;
+			float maxZ = -1000.0f;
+			float x, z;
 
-		colors = new float*[nclusters];
-		for (int i = 0; i < nclusters; i++) {
-			colors[i] = new float[3];
-			colors[i][0] = (float) rand() / (float) RAND_MAX;
-			colors[i][1] = (float) rand() / (float) RAND_MAX;
-			colors[i][2] = (float) rand() / (float) RAND_MAX;
+			//pop = rpc->getPointCloud();
+
+			for (int i = 0; i < npop; i++) {
+				x = pop[i][0];
+				z = pop[i][2];
+				if (x < minX)
+					minX = x;
+				if (x > maxX)
+					maxX = x;
+				if (z < minZ)
+					minZ = z;
+				if (z > maxZ)
+					maxZ = z;
+			}
+			//qDebug() << minX << maxZ << maxX << minZ;
+			float* boundaries = new float[4];
+			boundaries[0] = minX;
+			boundaries[1] = maxZ;
+			boundaries[2] = maxX;
+			boundaries[3] = minZ;
+
+
+			q[k] = new Quad(0,b,numberOfPointsOnBestPlane,points,boundaries);
+			q[k]->subdivide();
+			planes[k]->setQuad(q[k]);
+
+			int** g = q[k]->toGrid();
+			grid[k] = new Grid();
+			grid[k]->setGrid(g,q[k]->getSize());
+			grid[k]->setBoundaries(boundaries);
+			grid[k]->dilateAndErode(3);
+			grid[k]->erodeAndDilate(1);
+			grid[k]->calculateBorder();
+			grid[k]->drawAsPolygon();
+			//grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector());
+
+			planes[k]->setGrid(grid[k]);
+			planes[k]->setXBorder(grid[k]->getXBorder());
+			qDebug() << planes[k]->getXBorder().size();
+			qDebug() << planes[k]->getXBorder().at(0);
+			qDebug() << planes[k]->getXBorder().at(1);
+			qDebug() << planes[k]->getXBorder().at(2);
+			qDebug() << planes[k]->getXBorder().size();
+			planes[k]->setYBorder(grid[k]->getYBorder());
+			planes[k]->setZBorder(grid[k]->getZBorder());
 		}
-
-		float minX = +1000.0f;
-		float maxX = -1000.0f;
-		float minZ = +1000.0f;
-		float maxZ = -1000.0f;
-		float x, z;
-
-		//pop = rpc->getPointCloud();
-
-		for (int i = 0; i < npop; i++) {
-			x = pop[i][0];
-			z = pop[i][2];
-			if (x < minX)
-				minX = x;
-			if (x > maxX)
-				maxX = x;
-			if (z < minZ)
-				minZ = z;
-			if (z > maxZ)
-				maxZ = z;
-		}
-		//qDebug() << minX << maxZ << maxX << minZ;
-		float* boundaries = new float[4];
-		boundaries[0] = minX;
-		boundaries[1] = maxZ;
-		boundaries[2] = maxX;
-		boundaries[3] = minZ;
-
-
-		q[k] = new Quad(0,b,numberOfPointsOnBestPlane,pop,boundaries);
-		q[k]->subdivide();
-		planes[k]->setQuad(q[k]);
-
-		int** g = q[k]->toGrid();
-		grid[k] = new Grid();
-		grid[k]->setGrid(g,q[k]->getSize());
-		grid[k]->setBoundaries(boundaries);
-		grid[k]->dilateAndErode(3);
-		grid[k]->erodeAndDilate(1);
-		grid[k]->calculateBorder();
-		grid[k]->drawAsPolygon();
-		//grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector());
-
-		planes[k]->setGrid(grid[k]);
-		planes[k]->setXBorder(grid[k]->getXBorder());
-		planes[k]->setYBorder(grid[k]->getYBorder());
-		planes[k]->setZBorder(grid[k]->getZBorder());
-
 	}
 	
 }
@@ -245,9 +277,11 @@ void TestGLWidget::paintGL()
 
 		glPointSize(5.0f);
 		glBegin(GL_POINTS);
+		int* pU = planes[k]->getPointsUsed();
 		for (int i = 0; i < planes[k]->getPointNumber(); i++) {
+			
 			glColor3f(0.0f,0.0f,1.0f);
-			glVertex3fv(planes[k]->getPointsOnPlane()[i]);
+			glVertex3fv(points[pU[i]]);
 		}
 		glEnd();
 	}
@@ -255,9 +289,9 @@ void TestGLWidget::paintGL()
 
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
-	for (int i = 0; i < noPlanes * ps + o; i++) {
+	for (int i = 0; i < nPoints; i++) {
 		glColor3f(1.0f,0.0f,0.0f);
-		glVertex3fv(rpc->getPointCloud()[i]);
+		glVertex3fv(points[i]);
 	}
 	glEnd();
 
