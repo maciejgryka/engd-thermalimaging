@@ -18,6 +18,7 @@ private:
 	//MatrixXf** edges;
 	
 	int findIntersectionLine(int, int); // find the intersection line
+	float pointLineDistance(Vector3f x0, Vector3f x1, Vector3f x2);		// find the distance from point x0 to line defined by x1 and x2
 
 public:
 	PlaneSnapping();

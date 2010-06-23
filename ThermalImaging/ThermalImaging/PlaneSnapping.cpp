@@ -47,7 +47,7 @@ void PlaneSnapping::snap() {
 	vector<vector<float>> corners;
 	for (int i = 0; i < planes.size(); i++) {
 		// get the corners from the plane
-		corners = *planes.at(i)->getCorners();
+		corners = planes.at(i)->getCorners();
 		for (int j = 0; j < corners.size(); j++) {
 			// this is the direction vector of the edge. the base point can be found using the corners of the plane
 			// edge 1's base point of plane 1 will be corner 1 of the plane
@@ -87,6 +87,21 @@ void PlaneSnapping::snap() {
 			}
 
 			
+		}
+	}
+
+	// go through edges and find all parallel ones
+	for (int i(0); i < edges.size(); i++)
+	{
+		for (int j(0); j < edges.size(); j++)
+		{
+			if (parallel[i][j])
+			{
+				// get the intersection line
+				findIntersectionLine(planeNumber[i], planeNumber[j]);
+				// calculate distance from both corners of edge[i] to the intersection line
+				// if within a threshold, snap them together (move corners of i and corners of j to the intersection if they're not there (or beyond) yet
+			}
 		}
 	}
 
@@ -132,6 +147,7 @@ void PlaneSnapping::snap() {
 }
 
 int PlaneSnapping::findIntersectionLine(int a, int b) {
+
 	// finds the intersection line between two planes
 	//************************************************
 	// it does not return anything yet, but we can pass in references to Vector3f,
@@ -194,3 +210,9 @@ int PlaneSnapping::findIntersectionLine(int a, int b) {
 
 }
 
+// Find the distance from point x0 to line defined by x1 and x2
+// formula taken from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+float PlaneSnapping::pointLineDistance(Vector3f x0, Vector3f x1, Vector3f x2)
+{
+	return (x0 - x1).cross(x0 - x2).norm()/(x2 - x1).norm();
+}
