@@ -8,22 +8,22 @@ Grid::Grid() {
 }
 
 Grid::~Grid() {
-	free(boundaries);
+	delete[] boundaries;
 	clearData();
 }
 
 void Grid::clearData() {
 	for (int i = 0; i < gridSize; i++) {
-		free(grid[i]);
+		delete[] grid[i];
 		grid[i] = NULL;
 		if (border != NULL) {
-			free(border[i]);
+			delete[] border[i];
 			border[i] = NULL;
 		}
 	}
-	free(grid);
+	delete[] grid;
 	grid = NULL;
-	free(border);
+	delete[] border;
 	border = NULL;
 }
 
@@ -152,17 +152,17 @@ void Grid::dilateAndErode(int k, bool eight) {
 	}
 	grid = tmp2;
 
-	qDebug() << "end";
+	/*qDebug() << "end";
 	for (int i = 0; i < gridSize; i++) {
 		qDebug() << grid[i][0] << grid[i][1] << grid[i][2] << grid[i][3] << grid[i][4] << grid[i][5] << grid[i][6] << grid[i][7] << grid[i][8] << grid[i][9]
 		<< grid[i][10] << grid[i][11] << grid[i][12] << grid[i][13] << grid[i][14] << grid[i][15];
-	}
+	}*/
 
 	for (int i = 0; i < gridSize + 2*(k+1); i++) {
-		free(tmp[i]);
+		delete[] tmp[i];
 		tmp[i] = NULL;
 	}
-	free(tmp);
+	delete[] tmp;
 	tmp = NULL;
 	grid = tmp2;
 
@@ -224,11 +224,11 @@ void Grid::calculateBorder() {
 		}
 	}
 
-	qDebug() << "border";
+	/*qDebug() << "border";
 	for (int i = 0; i < gridSize; i++) {
 		qDebug() << border[i][0] << border[i][1] << border[i][2] << border[i][3] << border[i][4] << border[i][5] << border[i][6] << border[i][7] << border[i][8] << border[i][9]
 		<< border[i][10] << border[i][11] << border[i][12] << border[i][13] << border[i][14] << border[i][15];
-	}
+	}*/
 	
 	
 }
@@ -238,11 +238,11 @@ void Grid::drawAsPolygon() {
 	if (border == NULL) {
 		calculateBorder();
 	}
-	qDebug() << "border";
+	/*qDebug() << "border";
 	for (int i = 0; i < gridSize; i++) {
 		qDebug() << border[i][0] << border[i][1] << border[i][2] << border[i][3] << border[i][4] << border[i][5] << border[i][6] << border[i][7] << border[i][8] << border[i][9]
 		<< border[i][10] << border[i][11] << border[i][12] << border[i][13] << border[i][14] << border[i][15];
-	}
+	}*/
 	if (boundaries != NULL) {
 		float xStepSize = (boundaries[2] - boundaries[0])/ (float) gridSize;
 		float zStepSize = (boundaries[1] - boundaries[3])/ (float) gridSize;

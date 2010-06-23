@@ -1,6 +1,6 @@
 #include "Quad.h"
 
-#define MAXLEVELS 3
+#define MAXLEVELS 6
 Quad::Quad(int l, int* ps, int nps, float** pts, float* bs) {
 	subdivided = false;
 	numberOfPoints = nps;
@@ -26,13 +26,13 @@ Quad::~Quad() {
 		}*/
 	}
 	//free(quads);
-	free(nw);
+	delete nw;
 	nw = NULL;
-	free(ne);
+	delete ne;
 	ne = NULL;
-	free(se);
+	delete se;
 	se = NULL;
-	free(sw);
+	delete sw;
 	sw = NULL;
 //	quads = NULL;
 }
@@ -213,8 +213,8 @@ int** Quad::toGrid() {
 		xPath[0] = 0;
 		zPath[0] = 0;
 		sw->toGrid(grid, xPath, zPath);
-		free(xPath);
-		free(zPath);
+		delete[] xPath;
+		delete[] zPath;
 		xPath = NULL;
 		zPath = NULL;
 	}

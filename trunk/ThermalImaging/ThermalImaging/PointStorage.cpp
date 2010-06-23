@@ -12,11 +12,15 @@ PointStorage::~PointStorage() {
 void PointStorage::clearData() {
 	if (subSize != -1) {
 		for (int i = 0; i < subSize; i++) {
-			free(subCloud[i]);
-			free(subColors[i]);
+			delete[] subCloud[i];
+			subCloud[i] = NULL;
+			delete[] subColors[i];
+			subColors[i] = NULL;
 		}
-		free(subCloud);
-		free(subColors);
+		delete[] subCloud;
+		subCloud = NULL;
+		delete[] subColors;
+		subColors = NULL;
 	}
 }
 
