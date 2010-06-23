@@ -1,21 +1,22 @@
 #include "PlaneLimitFinder.h"
 
-#define DISTANCETHRESHOLD 1.8
+#define DISTANCETHRESHOLD 1.0
 
 PlaneLimitFinder::PlaneLimitFinder() {
 	noClusters = -1;
 	noPoints = -1;
+	pointsUsed = NULL;
 }
 
 PlaneLimitFinder::~PlaneLimitFinder() {}
 
-void PlaneLimitFinder::setPoints(float** p, int np) {
+void PlaneLimitFinder::setPoints(float** p) {
 	points = p;
-	noPoints = np;
 }
 
-void PlaneLimitFinder::setPointsUsed(int* p) {
+void PlaneLimitFinder::setPointsUsed(int* p, int np) {
 	pointsUsed = p;
+	noPoints = np;
 }
 
 void PlaneLimitFinder::arrayToZero(int* arr, int no) {
@@ -101,15 +102,17 @@ void PlaneLimitFinder::findLimits(int plane) {
 		cluster++;
 	}
 	noClusters = cluster - 1;
-	free(addedPoints);
-	free(newAddedPoints);
+	delete[] addedPoints;
+	addedPoints = NULL;
+	delete[] newAddedPoints;
+	newAddedPoints = NULL;
 	/*qDebug() << clusters[0] << clusters[1] << clusters[2] << clusters[3] << clusters[4] << clusters[5] << clusters[6] << clusters[7] << clusters[8] << clusters[9]
 		<< clusters[10] << clusters[11] << clusters[12] << clusters[13] << clusters[14] << clusters[15] << clusters[16] << clusters[17] << clusters[18] << clusters[19] 
 		<< clusters[20] << clusters[21] << clusters[22] << clusters[23] << clusters[24];*/
 }
 
 float inline PlaneLimitFinder::getDistance(int p1, int p2) {
-	return sqrt(sqr(points[p2][0] - points[p1][0])+sqr(points[p2][2] - points[p1][2]));
+	return sqrt(sqr(points[pointsUsed[p2]][0] - points[pointsUsed[p1]][0])+sqr(points[pointsUsed[p2]][2] - points[pointsUsed[p1]][2]));
 }
 
 float inline PlaneLimitFinder::sqr(float n) {
@@ -119,9 +122,9 @@ float inline PlaneLimitFinder::sqr(float n) {
 int PlaneLimitFinder::findNumberOfActivePoints(int p) {
 	int counter = 0;
 	for (int i = 0; i < noPoints; i++) {
-		if (pointsUsed[i] == p) {
+		/*if (pointsUsed[i] == p) {
 			counter++;
-		}
+		}*/
 	}
 	return counter;
 }
@@ -130,15 +133,19 @@ int* PlaneLimitFinder::findActivePoints(int ap, int p) {
 	int* listActivePoints = new int[ap];
 	int counter = 0;
 	for (int i = 0; i < noPoints; i++) {
-		if (pointsUsed[i] == p) {
+		/*if (pointsUsed[i] == p) {
 			listActivePoints[counter] = i;
 			counter++;
-		}
+		}*/
 	}
 	return listActivePoints;
 }
 
-int* PlaneLimitFinder::findBiggestCluster(int& elements) {
+int* PlaneLimitFinder::findBiggestCluster(int& elements, int* pointList) {
+	return findBiggestCluster(elements, pointList, "");
+}
+
+int* PlaneLimitFinder::findBiggestCluster(int& elements, int* pointList, QString fileName) {
 	if (noClusters < 1)
 		return NULL;
 	// intitialize counters to 0
@@ -148,7 +155,7 @@ int* PlaneLimitFinder::findBiggestCluster(int& elements) {
 	}
 	//count how often each cluster comes up
 	for (int i = 0; i < noPoints; i++) {
-		count[clusters[i]]++;
+		count[clusters[i] - 1]++;
 	}
 	// find biggest cluster
 	int biggestCluster = -1;
@@ -156,18 +163,50 @@ int* PlaneLimitFinder::findBiggestCluster(int& elements) {
 	for (int i = 0; i < noClusters; i++) {
 		if (count[i] > numberInBiggest) {
 			numberInBiggest = count[i];
-			biggestCluster = i;
+			biggestCluster = i+1;
 		}
 	}
-	free(count);
+
+	delete[] count;
+	count = NULL;
+	
+	QFile file;
+	QTextStream ts(&file);
+	if (!fileName.isEmpty()) {
+		file.setFileName(fileName);
+		if (!file.open(QIODevice::WriteOnly)) {
+			fileName = "";
+		}
+		
+	}
+	int* newPointsUsed = new int[numberInBiggest];
 	int* clusterElements = new int[numberInBiggest];
 	int position = -1;
 	for (int i = 0; i < noPoints; i++) {
+		
 		if (clusters[i] == biggestCluster) {
-			clusterElements[++position] = i;
+			position++;
+			newPointsUsed[position] = pointsUsed[i];
+			clusterElements[position] = i;
+			if (!fileName.isEmpty()) { ts << pointsUsed[i] << " "; }
+		} else {
+			pointList[pointsUsed[i]] = 0;
 		}
 	}
+	if (!fileName.isEmpty()) { file.close();}
 	elements = numberInBiggest;
+
+	delete[] clusters;
+	clusters = NULL;
+	clusters = new int[numberInBiggest];
+	for (int i = 0; i < numberInBiggest; i++)
+		clusters[i] = 1;
+	noClusters = 1;
+
+	delete[] pointsUsed;
+	pointsUsed = newPointsUsed;
+	noPoints = numberInBiggest;
+
 	return clusterElements;
 }
 
@@ -190,4 +229,12 @@ void PlaneLimitFinder::findPolygon(int* clusterElements, int numberOfElements) {
 		if (z > maxZ)
 			maxZ = z;
 	}
+}
+
+int PlaneLimitFinder::getNumberOfPoints() {
+	return noPoints;
+}
+
+float** PlaneLimitFinder::getPoints() {
+	return points;
 }

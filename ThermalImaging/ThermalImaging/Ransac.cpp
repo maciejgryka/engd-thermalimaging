@@ -9,7 +9,7 @@ Ransac::Ransac(){
 
 Ransac::~Ransac(){
 	// free the memory of all the memory acquired by this class
-	delete[] pointsUsed;
+	//delete[] pointsUsed;
 }
 
 void Ransac::setInlierDistance(float dis) {
@@ -22,10 +22,6 @@ void Ransac::setPoints(float** ps, int no) {
 	// sets the number of points
 	pointCloud = ps;
 	numberOfPoints = no;
-	pointsUsed = new int[numberOfPoints];
-	for (int i = 0; i < numberOfPoints; i++) {
-		pointsUsed[i] = 0;
-	}
 	pointsLeft = numberOfPoints;
 }
 
@@ -34,7 +30,7 @@ void Ransac::setIterations(int is) {
 	iterations = is;
 }
 
-int* Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vector3f &origin, Vector3f &normal, int* bestPoints) {
+void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vector3f &origin, Vector3f &normal, int* bestPoints, int* pointList) {
 	//finds the best plane
 	//input: the plane number
 	//output: a 0/1 array where all the points that have been used have a value of 1, the number of points on the plane, the planes origin and normal, as well as the 3 vertex numbers of the vertices that span the best plane
@@ -53,7 +49,7 @@ int* Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 		pos2 = rand() % numberOfPoints;
 		pos3 = rand() % numberOfPoints;
 		// ensure all points are different and that they have not been used before
-		while (pointsUsed[pos1] != 0 || pointsUsed[pos2] != 0 || pointsUsed[pos3] != 0 || pos1 == pos2 || pos2 == pos3 || pos1 == pos3) {
+		while (pointList[pos1] != 0 || pointList[pos2] != 0 || pointList[pos3] != 0 || pos1 == pos2 || pos2 == pos3 || pos1 == pos3) {
 			pos1 = rand() % numberOfPoints;
 			pos2 = rand() % numberOfPoints;
 			pos3 = rand() % numberOfPoints;
@@ -113,7 +109,7 @@ int* Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 		if (dis < inlierDistance){
 			pointsOnPlane[pointsPlaced] = j;
 			pointsPlaced++;
-			pointsUsed[j] = planeNumber;
+			pointList[j] = planeNumber;
 		}
 	}
 
@@ -129,9 +125,6 @@ int* Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 	normal = normal.normalized();
 	origin = p0;
 
-
-
-	return pointsUsed;
 
 }
 

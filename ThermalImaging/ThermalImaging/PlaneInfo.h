@@ -32,9 +32,9 @@ private:
 	Quad* quad; // the quad, which was used to find the approximate area covered by the plane
 	Grid* grid; // the grid obtained from the quad, so that dilation, erosion and border detection can be performed
 
-	vector<float>* xBorder; // the x coordinates of the border
-	vector<float>* yBorder; // the y coordinates of the border
-	vector<float>* zBorder; // the z coordinates of the border
+	vector<float> xBorder; // the x coordinates of the border
+	vector<float> yBorder; // the y coordinates of the border
+	vector<float> zBorder; // the z coordinates of the border
 
 	vector<vector<float> > corners;
 
@@ -51,9 +51,9 @@ public:
 	Quad* getQuad();
 	Grid* getGrid();
 	float** getPointsOnPlane();
-	vector<float>* getXBorder();
-	vector<float>* getYBorder();
-	vector<float>* getZBorder();
+	vector<float> getXBorder();
+	vector<float> getYBorder();
+	vector<float> getZBorder();
 	vector<vector<float> > getCorners();
 
 	void setNormal(Vector3f*);
@@ -65,9 +65,9 @@ public:
 	void setQuad(Quad*);
 	void setGrid(Grid*);
 	void setPointsOnPlane(float**);
-	void setXBorder(vector<float>*);
-	void setYBorder(vector<float>*);
-	void setZBorder(vector<float>*);
+	void setXBorder(vector<float>);
+	void setYBorder(vector<float>);
+	void setZBorder(vector<float>);
 	void setCorners(vector<vector<float> >);
 
 	void writePlane(QString);

@@ -8,12 +8,15 @@
 #include <bitset>
 using namespace std;
 
+#include "QTextStream.h"
+#include "QFile.h"
+
 
 class PlaneLimitFinder {
 private:
 	float** points;
-	int* pointsUsed;
 	int noPoints;
+	int* pointsUsed;
 	int* clusters;
 	int noClusters;
 
@@ -27,13 +30,18 @@ private:
 public:
 	PlaneLimitFinder();
 	~PlaneLimitFinder();
-	void setPoints(float**, int);
-	void setPointsUsed(int*);
+	void setPoints(float**);
+	void setPointsUsed(int*, int);
 	void findLimits(int);
 	int* getClusters();
 	int getNumberOfClusters();
+	float** getPoints();
+	int getNumberOfPoints();
 
-	int* findBiggestCluster(int&);
+
+
+	int* findBiggestCluster(int&, int*, QString);
+	int* findBiggestCluster(int&, int*);
 	void findPolygon(int*, int);
 };
 

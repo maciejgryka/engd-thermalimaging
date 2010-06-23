@@ -29,7 +29,7 @@ public:
 	void setInlierDistance(float);
 	void setIterations(int);
 	void setPoints(float**,int);
-	int* findBestPlane(int, int&, Vector3f&, Vector3f&, int*);
+	void findBestPlane(int, int&, Vector3f&, Vector3f&, int*, int*);
 	int* convertToNumberList(int*, int, int, int);
 	void printToFile(QString, int*, int);
 
@@ -38,7 +38,7 @@ private:
 	float inlierDistance;	// The distance between the plane spanned and a point, which will cause the point to be considered an inlier.
 	int iterations;			// the number of iterations that Ransac should be performed
 	float** pointCloud;		// The point cloud as a N by 3 vector
-	int *pointsUsed;		// contains information on which points have been used. 1 for has been used, 0 otherwise
+	int *pointList;		// contains information on which points have been used. 1 for has been used, 0 otherwise
 	int numberOfPoints;		// the number of points in the point cloud
 	int pointsLeft;			// the number of points that have not been allocated to a plane yet
 

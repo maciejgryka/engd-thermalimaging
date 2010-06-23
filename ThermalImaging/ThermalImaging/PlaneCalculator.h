@@ -12,7 +12,8 @@ class PlaneCalculator {
 
 private:
 	//PlaneLimitFinder* plf;
-	float** pointsOnPlane;
+	float** points;
+	int* pointsUsed;
 	int numberOfPointsOnPlane;
 	Matrix3f rotationMatrix;
 	Vector3f translationVector;
@@ -35,7 +36,7 @@ public:
 	void rotateBack();
 	void translateBack();
 
-	float** getPointsOnPlane();
+	int* getPointsUsed();
 	int getNumberOfPointsOnPlane();
 
 	Matrix3f getRotationMatrix();
