@@ -15,9 +15,26 @@ public:
 	};
 
 	~RansacPlaneEdge(){};
+
+	bool reset()
+	{
+		maxInliers = 0;
+		boundExtension = 0.5f;
+		xBorder.clear();
+		yBorder.clear();
+		zBorder.clear();
+		inlierDistance = 0.0f;
+		iterations = 0;
+		percentOfChillPoints = 0.0f;
+		bestPoints.clear();
+		corners.clear();
+		pointsUsed.clear();
+		return false;
+	};
+
 	bool findEdges();
 	bool findBestEdge(vector<int> &pointsUsed);
-	bool setXYZBorders(const vector<float> &xBorder, const vector<float> &yBorder, const vector<float> &zBorder) 
+	bool setXYZBorders(const vector<float> xBorder, const vector<float> yBorder, const vector<float> zBorder) 
 	{
 		this->xBorder = xBorder;
 		this->yBorder = yBorder;
