@@ -70,6 +70,8 @@ public:
 	void setZBorder(vector<float>);
 	void setCorners(vector<vector<float> >);
 
+	vector<vector<float> > unrotateCorners(vector<vector<float> > corners);
+
 	void writePlane(QString);
 	void readPlane(QString);
 

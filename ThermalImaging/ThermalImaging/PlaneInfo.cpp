@@ -117,6 +117,20 @@ void PlaneInfo::setCorners(vector<vector<float> > c) {
 	corners = c;
 }
 
+vector<vector<float> > PlaneInfo::unrotateCorners(vector<vector<float> > corners)
+{
+	for (int ci(0); ci < corners.size(); ci++)
+	{
+		Vector3f corner(corners.at(ci).at(0), corners.at(ci).at(1), corners.at(ci).at(2));
+		corner = *rotationMatrix * corner;
+		corner += *translationVector;
+		corners.at(ci).at(0) = corner[0];
+		corners.at(ci).at(1) = corner[1];
+		corners.at(ci).at(2) = corner[2];
+	}
+	return corners;
+}
+
 void PlaneInfo::writePlane(QString fileName) {
 	// writes the plane information to the file with the name that is passed into the method
 	// the information are set in the following way
