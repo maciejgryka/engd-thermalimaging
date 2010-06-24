@@ -133,7 +133,8 @@ bool RansacPlaneEdge::findEdges()
 		lastLineIndex = lineIndex;
 		corn = pointIndex;
 		
-		if (pointIndex == 0) checkedAll = true;
+		//if (pointIndex == 0) checkedAll = true;
+		if (qPos == corners.size()) checkedAll = true;
 	}
 	if (!checkedAll) return false;
 
@@ -211,7 +212,7 @@ bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
 	this->bestPoints.push_back(currentBestPoints.at(0));
 	this->bestPoints.push_back(currentBestPoints.at(1));
 	
-	return false;
+	return true;
 }
 
 /// Finds a line in lineCoeffs that explains the given point and is different than the last line
@@ -242,6 +243,8 @@ int RansacPlaneEdge::findPointOnLine(int lineIndex, int currentPointIndex)
 {
 	for (int pi(0); pi < corners.size(); pi++)
 	{
+		//if (pi == 4)
+		//	return 0;
 		
 		if (!isFiniteNumber(lineCoeffs.at(lineIndex).at(0)))	// if a is infinite, the line is vertical, so we only need to check if point.x == c
 		{
