@@ -11,7 +11,11 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 		// Read the file
 		QTextStream stream(&plyFile);
 		//QStringList
-		text = stream.readAll().split("\r\n");
+		QString textAsLine = stream.readAll();
+		text = textAsLine.split("\r\n");
+		if (text.size() == 1) {
+			text = textAsLine.split("\n");
+		}
 		int *comments = new int[text.size()];
 
 		int pos = 0;
