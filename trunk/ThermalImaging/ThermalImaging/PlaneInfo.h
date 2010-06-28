@@ -17,10 +17,12 @@ class PlaneInfo {
 	// it stores all this information together and also allows writing this information to a file or reading it from one
 
 private:
-	Vector3f* normal; // the normal of the plane
-	
-	Vector3f* translationVector; // the translation to the origin
-	Matrix3f* rotationMatrix; // the rotation matrix that rotates the plane into the XZ plane
+	bool normalSet;
+	Vector3f normal; // the normal of the plane
+	bool translationSet;
+	Vector3f translationVector; // the translation to the origin
+	bool rotationSet;
+	Matrix3f rotationMatrix; // the rotation matrix that rotates the plane into the XZ plane
 
 	float** pointsOnPlane; // the xyz coordinates of all the points on the plane
 
@@ -42,9 +44,9 @@ public:
 	PlaneInfo();
 	~PlaneInfo();
 
-	Vector3f* getNormal();
-	Vector3f* getTranslationVector();
-	Matrix3f* getRotationMatrix();
+	Vector3f getNormal();
+	Vector3f getTranslationVector();
+	Matrix3f getRotationMatrix();
 	float* getColor();
 	int* getPointsUsed();
 	int getPointNumber();
@@ -56,9 +58,9 @@ public:
 	vector<float> getZBorder();
 	vector<vector<float> > getCorners();
 
-	void setNormal(Vector3f*);
-	void setTranslationVector(Vector3f*);
-	void setRotationMatrix(Matrix3f*);
+	void setNormal(Vector3f);
+	void setTranslationVector(Vector3f);
+	void setRotationMatrix(Matrix3f);
 	void setColor(float*);
 	void setPointsUsed(int*);
 	void setPointNumber(int);

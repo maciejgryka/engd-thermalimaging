@@ -2,7 +2,7 @@
 
 PlaneCalculator::PlaneCalculator() {
 	//plf = new PlaneLimitFinder();
-	numberOfPointsOnPlane = -1;
+	//numberOfPointsOnPlane = -1;
 }
 
 PlaneCalculator::~PlaneCalculator() {
@@ -10,13 +10,13 @@ PlaneCalculator::~PlaneCalculator() {
 	removeData();
 }
 
-int* PlaneCalculator::getPointsUsed() {
+/*int* PlaneCalculator::getPointsUsed() {
 	return pointsUsed;
 }
 
 int PlaneCalculator::getNumberOfPointsOnPlane() {
 	return numberOfPointsOnPlane;
-}
+}*/
 
 void PlaneCalculator::removeData() {
 	/*for (int i = 0; i < numberOfPointsOnPlane; i++) {
@@ -25,27 +25,17 @@ void PlaneCalculator::removeData() {
 	free(points);*/
 }
 
-void PlaneCalculator::rotateBack() {
-	rotationMatrix = rotationMatrix.inverse();
-
-	Vector3f v;
-	for (int i = 0; i < numberOfPointsOnPlane; i++) {
-		v(0) = points[pointsUsed[i]][0];
-		v(1) = points[pointsUsed[i]][1];
-		v(2) = points[pointsUsed[i]][2];
-		v = (v.transpose() * rotationMatrix).transpose();
-		points[pointsUsed[i]][0] = v(0);
-		points[pointsUsed[i]][1] = v(1);
-		points[pointsUsed[i]][2] = v(2);
+void PlaneCalculator::makeMatrixAndVector(int* pointsUsed, int numberOfPoints, Vector3f normal, Vector3f& translationVector, Matrix3f& rotationMatrix) {
+	for (int i = 0; i < 3; i++) {
+		translationVector(i) = points[pointsUsed[0]][i];
 	}
-	rotationMatrix = rotationMatrix.inverse();
-}
+	
 
-void PlaneCalculator::rotate() {
 	Vector3f yAxis (0.0f,1.0f,0.0f);
 
-	float angle = acos(yAxis.dot(normal));
-	Vector3f axis = yAxis.cross(normal);
+	float angle = -acos(yAxis.dot(normal));
+	//angle = 3.14159265358f/4.0f;
+	Vector3f axis = yAxis.cross(normal).normalized();
 
 	float x = axis(0);
 	float y = axis(1);
@@ -93,66 +83,117 @@ void PlaneCalculator::rotate() {
 	rotationMatrix(0,2) = (xz + wy)*2;
 	rotationMatrix(1,2) = (yz - wx)*2;
 	rotationMatrix(2,2) = zz*2 + s;
+}
 
-	//qDebug() << matrix(0,0) << matrix(0,1) << matrix(0,2) << matrix(1,0) << matrix(1,1) << matrix(1,2) << matrix(2,0) << matrix(2,1) << matrix(2,2);
+void PlaneCalculator::rotateBack(int* pointsUsed, int numberOfPoints, Matrix3f rotationMatrix) {
+	rotationMatrix = rotationMatrix.inverse();
+	rotate(pointsUsed, numberOfPoints, rotationMatrix);
+	rotationMatrix = rotationMatrix.inverse();
+}
+
+void PlaneCalculator::rotateBack(int* pointList, int value, int numberOfPoints, Matrix3f rotationMatrix) {
+	rotationMatrix = rotationMatrix.inverse();
+	rotate(pointList, value, numberOfPoints, rotationMatrix);
+	rotationMatrix = rotationMatrix.inverse();
+}
+
+void PlaneCalculator::rotate(int* pointsUsed, int numberOfPoints, Matrix3f rotationMatrix) {
 
 	Vector3f v; 
-	for (int i = 0; i < numberOfPointsOnPlane; i++) {
+	for (int i = 0; i < numberOfPoints; i++) {
 		v(0) = points[pointsUsed[i]][0];
 		v(1) = points[pointsUsed[i]][1];
 		v(2) = points[pointsUsed[i]][2];
-		v = (v.transpose() * rotationMatrix).transpose();
+		v = (rotationMatrix * v);
 		points[pointsUsed[i]][0] = v(0);
 		points[pointsUsed[i]][1] = v(1);
 		points[pointsUsed[i]][2] = v(2);
 	}
 
+}
+
+void PlaneCalculator::rotate(int* pointList, int value, int numberOfPoints, Matrix3f rotationMatrix) {
+
+	Vector3f v; 
+	for (int i = 0; i < numberOfPoints; i++) {
+		if (pointList[i] == value) {
+			v(0) = points[i][0];
+			v(1) = points[i][1];
+			v(2) = points[i][2];
+			v = (rotationMatrix * v);
+			points[i][0] = v(0);
+			points[i][1] = v(1);
+			points[i][2] = v(2);
+		}
+	}
 
 }
 
-void PlaneCalculator::removeYDimension() {
-	for (int i = 0; i < numberOfPointsOnPlane; i++) {
-		points[pointsUsed[i]][1] = 0.0f;
+void PlaneCalculator::removeDimension(int dimension, int* pointsUsed, int numberOfPoints) {
+	for (int i = 0; i < numberOfPoints; i++) {
+		points[pointsUsed[i]][dimension] = 0.0f;
 	}
 }
 
-void PlaneCalculator::toOrigin() {
-	if (numberOfPointsOnPlane > 0) {
-		for (int i = 0; i < 3; i++) {
-			translationVector(i) = points[0][i];
-		}
-		for (int i = numberOfPointsOnPlane - 1; i >= 0; i--) {
+void PlaneCalculator::translate(int* pointsUsed, int numberOfPoints, Vector3f translation) {
+	if (numberOfPoints > 0) {
+
+		for (int i = numberOfPoints - 1; i >= 0; i--) {
 			for (int j = 0; j < 3; j++) {
-				points[pointsUsed[i]][j] -= points[0][j];
+				points[pointsUsed[i]][j] -= translation(j);
 			}
 		}
 	}
 }
 
-void PlaneCalculator::translateBack() {
-	if (numberOfPointsOnPlane > 0) {
+void PlaneCalculator::translate(int* pointList, int value, int numberOfPoints, Vector3f translation) {
+	if (numberOfPoints > 0) {
 
-		for (int i = numberOfPointsOnPlane - 1; i >= 0; i--) {
-			for (int j = 0; j < 3; j++) {
-				points[pointsUsed[i]][j] += translationVector(j);
+		for (int i = numberOfPoints - 1; i >= 0; i--) {
+			if (pointList[i] == value) {
+				for (int j = 0; j < 3; j++) {
+					points[i][j] -= translation(j);
+				}
 			}
 		}
 	}
 }
 
+void PlaneCalculator::translateBack(int* pointsUsed, int numberOfPoints, Vector3f translation) {
+	if (numberOfPoints > 0) {
 
+		for (int i = numberOfPoints - 1; i >= 0; i--) {
+			for (int j = 0; j < 3; j++) {
+				points[pointsUsed[i]][j] += translation(j);
+			}
+		}
+	}
+}
 
-void PlaneCalculator::setNormal(Vector3f norm) {
+void PlaneCalculator::translateBack(int* pointList, int value, int numberOfPoints, Vector3f translation) {
+	if (numberOfPoints > 0) {
+
+		for (int i = numberOfPoints - 1; i >= 0; i--) {
+			if (pointList[i] == value) {
+				for (int j = 0; j < 3; j++) {
+					points[i][j] += translation(j);
+				}
+			}
+		}
+	}
+}
+
+/*void PlaneCalculator::setNormal(Vector3f norm) {
 	normal = norm.normalized();
-}
+}*/
 
-void PlaneCalculator::setPoints(float** ps, int* pUsed, int numberOfPointsUsed) {
+void PlaneCalculator::setPoints(float** ps) { //, int* pUsed, int numberOfPointsUsed) {
 
-	if (numberOfPointsOnPlane != -1) {
+	/*if (numberOfPointsOnPlane != -1) {
 		removeData();
 	}
 	numberOfPointsOnPlane = numberOfPointsUsed;
-	pointsUsed = pUsed;
+	pointsUsed = pUsed;*/
 	points = ps;
 
 
@@ -167,10 +208,18 @@ void PlaneCalculator::setPoints(float** ps, int* pUsed, int numberOfPointsUsed) 
 
 }
 
-Matrix3f PlaneCalculator::getRotationMatrix() {
+/*Matrix3f PlaneCalculator::getRotationMatrix() {
 	return rotationMatrix;
 }
 
 Vector3f PlaneCalculator::getTranslationVector() {
 	return translationVector;
 }
+
+void PlaneCalculator::setRotationMatrix(Matrix3f r) {
+	rotationMatrix = r;
+}
+
+void PlaneCalculator::setTranslationVector(Vector3f v) {
+	translationVector = v;
+}*/

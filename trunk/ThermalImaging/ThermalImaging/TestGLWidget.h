@@ -71,6 +71,8 @@ using namespace std;
 #include "Quad.h"
 #include "Grid.h"
 
+#include "RansacPlaneEdge.h"
+
 
 class QGLShaderProgram;
 
@@ -104,6 +106,8 @@ private:
 	float** points;
 	int nPoints;
 
+	int* pointList;
+
 	float** pop;
 	int npop;
 	int* clusters;
@@ -123,6 +127,7 @@ private:
 
 	RandomPointCloud* rpc;
 	Ply2OpenGL* ply;
+	RansacPlaneEdge rpe;
 
 	int noPlanes;
 	
