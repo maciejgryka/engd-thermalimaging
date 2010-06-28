@@ -1,6 +1,6 @@
 #include "PlaneLimitFinder.h"
 
-#define DISTANCETHRESHOLD 1.0
+#define DISTANCETHRESHOLD 0.2
 
 PlaneLimitFinder::PlaneLimitFinder() {
 	noClusters = -1;
@@ -180,17 +180,16 @@ int* PlaneLimitFinder::findBiggestCluster(int& elements, int* pointList, QString
 		
 	}
 	int* newPointsUsed = new int[numberInBiggest];
-	int* clusterElements = new int[numberInBiggest];
-	int position = -1;
+	int position = 0;
 	for (int i = 0; i < noPoints; i++) {
 		
 		if (clusters[i] == biggestCluster) {
-			position++;
+			
 			newPointsUsed[position] = pointsUsed[i];
-			clusterElements[position] = i;
 			if (!fileName.isEmpty()) { ts << pointsUsed[i] << " "; }
+			position++;
 		} else {
-			pointList[pointsUsed[i]] = 0;
+			pointList[pointsUsed[i]] = -1;
 		}
 	}
 	if (!fileName.isEmpty()) { file.close();}
@@ -207,7 +206,7 @@ int* PlaneLimitFinder::findBiggestCluster(int& elements, int* pointList, QString
 	pointsUsed = newPointsUsed;
 	noPoints = numberInBiggest;
 
-	return clusterElements;
+	return pointsUsed;
 }
 
 void PlaneLimitFinder::findPolygon(int* clusterElements, int numberOfElements) {

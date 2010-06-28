@@ -1,27 +1,28 @@
 #include "PlaneInfo.h"
 
 PlaneInfo::PlaneInfo(){
-	normal = NULL;
-	translationVector = NULL;
-	rotationMatrix = NULL;
 	color = NULL;
 	pointsUsed = NULL;
 	quad = NULL;
 	grid = NULL;
 	numberOfPoints = -1;
 	pointsOnPlane = NULL;
+
+	normalSet = false;
+	translationSet = false;
+	rotationSet = false;
 }
 PlaneInfo::~PlaneInfo(){}
 
-Vector3f* PlaneInfo::getNormal(){
+Vector3f PlaneInfo::getNormal(){
 	return normal;
 }
 
-Vector3f* PlaneInfo::getTranslationVector(){
+Vector3f PlaneInfo::getTranslationVector(){
 	return translationVector;
 }
 
-Matrix3f* PlaneInfo::getRotationMatrix(){
+Matrix3f PlaneInfo::getRotationMatrix(){
 	return rotationMatrix;
 }
 
@@ -65,15 +66,18 @@ vector<vector<float> > PlaneInfo::getCorners() {
 	return corners;
 }
 
-void PlaneInfo::setNormal(Vector3f* n) {
+void PlaneInfo::setNormal(Vector3f n) {
+	normalSet = true;
 	normal = n;
 }
 
-void PlaneInfo::setTranslationVector(Vector3f* v){
+void PlaneInfo::setTranslationVector(Vector3f v){
+	translationSet = true;
 	translationVector = v;
 }
 
-void PlaneInfo::setRotationMatrix(Matrix3f* m){
+void PlaneInfo::setRotationMatrix(Matrix3f m){
+	rotationSet = true;
 	rotationMatrix = m;
 }
 
@@ -119,15 +123,17 @@ void PlaneInfo::setCorners(vector<vector<float> > c) {
 
 vector<vector<float> > PlaneInfo::unrotateCorners(vector<vector<float> > corners)
 {
+	rotationMatrix = rotationMatrix.inverse();
 	for (int ci(0); ci < corners.size(); ci++)
 	{
 		Vector3f corner(corners.at(ci).at(0), corners.at(ci).at(1), corners.at(ci).at(2));
-		corner = *rotationMatrix * corner;
-		corner += *translationVector;
+		corner = rotationMatrix * corner;
+		corner += translationVector;
 		corners.at(ci).at(0) = corner[0];
 		corners.at(ci).at(1) = corner[1];
 		corners.at(ci).at(2) = corner[2];
 	}
+	rotationMatrix = rotationMatrix.inverse();
 	return corners;
 }
 
@@ -154,21 +160,18 @@ void PlaneInfo::writePlane(QString fileName) {
 	}
 	QTextStream ts (&file);
 	ts << "0" << " " << numberOfPoints << "\r\n";
-	ts << (normal != NULL) << " " << (translationVector != NULL) << " " << (rotationMatrix != NULL) << " " 
+	ts << (normalSet) << " " << (translationSet) << " " << (rotationSet) << " " 
 		<< (color != NULL) << " " << (pointsUsed != NULL) << " " << (xBorder.size() != 0) << "\r\n";
-	if (normal != NULL) {
-		Vector3f n = *normal;
-		ts << n(0) << " " << n(1) << " " << n(2) << "\r\n";
+	if (normalSet) {
+		ts << normal(0) << " " << normal(1) << " " << normal(2) << "\r\n";
 	}
-	if (translationVector != NULL) {
-		Vector3f t = *translationVector;
-		ts << t(0) << " " << t(1) << " " << t(2) << "\r\n";
+	if (translationSet) {
+		ts << translationVector(0) << " " << translationVector(1) << " " << translationVector(2) << "\r\n";
 	}
-	if (rotationMatrix != NULL) {
-		Matrix3f m = *rotationMatrix;
-		ts << m(0,0) << " " << m(0,1) << " " << m(0,2) << " "
-			<< m(1,0) << " " << m(1,1) << " " << m(1,2) << " "
-			<< m(2,0) << " " << m(2,1) << " " << m(2,2) << "\r\n";
+	if (rotationSet) {
+		ts << rotationMatrix(0,0) << " " << rotationMatrix(0,1) << " " << rotationMatrix(0,2) << " "
+			<< rotationMatrix(1,0) << " " << rotationMatrix(1,1) << " " << rotationMatrix(1,2) << " "
+			<< rotationMatrix(2,0) << " " << rotationMatrix(2,1) << " " << rotationMatrix(2,2) << "\r\n";
 	}
 	if (color != NULL) {
 		ts << color[0] << " " << color[1] << " " << color[2] << "\r\n";
@@ -230,28 +233,21 @@ void PlaneInfo::readPlane(QString fileName) {
 	}
 	if (whatInfo[0] == 1) {
 		list = ts.readLine().split(" ");
-		if (normal != NULL) {
-			delete normal;
+		for (int i = 0; i < 3; i++) {
+			normal(i) =list.at(i).toFloat();
 		}
-		normal = new Vector3f(list.at(0).toFloat(),list.at(1).toFloat(),list.at(2).toFloat());
 	}
 	if (whatInfo[1] == 1) {
 		list = ts.readLine().split(" ");
-		if (translationVector != NULL) {
-			delete translationVector;
+		for (int i = 0; i < 3; i++) {
+			translationVector(i) =list.at(i).toFloat();
 		}
-		translationVector = new Vector3f(list.at(0).toFloat(),list.at(1).toFloat(),list.at(2).toFloat());
 	}
 	if (whatInfo[2] == 1) {
 		list = ts.readLine().split(" ");
-		if (rotationMatrix != NULL) {
-			delete rotationMatrix;
-		}
-		Matrix3f r;
 		for (int i = 0; i < 9; i++) {
-			r(i/3,i%3) = list.at(i).toFloat();
+			rotationMatrix(i/3,i%3) = list.at(i).toFloat();
 		}
-		rotationMatrix = &r;
 	}
 	if (whatInfo[3] == 1) {
 		list = ts.readLine().split(" ");

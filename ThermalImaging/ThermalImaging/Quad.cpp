@@ -40,9 +40,6 @@ Quad::~Quad() {
 void Quad::subdivide() {
 	if (numberOfPoints > 0 && level < MAXLEVELS) {
 		int* counters = new int[4];
-		for (int i = 0; i < numberOfPoints; i++) {
-			qDebug() << points[pointList[i]][0] << points[pointList[i]][2];
-		}
 		for (int i = 0; i < 4; i++) {
 			counters[i] = 0;
 		}
