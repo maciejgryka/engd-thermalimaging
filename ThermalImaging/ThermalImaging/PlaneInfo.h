@@ -17,6 +17,7 @@ class PlaneInfo {
 	// it stores all this information together and also allows writing this information to a file or reading it from one
 
 private:
+	vector<int> bestPoints;
 	bool normalSet;
 	Vector3f normal; // the normal of the plane
 	bool translationSet;
@@ -27,6 +28,7 @@ private:
 	float** pointsOnPlane; // the xyz coordinates of all the points on the plane
 
 	float* color; // the color of the plane (currently the plane is one color
+	float* boundaries;
 
 	int* pointsUsed; // the indices of the points on the plane
 	int numberOfPoints; // the number of Points on the plane
@@ -48,6 +50,7 @@ public:
 	Vector3f getTranslationVector();
 	Matrix3f getRotationMatrix();
 	float* getColor();
+	float* getBoundaries();
 	int* getPointsUsed();
 	int getPointNumber();
 	Quad* getQuad();
@@ -62,6 +65,7 @@ public:
 	void setTranslationVector(Vector3f);
 	void setRotationMatrix(Matrix3f);
 	void setColor(float*);
+	void setBoundaries(float*);
 	void setPointsUsed(int*);
 	void setPointNumber(int);
 	void setQuad(Quad*);
@@ -77,6 +81,16 @@ public:
 	void writePlane(QString);
 	void readPlane(QString);
 
+	vector<int> getBestPoints() { 
+		return bestPoints; 
+	};
+
+
+	bool setBestPoints(vector<int> bP)
+	{
+		bestPoints = bP;
+		return true;
+	}
 };
 
 #endif
