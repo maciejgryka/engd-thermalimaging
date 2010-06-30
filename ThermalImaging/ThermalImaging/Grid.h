@@ -41,6 +41,7 @@ public:
 	void setGrid(int**,int);
 	int** getGrid();
 	int getGridSize();
+	float* getBoundaries() { return boundaries;};
 	void setBoundaries(float*);
 
 	void dilate(int);

@@ -8,7 +8,7 @@ Grid::Grid() {
 }
 
 Grid::~Grid() {
-	delete[] boundaries;
+	//delete[] boundaries;
 	clearData();
 }
 
@@ -348,7 +348,7 @@ void Grid::unrotateBorder(Matrix3f m, Vector3f t) {
 		v(0) = xBorder.at(i);
 		v(1) = 0.0f;
 		v(2) = zBorder.at(i);
-		v = (v.transpose() * m).transpose();
+		v = (m * v);
 		xBorder.at(i) = v(0) + t(0);
 		yBorder.at(i) = v(1) + t(1);
 		zBorder.at(i) = v(2) + t(2);
