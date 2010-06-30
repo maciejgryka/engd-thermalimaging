@@ -27,13 +27,15 @@ private:
 	float* boundaries; // pos 0: left, pos 1: top, pos 2: right, pos 3: bottom
 	float** points;
 
+	int maxLevels;
+
 	int power(int,int);
 
 	void toGrid(int**, int*, int*);
 
 
 public:
-	Quad(int, int*, int, float**, float*);
+	Quad(int, int, int*, int, float**, float*);
 	~Quad();
 	int getLevels();
 	int getSize();
