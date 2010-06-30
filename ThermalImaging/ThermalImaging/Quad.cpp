@@ -1,7 +1,6 @@
 #include "Quad.h"
 
-#define MAXLEVELS 6
-Quad::Quad(int l, int* ps, int nps, float** pts, float* bs) {
+Quad::Quad(int l, int maxLvls, int* ps, int nps, float** pts, float* bs) {
 	subdivided = false;
 	numberOfPoints = nps;
 	pointList = ps;
@@ -12,6 +11,7 @@ Quad::Quad(int l, int* ps, int nps, float** pts, float* bs) {
 	se = NULL;
 	sw = NULL;
 	boundaries = bs;
+	maxLevels = maxLvls;
 	if(nps == 0)
 		empty = true;
 	else
@@ -38,7 +38,7 @@ Quad::~Quad() {
 }
 
 void Quad::subdivide() {
-	if (numberOfPoints > 0 && level < MAXLEVELS) {
+	if (numberOfPoints > 0 && level < maxLevels) {
 		int* counters = new int[4];
 		for (int i = 0; i < 4; i++) {
 			counters[i] = 0;
@@ -107,13 +107,13 @@ void Quad::subdivide() {
 			quads[i]->subdivide();
 		}*/
 
-		nw = new Quad(level+1, newPoints[0], counters[0], points, bs[0]);
+		nw = new Quad(level+1, maxLevels, newPoints[0], counters[0], points, bs[0]);
 		nw->subdivide();
-		ne = new Quad(level+1, newPoints[1], counters[1], points, bs[1]);
+		ne = new Quad(level+1, maxLevels, newPoints[1], counters[1], points, bs[1]);
 		ne->subdivide();
-		se = new Quad(level+1, newPoints[2], counters[2], points, bs[2]);
+		se = new Quad(level+1, maxLevels, newPoints[2], counters[2], points, bs[2]);
 		se->subdivide();
-		sw = new Quad(level+1, newPoints[3], counters[3], points, bs[3]);
+		sw = new Quad(level+1, maxLevels, newPoints[3], counters[3], points, bs[3]);
 		sw->subdivide();
 	}
 	
@@ -147,11 +147,11 @@ void Quad::drawQuad() {
 }
 
 int Quad::getLevels() {
-	return MAXLEVELS;
+	return maxLevels;
 }
 
 int Quad::getSize() {
-	return power(2,MAXLEVELS);
+	return power(2,maxLevels);
 }
 
 void Quad::toGrid(int** grid, int* xPath, int* zPath) {
@@ -173,11 +173,11 @@ void Quad::toGrid(int** grid, int* xPath, int* zPath) {
 		int xStart = 0;
 		int zStart = 0;
 		for (int i = 0; i < level; i++) {
-			xStart += power(2, MAXLEVELS - 1 - i) * xPath[i];
-			zStart += power(2, MAXLEVELS - 1 - i) * zPath[i];
+			xStart += power(2, maxLevels - 1 - i) * xPath[i];
+			zStart += power(2, maxLevels - 1 - i) * zPath[i];
 		}
-		int xEnd = xStart + power(2,MAXLEVELS - level);
-		int zEnd = zStart + power(2,MAXLEVELS - level);
+		int xEnd = xStart + power(2,maxLevels - level);
+		int zEnd = zStart + power(2,maxLevels - level);
 		for (int i = xStart; i < xEnd; i++) {
 			for (int j = zStart; j < zEnd; j++) {
 				grid[i][j] = 1;
@@ -188,16 +188,16 @@ void Quad::toGrid(int** grid, int* xPath, int* zPath) {
 }
 
 int** Quad::toGrid() {
-	int** grid = new int*[power(2,MAXLEVELS)];
-	for (int i = 0; i < power(2,MAXLEVELS); i++) {
-		grid[i] = new int[power(2,MAXLEVELS)];
-		for(int j = 0; j < power(2,MAXLEVELS); j++) {
+	int** grid = new int*[power(2,maxLevels)];
+	for (int i = 0; i < power(2,maxLevels); i++) {
+		grid[i] = new int[power(2,maxLevels)];
+		for(int j = 0; j < power(2,maxLevels); j++) {
 			grid[i][j] = 0;
 		}
 	}
 	if(subdivided) {
-		int* xPath = new int[MAXLEVELS];
-		int* zPath = new int[MAXLEVELS];
+		int* xPath = new int[maxLevels];
+		int* zPath = new int[maxLevels];
 		xPath[0] = 0;
 		zPath[0] = 1;
 		nw->toGrid(grid, xPath, zPath);
