@@ -170,7 +170,7 @@ bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
 		pos1 = rand() % xBorder.size();
 		pos2 = rand() % zBorder.size();
 
-		while (find(pointsUsed.begin(), pointsUsed.end(), pos1) != pointsUsed.end() && find(pointsUsed.begin(), pointsUsed.end(), pos2) != pointsUsed.end() && pos1 != pos2) {
+		while (pointList[pos1] == 1 || pointList[pos2] == 1 || pos1 == pos2) {
 			pos1 = rand() % xBorder.size();
 			pos2 = rand() % zBorder.size();
 		}
@@ -185,7 +185,7 @@ bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
 		for (int borderPoint = 0; borderPoint < xBorder.size(); borderPoint++)
 		{
 			// omit any points already used for one of the previous lines found
-			if (!pointsUsed.empty() && (find(pointsUsed.begin(), pointsUsed.end(), borderPoint) != pointsUsed.end()))
+			if (pointList[borderPoint] == 1)
 			{
 				continue;
 			}
@@ -216,6 +216,7 @@ bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
 	for (int cpu = 0; cpu < currentPointsUsed.size(); cpu++)
 	{
 		this->pointsUsed.push_back(currentPointsUsed.at(cpu));
+		pointList[currentPointsUsed.at(cpu)] = 1;
 	}
 	this->bestPoints.push_back(currentBestPoints.at(0));
 	this->bestPoints.push_back(currentBestPoints.at(1));
