@@ -105,6 +105,9 @@ bool RansacPlaneEdge::findEdges()
 		}
 	}
 
+	if (corners.size() == 0)
+		return false;
+
 	// Now that we have all the corners, we need to put ther in a nice order for later drawing.
 	int *queue;										// holds corner indices in the right order
 	queue = new int[corners.size()];
@@ -166,6 +169,11 @@ bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
 
 		pos1 = rand() % xBorder.size();
 		pos2 = rand() % zBorder.size();
+
+		while (find(pointsUsed.begin(), pointsUsed.end(), pos1) != pointsUsed.end() && find(pointsUsed.begin(), pointsUsed.end(), pos2) != pointsUsed.end() && pos1 != pos2) {
+			pos1 = rand() % xBorder.size();
+			pos2 = rand() % zBorder.size();
+		}
 
 		P1[0] = xBorder[pos1];
 		P1[1] = zBorder[pos1];

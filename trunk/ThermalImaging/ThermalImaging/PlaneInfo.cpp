@@ -2,6 +2,7 @@
 
 PlaneInfo::PlaneInfo(){
 	color = NULL;
+	boundaries = NULL;
 	pointsUsed = NULL;
 	quad = NULL;
 	grid = NULL;
@@ -28,6 +29,10 @@ Matrix3f PlaneInfo::getRotationMatrix(){
 
 float* PlaneInfo::getColor(){
 	return color;
+}
+
+float* PlaneInfo::getBoundaries(){
+	return boundaries;
 }
 
 int* PlaneInfo::getPointsUsed(){
@@ -83,6 +88,10 @@ void PlaneInfo::setRotationMatrix(Matrix3f m){
 
 void PlaneInfo::setColor(float* c){
 	color = c;
+}
+
+void PlaneInfo::setBoundaries(float* b){
+	boundaries = b;
 }
 
 void PlaneInfo::setPointsUsed(int* ps){

@@ -63,6 +63,10 @@ TestGLWidget::TestGLWidget(QWidget *parent, QGLWidget *shareWidget)
 	zTrans = -10.0;
 	zoomDist = 0.0;
 
+	maxLevels = 6;
+	edgeInlierDistance = 0.1f;
+	chillPoints = 0.1f;
+
 	setFocusPolicy(Qt::StrongFocus);
 }
 
@@ -102,10 +106,8 @@ void TestGLWidget::initializeGL()
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations							// Enable Light One
 
-	PlaneCalculator* p = new PlaneCalculator();
-
-	ply = new Ply2OpenGL();
-	ply->readPlyFile("C:\\Users\\localadmin\\Desktop\\union3.ply");
+	//ply = new Ply2OpenGL();
+	//ply->readPlyFile("Data\\union3.ply");
 	//ply->readPlyFile("C:\\Users\\localadmin\\Desktop\\union.ply");
 	noPlanes = 2;
 	ps = 1000;
@@ -113,12 +115,13 @@ void TestGLWidget::initializeGL()
 	
 	rpc = new RandomPointCloud();
 	rpc->makePointCloud(noPlanes,ps,o);
+	points = rpc->getPointCloud();
 
 	float** normal = rpc->getNormals();
 
 	nPoints = noPlanes*ps+o;
-	nPoints = ply->getNVertices();
-	points = ply->toTwoDimensionalArray(ply->getVertices());
+	//nPoints = ply->getNVertices();
+	//points = ply->toTwoDimensionalArray(ply->getVertices());
 
 	Ransac* r = new Ransac();
 	r->setInlierDistance(0.1f);
@@ -129,8 +132,6 @@ void TestGLWidget::initializeGL()
 	Vector3f norm;
 	Vector3f ori;
 	int* bestPoints = new int[3];
-	q = new Quad*[noPlanes];
-	grid = new Grid*[noPlanes];
 	planes = new PlaneInfo*[noPlanes];
 	for (int k = 0; k < noPlanes; k++) {
 		planes[k] = NULL;
@@ -164,15 +165,15 @@ void TestGLWidget::initializeGL()
 			}
 			planes[k]->setColor(cols);
 					
-			p->setPoints(points);
+			p.setPoints(points);
 			//p->setNormal(norm);
 			Vector3f v;
 			Matrix3f r;
-			p->makeMatrixAndVector(b, numberOfPointsOnBestPlane, norm, v , r);
+			p.makeMatrixAndVector(b, numberOfPointsOnBestPlane, norm, v , r);
 			
-			p->translate(b, numberOfPointsOnBestPlane, v);
-			p->rotate(b, numberOfPointsOnBestPlane, r);
-			p->removeDimension(1, b, numberOfPointsOnBestPlane);
+			p.translate(b, numberOfPointsOnBestPlane, v);
+			p.rotate(b, numberOfPointsOnBestPlane, r);
+			p.removeDimension(1, b, numberOfPointsOnBestPlane);
 			
 			//p->translate(pointList, 0, nPoints, v);
 			//p->rotate(pointList, 0, nPoints, r);
@@ -186,7 +187,7 @@ void TestGLWidget::initializeGL()
 
 			planes[k]->writePlane(QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg((k+1)));
 		}
-		if (planes[k]->getXBorder().size() == 0) {
+		//if (planes[k]->getXBorder().size() == 0) {
 			PlaneLimitFinder *plf = new PlaneLimitFinder();
 			
 			plf->setPoints(points);
@@ -197,8 +198,8 @@ void TestGLWidget::initializeGL()
 			b = plf->findBiggestCluster(npop, pointList, "C:\\Users\\localadmin\\Desktop\\bigcluster.txt");
 			planes[k]->setPointsUsed(b);
 			planes[k]->setPointNumber(plf->getNumberOfPoints());
-			p->rotateBack(pointList, -1, nPoints, planes[k]->getRotationMatrix());
-			p->translateBack(pointList, -1, nPoints, planes[k]->getTranslationVector());
+			p.rotateBack(pointList, -1, nPoints, planes[k]->getRotationMatrix());
+			p.translateBack(pointList, -1, nPoints, planes[k]->getTranslationVector());
 			for (int i = 0; i < nPoints; i++) {
 				if (pointList[i] == -1)
 					pointList[i] = 0;
@@ -231,42 +232,20 @@ void TestGLWidget::initializeGL()
 			boundaries[2] = maxX;
 			boundaries[3] = minZ;
 
+			planes[k]->setBoundaries(boundaries);
+			Grid* grid = new Grid();
+			grid->setBoundaries(planes[k]->getBoundaries());
+			planes[k]->setGrid(grid);
 
-			q[k] = new Quad(0,b,planes[k]->getPointNumber(),points,boundaries);
-			q[k]->subdivide();
-			planes[k]->setQuad(q[k]);
-
-			int** g = q[k]->toGrid();
-			grid[k] = new Grid();
-			grid[k]->setGrid(g,q[k]->getSize());
-			grid[k]->setBoundaries(boundaries);
-			grid[k]->dilateAndErode(3);
-			grid[k]->erodeAndDilate(1);
-			grid[k]->calculateBorder();
-			grid[k]->drawAsPolygon();
-
-			rpe.reset();
-			rpe.setInlierDistance(0.1f);
-			rpe.setIterations(1000);
-			rpe.setPercentOfChillPoints(0.1f);
-			rpe.setXYZBorders(grid[k]->getXBorder(),grid[k]->getYBorder(),grid[k]->getZBorder());
-			rpe.setBoundaries(grid[k]->getBoundaries());
-			rpe.findEdges();
+			p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
+			p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
+			
 
 
-			grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector());
-
-			planes[k]->setGrid(grid[k]);
-			planes[k]->setXBorder(grid[k]->getXBorder());
-			planes[k]->setYBorder(grid[k]->getYBorder());
-			planes[k]->setZBorder(grid[k]->getZBorder());
-			planes[k]->setCorners(planes[k]->unrotateCorners(rpe.getCorners()));
-			p->rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
-			p->translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
-
-
-		}
+		//}
+		
 	}
+	runQuad();
 	
 }
 
@@ -290,7 +269,7 @@ void TestGLWidget::paintGL()
 		vector<float> xb = planes[k]->getXBorder();
 		vector<float> yb = planes[k]->getYBorder();
 		vector<float> zb = planes[k]->getZBorder();
-		glBegin(GL_POLYGON);
+		glBegin(GL_POINTS);
 		glColor3fv(planes[k]->getColor());
 		for (int i = 0; i < xb.size(); i++) {
 			glVertex3f(xb.at(i),yb.at(i),zb.at(i));
@@ -316,6 +295,29 @@ void TestGLWidget::paintGL()
 			else
 				glColor3f(1.0f, 1.0f, 0.0f);
 			glVertex3f(planes[k]->getCorners().at(corn).at(0), planes[k]->getCorners().at(corn).at(1), planes[k]->getCorners().at(corn).at(2));
+		}
+		glEnd();
+		glPointSize(5.0f);
+		glBegin(GL_POINTS);
+		for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
+		{
+			if (k== 0)
+				glColor3f(0.0f, 1.0f, 1.0f);
+			else
+				glColor3f(1.0f, 1.0f, 0.0f);
+			glVertex3f(planes[k]->getCorners().at(corn).at(0), planes[k]->getCorners().at(corn).at(1), planes[k]->getCorners().at(corn).at(2));
+		}
+		glEnd();
+
+		glPointSize(5.0f);
+		glBegin(GL_POINTS);
+		for (int corn(0); corn < planes[k]->getBestPoints().size(); corn++)
+		{
+			if (k== 0)
+				glColor3f(1.0f, 1.0f, 1.0f);
+			else
+				glColor3f(1.0f, 1.0f, 0.0f);
+			glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
 		}
 		glEnd();
 
@@ -422,4 +424,94 @@ void TestGLWidget::keyPressEvent(QKeyEvent *e)
 	  break;
   }*/
   updateGL();
+}
+
+void TestGLWidget::setMaxLevels(int lvls) {
+	maxLevels = lvls;
+}
+
+void TestGLWidget::setEdgeInlier(int edgeInliers) {
+	edgeInlierDistance = (float) edgeInliers / 100.0f;
+}
+
+void TestGLWidget::setChillPoints(int chillPts) {
+	chillPoints = (float) chillPts / 100.0f;
+}
+
+void TestGLWidget::rerunQuad() {
+	runQuad();
+}
+
+void TestGLWidget::runQuad() {
+	for (int k = 0; k < noPlanes; k++) {
+
+		p.translate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getTranslationVector());
+		p.rotate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getRotationMatrix());
+		p.removeDimension(1, planes[k]->getPointsUsed(), planes[k]->getPointNumber());
+
+		Quad* q = planes[k]->getQuad();
+		Grid* grid = planes[k]->getGrid();
+		if (q != NULL) {
+			delete q;
+			delete grid;
+		}
+
+		q = new Quad(0, maxLevels, planes[k]->getPointsUsed(), planes[k]->getPointNumber(),points, planes[k]->getBoundaries());
+		q->subdivide();
+		planes[k]->setQuad(q);
+
+		int** g = q->toGrid();
+		grid = new Grid();
+		grid->setGrid(g,q->getSize());
+		grid->setBoundaries(planes[k]->getBoundaries());
+		grid->dilateAndErode(3);
+		grid->erodeAndDilate(1);
+		grid->calculateBorder();
+		grid->drawAsPolygon();
+		planes[k]->setGrid(grid);
+		planes[k]->setXBorder(grid->getXBorder());
+		planes[k]->setYBorder(grid->getYBorder());
+		planes[k]->setZBorder(grid->getZBorder());
+
+		p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
+		p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
+	}
+
+	runRPE();
+}
+
+void TestGLWidget::rerunRPE() {
+	runRPE();
+}
+
+void TestGLWidget::runRPE() {
+	Grid* grid;
+
+	for (int k = 0; k < noPlanes; k++) {
+
+		grid = planes[k]->getGrid();
+
+		p.translate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getTranslationVector());
+		p.rotate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getRotationMatrix());
+		p.removeDimension(1, planes[k]->getPointsUsed(), planes[k]->getPointNumber());
+
+		
+
+		rpe.reset();
+		rpe.setInlierDistance(edgeInlierDistance);
+		rpe.setIterations(1000);
+		rpe.setPercentOfChillPoints(chillPoints);
+		rpe.setXYZBorders(planes[k]->getXBorder(),planes[k]->getYBorder(),planes[k]->getZBorder());
+		rpe.setBoundaries(planes[k]->getBoundaries());
+		rpe.findEdges();
+
+		//grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector())
+
+		planes[k]->setCorners(planes[k]->unrotateCorners(rpe.getCorners()));
+		planes[k]->setBestPoints(rpe.getBestPoints());
+
+		p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
+		p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
+	}
+			
 }

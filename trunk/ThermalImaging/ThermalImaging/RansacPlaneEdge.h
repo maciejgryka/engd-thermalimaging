@@ -12,6 +12,7 @@ public:
 	{ 
 		maxInliers = 0;
 		boundExtension = 0.5f;
+		boundaries = NULL;
 	};
 
 	~RansacPlaneEdge(){};
@@ -29,6 +30,7 @@ public:
 		bestPoints.clear();
 		corners.clear();
 		pointsUsed.clear();
+		lineCoeffs.clear();
 		return false;
 	};
 
@@ -60,14 +62,16 @@ public:
 		return true;
 	};
 
-	bool setBoundaries(float *boundaries)
+	bool setBoundaries(float *bds)
 	{
-		this->boundaries = boundaries;
+		if (boundaries != NULL)
+			delete[] boundaries;
+		this->boundaries = new float[4];
 		// extend the boundaries slightly
-		boundaries[0] -= boundExtension * abs(boundaries[2] - boundaries[0]);	// minX - boundExtension
-		boundaries[2] += boundExtension * abs(boundaries[2] - boundaries[0]);	// maxX - boundExtension
-		boundaries[3] -= boundExtension * abs(boundaries[1] - boundaries[3]);	// minZ - boundExtension
-		boundaries[1] += boundExtension * abs(boundaries[1] - boundaries[3]);	// maxZ - boundExtension
+		boundaries[0] -= boundExtension * abs(bds[2] - bds[0]);	// minX - boundExtension
+		boundaries[2] += boundExtension * abs(bds[2] - bds[0]);	// maxX - boundExtension
+		boundaries[3] -= boundExtension * abs(bds[1] - bds[3]);	// minZ - boundExtension
+		boundaries[1] += boundExtension * abs(bds[1] - bds[3]);	// maxZ - boundExtension
 
 		return true;
 	};

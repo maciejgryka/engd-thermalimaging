@@ -88,8 +88,18 @@ public:
     void rotateBy(int xAngle, int yAngle, int zAngle);
     void setClearColor(const QColor &color);
 
+	void runRPE();
+	void runQuad();
+
 signals:
     void clicked();
+
+public slots:
+	void setMaxLevels(int);
+	void setChillPoints(int);
+	void setEdgeInlier(int);
+	void rerunQuad();
+	void rerunRPE();
 
 protected:
     void initializeGL();
@@ -113,8 +123,8 @@ private:
 	int* clusters;
 	int nclusters;
 
-	Quad** q;
-	Grid** grid;
+	//Quad** q;
+	//Grid** grid;
 	PlaneInfo** planes;
 
 	float** colors;
@@ -129,6 +139,10 @@ private:
 	Ply2OpenGL* ply;
 	RansacPlaneEdge rpe;
 
+	int maxLevels;
+	float edgeInlierDistance;
+	float chillPoints;
+
 	int noPlanes;
 	
 	float xTrans;
@@ -138,6 +152,8 @@ private:
 
 	int ps;
 	int o;
+
+	PlaneCalculator p;
 
 };
 
