@@ -12,6 +12,7 @@ public:
 	{ 
 		maxInliers = 0;
 		boundExtension = 0.5f;
+		pointList = NULL;
 		boundaries = NULL;
 	};
 
@@ -21,9 +22,9 @@ public:
 	{
 		maxInliers = 0;
 		boundExtension = 0.5f;
-		xBorder.clear();
+		/*xBorder.clear();
 		yBorder.clear();
-		zBorder.clear();
+		zBorder.clear();*/
 		inlierDistance = 0.0f;
 		iterations = 0;
 		percentOfChillPoints = 0.0f;
@@ -31,13 +32,27 @@ public:
 		corners.clear();
 		pointsUsed.clear();
 		lineCoeffs.clear();
+		if (pointList != NULL) {
+			delete[] pointList;
+			pointList = NULL;
+		}
+		if (boundaries != NULL) {
+			delete[] boundaries;
+			boundaries = NULL;
+		}
 		return false;
-	};
+	}
 
 	bool findEdges();
 	bool findBestEdge(vector<int> &pointsUsed);
 	bool setXYZBorders(const vector<float> xBorder, const vector<float> yBorder, const vector<float> zBorder) 
 	{
+		if (pointList != NULL)
+			delete[] pointList;
+		pointList = new int[xBorder.size()];
+		for (int i = 0; i < xBorder.size(); i++) {
+			pointList[i] = 0;
+		}
 		this->xBorder = xBorder;
 		this->yBorder = yBorder;
 		this->zBorder = zBorder;
@@ -64,14 +79,17 @@ public:
 
 	bool setBoundaries(float *bds)
 	{
-		if (boundaries != NULL)
+		if (boundaries != NULL) {
 			delete[] boundaries;
-		this->boundaries = new float[4];
+			boundaries = NULL;
+		}
+
+		boundaries = new float[4];
 		// extend the boundaries slightly
-		boundaries[0] -= boundExtension * abs(bds[2] - bds[0]);	// minX - boundExtension
-		boundaries[2] += boundExtension * abs(bds[2] - bds[0]);	// maxX - boundExtension
-		boundaries[3] -= boundExtension * abs(bds[1] - bds[3]);	// minZ - boundExtension
-		boundaries[1] += boundExtension * abs(bds[1] - bds[3]);	// maxZ - boundExtension
+		boundaries[0] = bds[0] - boundExtension * abs(bds[2] - bds[0]);	// minX - boundExtension
+		boundaries[2] = bds[2] + boundExtension * abs(bds[2] - bds[0]);	// maxX - boundExtension
+		boundaries[3] = bds[3] - boundExtension * abs(bds[1] - bds[3]);	// minZ - boundExtension
+		boundaries[1] = bds[1] + boundExtension * abs(bds[1] - bds[3]);	// maxZ - boundExtension
 
 		return true;
 	};
@@ -107,6 +125,8 @@ private:
 	vector<float> zBorder;
 
 	vector<int> pointsUsed;
+
+	int* pointList;
 
 	int findLineCoeffs(int pointIndex, int lastLineIndex);
 	int findPointOnLine(int lineIndex, int currentPointIndex);
