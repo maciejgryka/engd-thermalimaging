@@ -38,10 +38,10 @@ bool RansacPlaneEdge::findEdges()
 		tempLine.push_back(c1);
 		lineCoeffs.push_back(tempLine);
 
-		for (int secondEdge(0); secondEdge < bestPoints.size()-1; secondEdge += 2)
+		// if secondEdge is smaller or equal firstEdge it's either the same edge, or one we've already tested
+		for (int secondEdge(firstEdge+2); secondEdge < bestPoints.size()-1; secondEdge += 2)
 		{
-			// if secondEdge is smaller or equal firstEdge it's either the same edge, or one we've already tested
-			if (secondEdge <= firstEdge) continue;
+			//if (secondEdge <= firstEdge) continue;
 
 			p2[0] = xBorder[bestPoints[secondEdge]];
 			p2[1] = zBorder[bestPoints[secondEdge]];
@@ -94,7 +94,17 @@ bool RansacPlaneEdge::findEdges()
 
 			// check if the intersection point is within boundaries
 			if (interX < boundaries[0] || interX > boundaries[2] || interZ < boundaries[3] || interZ > boundaries[1]) continue;
+			
+			// check whether we already have a very similar point
+			bool pExists(false);
+			for (int ci(0); ci < corners.size(); ci++)
+			{
+				if (sqrt((corners.at(ci).at(0) - interX) * (corners.at(ci).at(0) - interX) + (corners.at(ci).at(2) - interZ) * (corners.at(ci).at(2) - interZ)) < 7.0f) pExists = true;
+			}
 
+			if (pExists) continue;
+
+			// save the point
 			vector<float> tempCorners;
 
 			tempCorners.push_back(interX);

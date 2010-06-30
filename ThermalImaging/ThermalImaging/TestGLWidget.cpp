@@ -56,18 +56,18 @@ TestGLWidget::TestGLWidget(QWidget *parent, QGLWidget *shareWidget)
     xRot = 0;
     yRot = 0;
     zRot = 0;
-	noPlanes = 0;
+    noPlanes = 0;
 
-	xTrans = 0.0;
-	yTrans = 0.0;
-	zTrans = -10.0;
-	zoomDist = 0.0;
+    xTrans = 0.0;
+    yTrans = 0.0;
+    zTrans = -10.0;
+    zoomDist = 0.0;
 
-	maxLevels = 6;
-	edgeInlierDistance = 0.1f;
-	chillPoints = 0.1f;
+    maxLevels = 6;
+    edgeInlierDistance = 0.1f;
+    chillPoints = 0.1f;
 
-	setFocusPolicy(Qt::StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 TestGLWidget::~TestGLWidget()
@@ -100,153 +100,153 @@ void TestGLWidget::setClearColor(const QColor &color)
 
 void TestGLWidget::initializeGL()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);				// Black Background
-	glClearDepth(1.0f);									// Depth Buffer Setup
-	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
-	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations							// Enable Light One
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);                           // Black Background
+        glClearDepth(1.0f);                                                                     // Depth Buffer Setup
+        glEnable(GL_DEPTH_TEST);                                                        // Enables Depth Testing
+        glDepthFunc(GL_LEQUAL);                                                         // The Type Of Depth Testing To Do
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);      // Really Nice Perspective Calculations                                                 // Enable Light One
 
-	//ply = new Ply2OpenGL();
-	//ply->readPlyFile("Data\\union3.ply");
-	//ply->readPlyFile("C:\\Users\\localadmin\\Desktop\\union.ply");
-	noPlanes = 2;
-	ps = 1000;
-	o = 0;
-	
-	rpc = new RandomPointCloud();
-	rpc->makePointCloud(noPlanes,ps,o);
-	points = rpc->getPointCloud();
+        //ply = new Ply2OpenGL();
+        //ply->readPlyFile("Data\\union3.ply");
+        //ply->readPlyFile("C:\\Users\\localadmin\\Desktop\\union.ply");
+        noPlanes = 3;
+        ps = 1000;
+        o = 0;
+        
+        rpc = new RandomPointCloud();
+        rpc->makePointCloud(noPlanes,ps,o);
+        points = rpc->getPointCloud();
 
-	float** normal = rpc->getNormals();
+        float** normal = rpc->getNormals();
 
-	nPoints = noPlanes*ps+o;
-	//nPoints = ply->getNVertices();
-	//points = ply->toTwoDimensionalArray(ply->getVertices());
+        nPoints = noPlanes*ps+o;
+        //nPoints = ply->getNVertices();
+        //points = ply->toTwoDimensionalArray(ply->getVertices());
 
-	Ransac* r = new Ransac();
-	r->setInlierDistance(0.1f);
-	r->setIterations(10000);
-	//points = ply->toTwoDimensionalArray(ply->getVertices());
-	r->setPoints(points,nPoints);
-	int numberOfPointsOnBestPlane = 0;
-	Vector3f norm;
-	Vector3f ori;
-	int* bestPoints = new int[3];
-	planes = new PlaneInfo*[noPlanes];
-	for (int k = 0; k < noPlanes; k++) {
-		planes[k] = NULL;
- 		/*QFile file (QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg(k+1));
-		if (file.exists() && file.open(QIODevice::ReadOnly)) {
-			planes[k] = new PlaneInfo();
-			planes[k]->readPlane(QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg(k+1));
-		}*/
-	}
-	pointList = new int[nPoints];
-	for (int i = 0; i < nPoints; i++) {
-		pointList[i] = 0;
-	}
-	for (int k = 0; k < noPlanes; k++) {
-		int* b;
-		if (planes[k] == NULL) {
-			
-			planes[k] = new PlaneInfo();
-			r->findBestPlane(k+1,numberOfPointsOnBestPlane,ori,norm,bestPoints, pointList);
-			planes[k]->setNormal(norm);
-			/*int *a = new int[ps];
-			for (int i = 0; i < ps; i++) {
-				a[i] = i;
-			}*/
-			b = r->convertToNumberList(pointList,nPoints,numberOfPointsOnBestPlane, k+1);
-			r->printToFile(QString("C:\\Users\\localadmin\\Desktop\\data%1.txt").arg(k),b,numberOfPointsOnBestPlane);
+        Ransac* r = new Ransac();
+        r->setInlierDistance(0.2f);
+        r->setIterations(10000);
+        //points = ply->toTwoDimensionalArray(ply->getVertices());
+        r->setPoints(points,nPoints);
+        int numberOfPointsOnBestPlane = 0;
+        Vector3f norm;
+        Vector3f ori;
+        int* bestPoints = new int[3];
+        planes = new PlaneInfo*[noPlanes];
+        for (int k = 0; k < noPlanes; k++) {
+                planes[k] = NULL;
+                /*QFile file (QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg(k+1));
+                if (file.exists() && file.open(QIODevice::ReadOnly)) {
+                        planes[k] = new PlaneInfo();
+                        planes[k]->readPlane(QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg(k+1));
+                }*/
+        }
+        pointList = new int[nPoints];
+        for (int i = 0; i < nPoints; i++) {
+                pointList[i] = 0;
+        }
+        for (int k = 0; k < noPlanes; k++) {
+                int* b;
+                if (planes[k] == NULL) {
+                        
+                        planes[k] = new PlaneInfo();
+                        r->findBestPlane(k+1,numberOfPointsOnBestPlane,ori,norm,bestPoints, pointList);
+                        planes[k]->setNormal(norm);
+                        /*int *a = new int[ps];
+                        for (int i = 0; i < ps; i++) {
+                                a[i] = i;
+                        }*/
+                        b = r->convertToNumberList(pointList,nPoints,numberOfPointsOnBestPlane, k+1);
+                        r->printToFile(QString("C:\\Users\\localadmin\\Desktop\\data%1.txt").arg(k),b,numberOfPointsOnBestPlane);
 
-			float* cols = new float[3];
-			for (int i = 0; i < 3; i++) {
-				cols[i] = (float) rand() / (float) RAND_MAX;
-			}
-			planes[k]->setColor(cols);
-					
-			p.setPoints(points);
-			//p->setNormal(norm);
-			Vector3f v;
-			Matrix3f r;
-			p.makeMatrixAndVector(b, numberOfPointsOnBestPlane, norm, v , r);
-			
-			p.translate(b, numberOfPointsOnBestPlane, v);
-			p.rotate(b, numberOfPointsOnBestPlane, r);
-			p.removeDimension(1, b, numberOfPointsOnBestPlane);
-			
-			//p->translate(pointList, 0, nPoints, v);
-			//p->rotate(pointList, 0, nPoints, r);
-			//p->translate(pointList,1, nPoints, v);
-			//p->rotate(pointList, 1, nPoints, r);
-			
-			planes[k]->setPointsUsed(b);
-			planes[k]->setPointNumber(numberOfPointsOnBestPlane);
-			planes[k]->setRotationMatrix(r);
-			planes[k]->setTranslationVector(v);
+                        float* cols = new float[3];
+                        for (int i = 0; i < 3; i++) {
+                                cols[i] = (float) rand() / (float) RAND_MAX;
+                        }
+                        planes[k]->setColor(cols);
+                                        
+                        p.setPoints(points);
+                        //p->setNormal(norm);
+                        Vector3f v;
+                        Matrix3f r;
+                        p.makeMatrixAndVector(b, numberOfPointsOnBestPlane, norm, v , r);
+                        
+                        p.translate(b, numberOfPointsOnBestPlane, v);
+                        p.rotate(b, numberOfPointsOnBestPlane, r);
+                        p.removeDimension(1, b, numberOfPointsOnBestPlane);
+                        
+                        //p->translate(pointList, 0, nPoints, v);
+                        //p->rotate(pointList, 0, nPoints, r);
+                        //p->translate(pointList,1, nPoints, v);
+                        //p->rotate(pointList, 1, nPoints, r);
+                        
+                        planes[k]->setPointsUsed(b);
+                        planes[k]->setPointNumber(numberOfPointsOnBestPlane);
+                        planes[k]->setRotationMatrix(r);
+                        planes[k]->setTranslationVector(v);
 
-			planes[k]->writePlane(QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg((k+1)));
-		}
-		//if (planes[k]->getXBorder().size() == 0) {
-			PlaneLimitFinder *plf = new PlaneLimitFinder();
-			
-			plf->setPoints(points);
-			plf->setPointsUsed(planes[k]->getPointsUsed(), numberOfPointsOnBestPlane);
-			plf->findLimits(0);
-			clusters = plf->getClusters();
-			nclusters = plf->getNumberOfClusters();
-			b = plf->findBiggestCluster(npop, pointList, "C:\\Users\\localadmin\\Desktop\\bigcluster.txt");
-			planes[k]->setPointsUsed(b);
-			planes[k]->setPointNumber(plf->getNumberOfPoints());
-			p.rotateBack(pointList, -1, nPoints, planes[k]->getRotationMatrix());
-			p.translateBack(pointList, -1, nPoints, planes[k]->getTranslationVector());
-			for (int i = 0; i < nPoints; i++) {
-				if (pointList[i] == -1)
-					pointList[i] = 0;
-			}
+                        planes[k]->writePlane(QString("C:\\Users\\localadmin\\Desktop\\plane%1.txt").arg((k+1)));
+                }
+                //if (planes[k]->getXBorder().size() == 0) {
+                        PlaneLimitFinder *plf = new PlaneLimitFinder();
+                        
+                        plf->setPoints(points);
+                        plf->setPointsUsed(planes[k]->getPointsUsed(), numberOfPointsOnBestPlane);
+                        plf->findLimits(0);
+                        clusters = plf->getClusters();
+                        nclusters = plf->getNumberOfClusters();
+                        b = plf->findBiggestCluster(npop, pointList, "C:\\Users\\localadmin\\Desktop\\bigcluster.txt");
+                        planes[k]->setPointsUsed(b);
+                        planes[k]->setPointNumber(plf->getNumberOfPoints());
+                        p.rotateBack(pointList, -1, nPoints, planes[k]->getRotationMatrix());
+                        p.translateBack(pointList, -1, nPoints, planes[k]->getTranslationVector());
+                        for (int i = 0; i < nPoints; i++) {
+                                if (pointList[i] == -1)
+                                        pointList[i] = 0;
+                        }
 
-			float minX = +1000.0f;
-			float maxX = -1000.0f;
-			float minZ = +1000.0f;
-			float maxZ = -1000.0f;
-			float x, z;
+                        float minX = +1000.0f;
+                        float maxX = -1000.0f;
+                        float minZ = +1000.0f;
+                        float maxZ = -1000.0f;
+                        float x, z;
 
-			//pop = rpc->getPointCloud();
+                        //pop = rpc->getPointCloud();
 
-			for (int i = 0; i < planes[k]->getPointNumber(); i++) {
-				x = points[b[i]][0];
-				z = points[b[i]][2];
-				if (x < minX)
-					minX = x;
-				if (x > maxX)
-					maxX = x;
-				if (z < minZ)
-					minZ = z;
-				if (z > maxZ)
-					maxZ = z;
-			}
-			//qDebug() << minX << maxZ << maxX << minZ;
-			float* boundaries = new float[4];
-			boundaries[0] = minX;
-			boundaries[1] = maxZ;
-			boundaries[2] = maxX;
-			boundaries[3] = minZ;
+                        for (int i = 0; i < planes[k]->getPointNumber(); i++) {
+                                x = points[b[i]][0];
+                                z = points[b[i]][2];
+                                if (x < minX)
+                                        minX = x;
+                                if (x > maxX)
+                                        maxX = x;
+                                if (z < minZ)
+                                        minZ = z;
+                                if (z > maxZ)
+                                        maxZ = z;
+                        }
+                        //qDebug() << minX << maxZ << maxX << minZ;
+                        float* boundaries = new float[4];
+                        boundaries[0] = minX;
+                        boundaries[1] = maxZ;
+                        boundaries[2] = maxX;
+                        boundaries[3] = minZ;
 
-			planes[k]->setBoundaries(boundaries);
-			Grid* grid = new Grid();
-			grid->setBoundaries(planes[k]->getBoundaries());
-			planes[k]->setGrid(grid);
+                        planes[k]->setBoundaries(boundaries);
+                        Grid* grid = new Grid();
+                        grid->setBoundaries(planes[k]->getBoundaries());
+                        planes[k]->setGrid(grid);
 
-			p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
-			p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
-			
+                        p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
+                        p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
+                        
 
 
-		//}
-		
-	}
-	runQuad();
-	
+                //}
+                
+        }
+        runQuad();
+        
 }
 
 void TestGLWidget::paintGL()
@@ -262,112 +262,115 @@ void TestGLWidget::paintGL()
     glRotatef(yRot / 16.0f, 0.0f, 1.0f, 0.0f);
     glRotatef(zRot / 16.0f, 0.0f, 0.0f, 1.0f);
 
-	
-	for (int k = 0; k < noPlanes; k++) {
-		//q[k]->drawQuad();
-		//planes[k]->getGrid()->drawGrid();
-		vector<float> xb = planes[k]->getXBorder();
-		vector<float> yb = planes[k]->getYBorder();
-		vector<float> zb = planes[k]->getZBorder();
-		glBegin(GL_POINTS);
-		glColor3fv(planes[k]->getColor());
-		for (int i = 0; i < xb.size(); i++) {
-			glVertex3f(xb.at(i),yb.at(i),zb.at(i));
-		}
-		glEnd();
+        
+    for (int k = 0; k < noPlanes; k++) {
+        //q[k]->drawQuad();
+        //planes[k]->getGrid()->drawGrid();
+		
+		//TODO: memory leak?
+		Grid* unrotatedGrid = new Grid;
+		
+		*unrotatedGrid = *planes[k]->getGrid();
+		unrotatedGrid->unrotateBorder(planes[k]->getRotationMatrix(), planes[k]->getTranslationVector());
+		vector<float> xb = unrotatedGrid->getXBorder();
+        vector<float> yb = unrotatedGrid->getYBorder();
+        vector<float> zb = unrotatedGrid->getZBorder();
+        glPointSize(2.0f);
 
-		glPointSize(2.0f);
+		// Draw border
 		glBegin(GL_POINTS);
-		int* pU = planes[k]->getPointsUsed();
-		for (int i = 0; i < planes[k]->getPointNumber(); i++) {
-			
-			glColor3f(0.0f,0.0f,1.0f);
-			glVertex3fv(points[pU[i]]);
-		}
-		glEnd();
+        glColor3fv(planes[k]->getColor());
+        for (int i = 0; i < xb.size(); i++) {
+                glVertex3f(xb.at(i),yb.at(i),zb.at(i));
+        }
+        glEnd();
 
-		glColor3f(0.0f, 1.0f, 1.0f);
-		glBegin(GL_POLYGON);
-		for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
-		{
-			if (k== 0)
-				glColor3f(0.0f, 1.0f, 1.0f);
-			else
-				glColor3f(1.0f, 1.0f, 0.0f);
-			glVertex3f(planes[k]->getCorners().at(corn).at(0), planes[k]->getCorners().at(corn).at(1), planes[k]->getCorners().at(corn).at(2));
-		}
-		glEnd();
-		glPointSize(5.0f);
-		glBegin(GL_POINTS);
-		for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
-		{
-			if (k== 0)
-				glColor3f(0.0f, 1.0f, 1.0f);
-			else
-				glColor3f(1.0f, 1.0f, 0.0f);
-			glVertex3f(planes[k]->getCorners().at(corn).at(0), planes[k]->getCorners().at(corn).at(1), planes[k]->getCorners().at(corn).at(2));
-		}
-		glEnd();
+  //      // draw point cloud
+		//glPointSize(2.0f);
+  //      glBegin(GL_POINTS);
+  //      int* pU = planes[k]->getPointsUsed();
+  //      for (int i = 0; i < planes[k]->getPointNumber(); i++) {
+  //              
+  //              glColor3f(0.0f,0.0f,1.0f);
+  //              glVertex3fv(points[pU[i]]);
+  //      }
+  //      glEnd();
 
-		glPointSize(5.0f);
-		glBegin(GL_POINTS);
-		for (int corn(0); corn < planes[k]->getBestPoints().size(); corn++)
-		{
-			if (k== 0)
-				glColor3f(1.0f, 1.0f, 1.0f);
-			else
-				glColor3f(1.0f, 1.0f, 0.0f);
-			glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
-		}
-		glEnd();
+		// draw planes
+        glColor3fv(planes[k]->getColor());
+        glBegin(GL_POLYGON);
+		vector<vector<float> > corners = planes[k]->getCorners();
+        for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
+        {
+                glVertex3f(corners.at(corn).at(0), corners.at(corn).at(1), corners.at(corn).at(2));
+        }
+        glEnd();
 
-		glLineWidth(1.0f);
-		glBegin(GL_LINES);
-			// X axis
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex3f(-100.0f, 0.0f, 0.0f);
-			glVertex3f(100.0f, 0.0f, 0.0f);
-			// Y axis
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex3f(0.0f, -100.0f, 0.0f);
-			glVertex3f(0.0f, 100.0f, 0.0f);
-			// Z axis
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glVertex3f(0.0f, 0.0f, -100.0f);
-			glVertex3f(0.0f, 0.0f, 100.0f);
-		glEnd();
+		// draw corners
+        glPointSize(5.0f);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glBegin(GL_POINTS);
+        for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
+        {
+                glVertex3f(corners.at(corn).at(0), corners.at(corn).at(1), corners.at(corn).at(2));
+        }
+        glEnd();
+
+		// draw bestPoints
+        glPointSize(5.0f);
+		glColor3f(0.0f, 1.0f, 0.0f);
+        glBegin(GL_POINTS);
+        for (int corn(0); corn < planes[k]->getBestPoints().size(); corn++)
+        {
+                glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
+        }
+        glEnd();
+
+		// draw axes
+        glLineWidth(1.0f);
+        glBegin(GL_LINES);
+                // X axis
+                glColor3f(1.0f, 0.0f, 0.0f);
+                glVertex3f(-100.0f, 0.0f, 0.0f);
+                glVertex3f(100.0f, 0.0f, 0.0f);
+                // Y axis
+                glColor3f(0.0f, 1.0f, 0.0f);
+                glVertex3f(0.0f, -100.0f, 0.0f);
+                glVertex3f(0.0f, 100.0f, 0.0f);
+                // Z axis
+                glColor3f(0.0f, 0.0f, 1.0f);
+                glVertex3f(0.0f, 0.0f, -100.0f);
+                glVertex3f(0.0f, 0.0f, 100.0f);
+        glEnd();
 	}
-
 
 	glPointSize(1.0f);
 	glBegin(GL_POINTS);
 	for (int i = 0; i < nPoints; i++) {
-		if (pointList[i] == 0)
-			glColor3f(1.0f,0.0f,0.0f);
-		//if (pointList[i] >= 1 && pointList[i] <= noPlanes)
-		//	glColor3f(0.0f,1.0f,0.0f);
-		//if (pointList[i] == -1)
-		//	glColor3f(0.0f,1.0f,1.0f);
-		glVertex3fv(points[i]);
+			if (pointList[i] == 0)
+					glColor3f(1.0f,1.0f,1.0f);
+			//if (pointList[i] >= 1 && pointList[i] <= noPlanes)
+			//      glColor3f(0.0f,1.0f,0.0f);
+			//if (pointList[i] == -1)
+			//      glColor3f(0.0f,1.0f,1.0f);
+			glVertex3fv(points[i]);
 	}
 	glEnd();
-
-
 }
 
 void TestGLWidget::resizeGL(int width, int height)
 {
-	glViewport(0,0,width,height);						// Reset The Current Viewport
+        glViewport(0,0,width,height);                                           // Reset The Current Viewport
 
-	glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
-	glLoadIdentity();									// Reset The Projection Matrix
+        glMatrixMode(GL_PROJECTION);                                            // Select The Projection Matrix
+        glLoadIdentity();                                                                       // Reset The Projection Matrix
 
-	// Calculate The Aspect Ratio Of The Window
-	gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,0.1f,100.0f);
-	//gluOrtho2D(-10.0f,10.0f,10.0f,-10.0f);
+        // Calculate The Aspect Ratio Of The Window
+        gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,0.1f,100.0f);
+        //gluOrtho2D(-10.0f,10.0f,10.0f,-10.0f);
 
-	glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
-	glLoadIdentity();	
+        glMatrixMode(GL_MODELVIEW);                                                     // Select The Modelview Matrix
+        glLoadIdentity();       
 
 }
 
@@ -385,8 +388,8 @@ void TestGLWidget::mouseMoveEvent(QMouseEvent *event)
         rotateBy(8 * dy, 8 * dx, 0);
     } else if (event->buttons() & Qt::MidButton) {
         xTrans += dx/60.0;
-		yTrans -= dy/60.0;
-		updateGL();
+                yTrans -= dy/60.0;
+                updateGL();
     }
     lastPos = event->pos();
 }
@@ -398,120 +401,120 @@ void TestGLWidget::mouseReleaseEvent(QMouseEvent * /* event */)
 
 void TestGLWidget::wheelEvent(QWheelEvent *e)
 {
-	zoomDist -= e->delta()/100;
-	updateGL();
+        zoomDist -= e->delta()/100;
+        updateGL();
 }
 
 void TestGLWidget::keyPressEvent(QKeyEvent *e)
 {
-	float step = 0.3;
+        float step = 0.3;
   /*switch( e->key() )
   {
   case Qt::Key_W:
-	  yTrans += step;
-	  break;
+          yTrans += step;
+          break;
 
   case Qt::Key_S:
-	  yTrans -= step;
-	  break;
+          yTrans -= step;
+          break;
 
   case Qt::Key_A:
-	  xTrans -= step;
-	  break;
+          xTrans -= step;
+          break;
 
   case Qt::Key_D:
-	  xTrans += step;
-	  break;
+          xTrans += step;
+          break;
   }*/
   updateGL();
 }
 
 void TestGLWidget::setMaxLevels(int lvls) {
-	maxLevels = lvls;
+        maxLevels = lvls;
 }
 
 void TestGLWidget::setEdgeInlier(int edgeInliers) {
-	edgeInlierDistance = (float) edgeInliers / 100.0f;
+        edgeInlierDistance = (float) edgeInliers / 100.0f;
 }
 
 void TestGLWidget::setChillPoints(int chillPts) {
-	chillPoints = (float) chillPts / 100.0f;
+        chillPoints = (float) chillPts / 100.0f;
 }
 
 void TestGLWidget::rerunQuad() {
-	runQuad();
+        runQuad();
 }
 
 void TestGLWidget::runQuad() {
-	for (int k = 0; k < noPlanes; k++) {
+        for (int k = 0; k < noPlanes; k++) {
 
-		p.translate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getTranslationVector());
-		p.rotate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getRotationMatrix());
-		p.removeDimension(1, planes[k]->getPointsUsed(), planes[k]->getPointNumber());
+                p.translate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getTranslationVector());
+                p.rotate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getRotationMatrix());
+                p.removeDimension(1, planes[k]->getPointsUsed(), planes[k]->getPointNumber());
 
-		Quad* q = planes[k]->getQuad();
-		Grid* grid = planes[k]->getGrid();
-		if (q != NULL) {
-			delete q;
-			delete grid;
-		}
+                Quad* q = planes[k]->getQuad();
+                Grid* grid = planes[k]->getGrid();
+                if (q != NULL) {
+                        delete q;
+                        delete grid;
+                }
 
-		q = new Quad(0, maxLevels, planes[k]->getPointsUsed(), planes[k]->getPointNumber(),points, planes[k]->getBoundaries());
-		q->subdivide();
-		planes[k]->setQuad(q);
+                q = new Quad(0, maxLevels, planes[k]->getPointsUsed(), planes[k]->getPointNumber(),points, planes[k]->getBoundaries());
+                q->subdivide();
+                planes[k]->setQuad(q);
 
-		int** g = q->toGrid();
-		grid = new Grid();
-		grid->setGrid(g,q->getSize());
-		grid->setBoundaries(planes[k]->getBoundaries());
-		grid->dilateAndErode(3);
-		grid->erodeAndDilate(1);
-		grid->calculateBorder();
-		grid->drawAsPolygon();
-		planes[k]->setGrid(grid);
-		planes[k]->setXBorder(grid->getXBorder());
-		planes[k]->setYBorder(grid->getYBorder());
-		planes[k]->setZBorder(grid->getZBorder());
+                int** g = q->toGrid();
+                grid = new Grid();
+                grid->setGrid(g,q->getSize());
+                grid->setBoundaries(planes[k]->getBoundaries());
+                grid->dilateAndErode(3);
+                grid->erodeAndDilate(1);
+                grid->calculateBorder();
+                grid->drawAsPolygon();
+                planes[k]->setGrid(grid);
+                planes[k]->setXBorder(grid->getXBorder());
+                planes[k]->setYBorder(grid->getYBorder());
+                planes[k]->setZBorder(grid->getZBorder());
 
-		p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
-		p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
-	}
+                p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
+                p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
+        }
 
-	runRPE();
+        runRPE();
 }
 
 void TestGLWidget::rerunRPE() {
-	runRPE();
+        runRPE();
 }
 
 void TestGLWidget::runRPE() {
-	Grid* grid;
+        Grid* grid;
 
-	for (int k = 0; k < noPlanes; k++) {
+        for (int k = 0; k < noPlanes; k++) {
 
-		grid = planes[k]->getGrid();
+                grid = planes[k]->getGrid();
 
-		p.translate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getTranslationVector());
-		p.rotate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getRotationMatrix());
-		p.removeDimension(1, planes[k]->getPointsUsed(), planes[k]->getPointNumber());
+                p.translate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getTranslationVector());
+                p.rotate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getRotationMatrix());
+                p.removeDimension(1, planes[k]->getPointsUsed(), planes[k]->getPointNumber());
 
-		
+                
 
-		rpe.reset();
-		rpe.setInlierDistance(edgeInlierDistance);
-		rpe.setIterations(1000);
-		rpe.setPercentOfChillPoints(chillPoints);
-		rpe.setXYZBorders(planes[k]->getXBorder(),planes[k]->getYBorder(),planes[k]->getZBorder());
-		rpe.setBoundaries(planes[k]->getBoundaries());
-		rpe.findEdges();
+                rpe.reset();
+                rpe.setInlierDistance(edgeInlierDistance);
+                rpe.setIterations(1000);
+                rpe.setPercentOfChillPoints(chillPoints);
+                rpe.setXYZBorders(planes[k]->getXBorder(),planes[k]->getYBorder(),planes[k]->getZBorder());
+                rpe.setBoundaries(planes[k]->getBoundaries());
+                rpe.findEdges();
 
-		//grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector())
+                //grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector())
 
-		planes[k]->setCorners(planes[k]->unrotateCorners(rpe.getCorners()));
-		planes[k]->setBestPoints(rpe.getBestPoints());
+                planes[k]->setCorners(planes[k]->unrotateCorners(rpe.getCorners()));
+                planes[k]->setBestPoints(rpe.getBestPoints());
 
-		p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
-		p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
-	}
-			
+                p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
+                p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
+        }
+                        
 }
