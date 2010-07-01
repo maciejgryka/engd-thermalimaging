@@ -56,9 +56,9 @@ public:
 	void drawGrid();
 	void drawAsPolygon();
 	void calculateBorder();
-	vector<float> getXBorder();
-	vector<float> getYBorder();
-	vector<float> getZBorder();
+	vector<float>& getXBorder();
+	vector<float>& getYBorder();
+	vector<float>& getZBorder();
 
 	void unrotateBorder(Matrix3f, Vector3f);
 

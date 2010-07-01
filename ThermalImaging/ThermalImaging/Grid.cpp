@@ -327,15 +327,15 @@ void Grid::drawAsPolygon() {
 	}
 }
 
-vector<float> Grid::getXBorder() {
+vector<float>& Grid::getXBorder() {
 	return xBorder;
 }
 
-vector<float> Grid::getYBorder() {
+vector<float>& Grid::getYBorder() {
 	return yBorder;
 }
 
-vector<float> Grid::getZBorder() {
+vector<float>& Grid::getZBorder() {
 	return zBorder;
 }
 

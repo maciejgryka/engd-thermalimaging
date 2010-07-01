@@ -56,10 +56,10 @@ public:
 	Quad* getQuad();
 	Grid* getGrid();
 	float** getPointsOnPlane();
-	vector<float> getXBorder();
-	vector<float> getYBorder();
-	vector<float> getZBorder();
-	vector<vector<float> > getCorners();
+	vector<float>& getXBorder();
+	vector<float>& getYBorder();
+	vector<float>& getZBorder();
+	vector<vector<float> >& getCorners();
 
 	void setNormal(Vector3f);
 	void setTranslationVector(Vector3f);
@@ -71,12 +71,12 @@ public:
 	void setQuad(Quad*);
 	void setGrid(Grid*);
 	void setPointsOnPlane(float**);
-	void setXBorder(vector<float>);
-	void setYBorder(vector<float>);
-	void setZBorder(vector<float>);
-	void setCorners(vector<vector<float> >);
+	void setXBorder(const vector<float>&);
+	void setYBorder(const vector<float>&);
+	void setZBorder(const vector<float>&);
+	void setCorners(const vector<vector<float> >&);
 
-	vector<vector<float> > unrotateCorners(vector<vector<float> > corners);
+	vector<vector<float> >& unrotateCorners(vector<vector<float> >& corners);
 
 	void writePlane(QString);
 	void readPlane(QString);
@@ -86,7 +86,7 @@ public:
 	};
 
 
-	bool setBestPoints(vector<int> bP)
+	bool setBestPoints(const vector<int>& bP)
 	{
 		bestPoints = bP;
 		return true;

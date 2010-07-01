@@ -38,6 +38,7 @@ bool RansacPlaneEdge::findEdges()
 		tempLine.push_back(c1);
 		lineCoeffs.push_back(tempLine);
 
+
 		// if secondEdge is smaller or equal firstEdge it's either the same edge, or one we've already tested
 		for (int secondEdge(firstEdge+2); secondEdge < bestPoints.size()-1; secondEdge += 2)
 		{
@@ -160,7 +161,7 @@ bool RansacPlaneEdge::findEdges()
 	return true;
 }
 
-bool RansacPlaneEdge::findBestEdge(vector<int> &pointsUsed)
+bool RansacPlaneEdge::findBestEdge(const vector<int> &pointsUsed)
 {
 	int pos1, pos2;
 	float P1[2], P2[2];

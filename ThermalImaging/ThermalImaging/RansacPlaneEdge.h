@@ -44,8 +44,8 @@ public:
 	}
 
 	bool findEdges();
-	bool findBestEdge(vector<int> &pointsUsed);
-	bool setXYZBorders(const vector<float> xBorder, const vector<float> yBorder, const vector<float> zBorder) 
+	bool findBestEdge(const vector<int> &pointsUsed);
+	bool setXYZBorders(const vector<float> &xBorder, const vector<float> &yBorder, const vector<float> &zBorder) 
 	{
 		if (pointList != NULL)
 			delete[] pointList;
@@ -94,18 +94,18 @@ public:
 		return true;
 	};
 
-	vector<int> getBestPoints() { 
+	vector<int>& getBestPoints() { 
 		return bestPoints; 
 	};
 	
-	vector<vector<float>> getCorners() { 
+	vector<vector<float> >& getCorners() { 
 		return corners; 
 	};
 	
 	vector<int> getPointsUsed() {return pointsUsed; };
-	vector<float> getXBorder() { return xBorder; };
-	vector<float> getYBorder() { return yBorder; };
-	vector<float> getZBorder() { return zBorder; };
+	vector<float>& getXBorder() { return xBorder; };
+	vector<float>& getYBorder() { return yBorder; };
+	vector<float>& getZBorder() { return zBorder; };
 
 private:
 	float inlierDistance;		// threshold to count point as an inlier

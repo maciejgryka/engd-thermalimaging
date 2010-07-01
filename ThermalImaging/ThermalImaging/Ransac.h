@@ -11,6 +11,8 @@ USING_PART_OF_NAMESPACE_EIGEN
 #include <iostream>
 #include <ctime>
 
+#include <QTDebug>
+
 #include "QTextStream.h"
 #include "QFile.h"
 
