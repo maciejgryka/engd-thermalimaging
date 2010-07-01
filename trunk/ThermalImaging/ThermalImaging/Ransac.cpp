@@ -3,7 +3,10 @@
 Ransac::Ransac(){
 
 	//intialise random number generator
-	srand(time(0));
+	int seed = time(0);
+	qDebug() << "Seed " << seed;
+	seed = 1277908061;
+	srand(seed);
 
 }
 
@@ -68,6 +71,8 @@ void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 		inlier = 0;
     
 		for (int j = 0; j < numberOfPoints; j++) {
+
+			
 			// calculate distance between point and plane
 			P = pointCloud[j];
 			// calculate the distance between the point and the plane
@@ -76,6 +81,9 @@ void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 			if (dis < inlierDistance){
 				inlier++;
 			}
+			/*if (pointList[j] != 0 && dis < inlierDistance) {
+				inlier--;
+			}*/
 		}
 		// if the inlier number is better than the best plane found so far, then we take these points to be considered the new best plane
 		if (inlier > maxInliers) {
@@ -129,8 +137,19 @@ void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 }
 
 int* Ransac::convertToNumberList(int* pointsUsed, int numberOfPoints, int numberOfPointsOnPlane, int planeNumber) {
+/*	if (planeNumber == 2)
+	{
+		int* blee;
+		blee = new int[1];
+	}
+	int* bla;
+	bla = new int[1];*/
 	// converts 0/1 array into an array which contains the position of all the elements that have a the same value as the plane number
-	int* numberList = new int [numberOfPointsOnPlane];
+	int* numberList;
+	
+	numberList = new (nothrow) int[numberOfPointsOnPlane];
+	//memset(numberList, 0 , sizeof(int) * numberOfPointsOnPlane);
+
 	int count = 0;
 	for (int i = 0; i < numberOfPoints; i++) {
 		// if the point is used in the corresponding plane

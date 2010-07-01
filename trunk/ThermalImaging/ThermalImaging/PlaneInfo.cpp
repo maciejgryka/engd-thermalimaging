@@ -55,19 +55,19 @@ float** PlaneInfo::getPointsOnPlane() {
 	return pointsOnPlane;
 }
 
-vector<float> PlaneInfo::getXBorder() {
+vector<float>& PlaneInfo::getXBorder() {
 	return xBorder;
 }
 
-vector<float> PlaneInfo::getYBorder() {
+vector<float>& PlaneInfo::getYBorder() {
 	return yBorder;
 }
 
-vector<float> PlaneInfo::getZBorder() {
+vector<float>& PlaneInfo::getZBorder() {
 	return zBorder;
 }
 
-vector<vector<float> > PlaneInfo::getCorners() {
+vector<vector<float> >& PlaneInfo::getCorners() {
 	return corners;
 }
 
@@ -114,23 +114,23 @@ void PlaneInfo::setPointsOnPlane(float** p) {
 	pointsOnPlane = p;
 }
 
-void PlaneInfo::setXBorder(vector<float> b) {
+void PlaneInfo::setXBorder(const vector<float>& b) {
 	xBorder = b;
 }
 
-void PlaneInfo::setYBorder(vector<float> b) {
+void PlaneInfo::setYBorder(const vector<float>& b) {
 	yBorder = b;
 }
 
-void PlaneInfo::setZBorder(vector<float> b) {
+void PlaneInfo::setZBorder(const vector<float>& b) {
 	zBorder = b;
 }
 
-void PlaneInfo::setCorners(vector<vector<float> > c) {
+void PlaneInfo::setCorners(const vector<vector<float> >& c) {
 	corners = c;
 }
 
-vector<vector<float> > PlaneInfo::unrotateCorners(vector<vector<float> > corners)
+vector<vector<float> >& PlaneInfo::unrotateCorners(vector<vector<float> >& corners)
 {
 	rotationMatrix = rotationMatrix.inverse();
 	for (int ci(0); ci < corners.size(); ci++)
