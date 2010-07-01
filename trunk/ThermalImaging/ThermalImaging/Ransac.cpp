@@ -43,9 +43,14 @@ void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 	//int bestPoints[3] = {-1,-1,-1};
 
 	int pos1, pos2, pos3;
+	int maxWeirdos = 0;
 	float* P1; float* P2; float* P3; float* P;
 	float A,B,C,D;
 	float dis;
+	/*for (int j = 0; j < numberOfPoints; j++) {
+		pointList[j] = 0;
+	}*/
+	//pointList[numberOfPoints-1] = 1;
 	for (int i=0; i < iterations; i++) {
 		// get Random Points
 		pos1 = rand() % numberOfPoints;
@@ -69,6 +74,7 @@ void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 		
 		// set inliers to 0
 		inlier = 0;
+		int weirdos = 0;
     
 		for (int j = 0; j < numberOfPoints; j++) {
 
@@ -78,20 +84,23 @@ void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 			// calculate the distance between the point and the plane
 			dis = abs(A*P[0] + B*P[1] + C*P[2] + D) / sqrt(A*A + B*B + C*C);
 	  
+			if (pointList[j] != 0 && dis < inlierDistance)
+				weirdos++;
 			if (dis < inlierDistance){
 				inlier++;
 			}
-			/*if (pointList[j] != 0 && dis < inlierDistance) {
-				inlier--;
-			}*/
 		}
+		inlier -= weirdos;
 		// if the inlier number is better than the best plane found so far, then we take these points to be considered the new best plane
 		if (inlier > maxInliers) {
+			maxWeirdos = weirdos;
 			maxInliers = inlier;
 			bestPoints[0] = pos1;
 			bestPoints[1] = pos2;
 			bestPoints[2] = pos3;
+
 		}
+		
 		
 	}
 
@@ -106,7 +115,7 @@ void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 	D = -(P1[0] * (P2[1] * P3[2] - P3[1] * P2[2]) + P2[0] * (P3[1] * P1[2] - P1[1] * P3[2]) + P3[0] * (P1[1] * P2[2] - P2[1] * P1[2]));
     
 	int pointsPlaced = 0;
-	int *pointsOnPlane = new int[maxInliers];
+	int *pointsOnPlane = new int[maxInliers + maxWeirdos];
 
 	for (int j = 0; j < numberOfPoints; j++) {
 		// calculate distance between point and plane
@@ -121,7 +130,7 @@ void Ransac::findBestPlane(int planeNumber, int &numberOfPointsOnBestPlane, Vect
 		}
 	}
 
-	numberOfPointsOnBestPlane = maxInliers;
+	numberOfPointsOnBestPlane = maxInliers + maxWeirdos;
 	pointsLeft -= maxInliers;
 	
 	// calculate the normal and origin of the plane
