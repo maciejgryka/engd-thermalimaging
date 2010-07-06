@@ -8,6 +8,7 @@ USING_PART_OF_NAMESPACE_EIGEN
 
 using namespace std;
 
+// Stores single point information from the bundle file
 class BundlePoint {
 public:
 	BundlePoint() {};
@@ -37,6 +38,7 @@ public:
 private:
 	Vector3f coords3d;
 	Vector3f color;
+	// list of views (cameras) in which this point is visible together with XY coords where it can be found
 	vector<BundleView> viewList;
 };
 
