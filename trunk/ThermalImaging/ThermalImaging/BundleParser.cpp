@@ -1,11 +1,13 @@
 #include "BundleParser.h"
 
+// returns X and Y coords of points in the specified camera image given X, Y a Z coords of points in space
 MatrixXf BundleParser::getCameraXYPoints(int cameraNo, MatrixXf points3d)
 {
 	return getCameraXYPoints(cameras[cameraNo], points3d);
 }
 
-// taken from http://phototour.cs.washington.edu/bundler/bundler-v0.4-manual.html
+// returns X and Y coords of points in the specified camera image given X, Y a Z coords of points in space
+// based on http://phototour.cs.washington.edu/bundler/bundler-v0.4-manual.html
 MatrixXf BundleParser::getCameraXYPoints(BundleCamera camera, MatrixXf points3d)
 {
 	MatrixXf points2d(2, points3d.cols());
@@ -122,6 +124,9 @@ bool BundleParser::readFile(QString filename)
 	return true;
 }
 
+// reads the list of images
+//TODO: reads only image names, still need to specify folder somehow
+//TODO: it's slow because it's not using readAll(), but this file is always small, so it doesn't really matter
 QStringList BundleParser::readImageList(QString filename)
 {
 	QFile listFile(filename);

@@ -4,6 +4,8 @@
 #include "Eigen/Core"
 USING_PART_OF_NAMESPACE_EIGEN
 
+// Stores camera parameters read from bundle file
+// all the stuff made public because I was lazy...
 class BundleCamera {
 
 public:

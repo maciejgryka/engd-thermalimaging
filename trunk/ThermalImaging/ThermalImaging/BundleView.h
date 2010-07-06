@@ -1,6 +1,7 @@
 #ifndef BUNDLEVIEW
 #define BUNDLEVIEW
 
+// View specifies which camera sees a given point, which descriptor it matches and XY coords of the point in this camera image
 class BundleView {
 public:
 	BundleView() {};
@@ -12,26 +13,21 @@ public:
 
 	bool setCamera(int cam)
 	{
-		if (camera = cam)
-			return true;
-		else
-			return false;
+		camera = cam;
+		return true;
 	}
 
 	bool setKey(int k)
 	{
-		if (key = k)
-			return true;
-		else
-			return false;
+		key = k;
+		return true;
 	}
 
 	bool setCoordsXY(float x, float y)
 	{
-		if ((coordsXY[0] = x) && (coordsXY[1] = y))
-			return true;
-		else
-			return false;
+		coordsXY[0] = x;
+		coordsXY[1] = y;
+		return true;
 	}
 
 private:
