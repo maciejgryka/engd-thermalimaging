@@ -170,7 +170,7 @@ void PlaneInfo::writePlane(QString fileName) {
 	QTextStream ts (&file);
 	ts << "0" << " " << numberOfPoints << "\r\n";
 	ts << (normalSet) << " " << (translationSet) << " " << (rotationSet) << " " 
-		<< (color != NULL) << " " << (pointsUsed != NULL) << " " << (xBorder.size() != 0) << "\r\n";
+		<< (color != NULL) << " " << (pointsUsed != NULL) << " " << (xBorder.size() != 0) << " " << (corners.size() != 0) << "\r\n";
 	if (normalSet) {
 		ts << normal(0) << " " << normal(1) << " " << normal(2) << "\r\n";
 	}
@@ -192,7 +192,7 @@ void PlaneInfo::writePlane(QString fileName) {
 		ts << "\r\n";
 	}
 	if (xBorder.size() != 0) {
-		ts << xBorder.size() ;
+		ts << xBorder.size() << "\r\n";
 		for (int i = 0; i < xBorder.size(); i++) {
 			ts << xBorder.at(i) << " ";
 		}
@@ -205,6 +205,12 @@ void PlaneInfo::writePlane(QString fileName) {
 			ts << zBorder.at(i) << " ";
 		}
 		ts << "\r\n";
+	}
+	if (corners.size() != 0) {
+		ts << corners.size() << "\r\n";
+		for (int i = 0; i < corners.size(); i++) {
+			ts << corners.at(i).at(0) << " " << corners.at(i).at(1) << " " << corners.at(i).at(2) << "\r\n";
+		}
 	}
 	file.close();
 
@@ -281,20 +287,38 @@ void PlaneInfo::readPlane(QString fileName) {
 	if (whatInfo[5] == 1) {
 		int nBorderElements = ts.readLine().toInt();
 		
-		vector<float> xb;
-		vector<float> yb;
-		vector<float> zb;
+		xBorder.clear();
+		yBorder.clear();
+		zBorder.clear();
 		list = ts.readLine().split(" ");
 		for (int i = 0; i < nBorderElements; i++) {
-			xb.push_back(list.at(i).toFloat());
+			xBorder.push_back(list.at(i).toFloat());
 		}
 		list = ts.readLine().split(" ");
 		for (int i = 0; i < nBorderElements; i++) {
-			yb.push_back(list.at(i).toFloat());
+			yBorder.push_back(list.at(i).toFloat());
 		}
 		list = ts.readLine().split(" ");
 		for (int i = 0; i < nBorderElements; i++) {
-			zb.push_back(list.at(i).toFloat());
+			zBorder.push_back(list.at(i).toFloat());
+		}
+	}
+	if (whatInfo[5] == 1) {
+		int nCorners = ts.readLine().toInt();
+		for (int i = 0; i < corners.size(); i++) {
+			corners.at(i).clear();
+		}
+		corners.clear();
+		for (int i = 0; i < nCorners; i++) {
+			list = ts.readLine().split(" ");
+			vector<float> v;
+			v.push_back(list.at(0).toFloat());
+			v.push_back(list.at(1).toFloat());
+			v.push_back(list.at(2).toFloat());
+			corners.push_back(v);
+			//corners.at(i).push_back(list.at(0).toFloat());
+			//corners.at(i).push_back(list.at(1).toFloat());
+			//corners.at(i).push_back(list.at(2).toFloat());
 		}
 	}
 

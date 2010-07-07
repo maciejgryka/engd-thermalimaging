@@ -129,6 +129,42 @@ void PlaneCalculator::rotate(int* pointList, int value, int numberOfPoints, Matr
 
 }
 
+void PlaneCalculator::rotate(vector<float>& x, vector<float>& y, vector<float>& z, Matrix3f m, Vector3f t) {
+
+	//m = m.inverse();
+
+	Vector3f v;
+	for (int i = 0; i < x.size(); i++) {
+		v(0) = x.at(i) - t(0);
+		v(1) = y.at(i) - t(1);
+		v(2) = z.at(i) - t(2);
+		v = (m * v);
+		x.at(i) = v(0);
+		y.at(i) = v(1);
+		z.at(i) = v(2);
+	}
+	//m = m.inverse();
+
+}
+
+void PlaneCalculator::rotateBack(vector<float>& x, vector<float>& y, vector<float>& z, Matrix3f m, Vector3f t) {
+
+	m = m.inverse();
+
+	Vector3f v;
+	for (int i = 0; i < x.size(); i++) {
+		v(0) = x.at(i);
+		v(1) = y.at(i);
+		v(2) = z.at(i);
+		v = (m * v);
+		x.at(i) = v(0) + t(0);
+		y.at(i) = v(1) + t(1);
+		z.at(i) = v(2) + t(2);
+	}
+	m = m.inverse();
+
+}
+
 void PlaneCalculator::removeDimension(int dimension, int* pointsUsed, int numberOfPoints) {
 	for (int i = 0; i < numberOfPoints; i++) {
 		points[pointsUsed[i]][dimension] = 0.0f;

@@ -39,122 +39,60 @@
 **
 ****************************************************************************/
 
-#ifndef TESTGLWIDGET
-#define TESTGLWIDGET
+#ifndef LABELGLWIDGET
+#define LABELGLWIDGET
 
-#define NOMINMAX
+#define NOMINMAX			// Required for Eigen
 
-#include <Eigen/Eigen>
-USING_PART_OF_NAMESPACE_EIGEN
-
-#include <QTDebug>
+#include <GL/glew.h>		// GLEW includes gl.h and glu.h
 #include <QtGui>
 #include <QGLWidget>
-//#include <windows.h>		// Header File For Windows
+//#include <QVector3D>
+//#include <QVector2D>
+#include <windows.h>		// Header File For Windows
 #include <stdio.h>			// Header File For Standard Input/Output
-#include <gl\gl.h>			// Header File For The OpenGL32 Library
-#include <gl\glu.h>			// Header File For The GLu32 Library
+//#include <gl\gl.h>			// Header File For The OpenGL32 Library
+//#include <gl\glu.h>			// Header File For The GLu32 Library
 #include <gl\glaux.h>
-#include <iostream>
-#include <stdlib.h>
-using namespace std;
 
-//#include "thermalimaging.h"
-#include "Ply2OpenGL.h"
-#include "Ransac.h"
-#include "RandomPointCloud.h"
-
-#include "PlaneLimitFinder.h"
-#include "PlaneInfo.h"
-
-#include "PlaneCalculator.h"
-#include "Quad.h"
-#include "Grid.h"
-
-#include "RansacPlaneEdge.h"
-
-
-class QGLShaderProgram;
-
-class TestGLWidget : public QGLWidget
+class LabelGLWidget : public QGLWidget
 {
     Q_OBJECT
 
 public:
-    TestGLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
-    ~TestGLWidget();
+    LabelGLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
+	~LabelGLWidget();
+
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void rotateBy(int xAngle, int yAngle, int zAngle);
+
     void setClearColor(const QColor &color);
 
-	void runRPE();
-	void runQuad();
+public slots:
+	void changeVisibility(int);
 
 signals:
     void clicked();
 
-public slots:
-	void setMaxLevels(int);
-	void setChillPoints(int);
-	void setEdgeInlier(int);
-	void rerunQuad();
-	void rerunRPE();
-
 protected:
     void initializeGL();
+
     void paintGL();
-    void resizeGL(int width, int height);
-	void keyPressEvent(QKeyEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-	void wheelEvent(QWheelEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
+	void resizeGL(int, int);
+
 
 private:
 
-	float** points;
-	int nPoints;
-
-	int* pointList;
-
-	float** pop;
-	int npop;
-	int* clusters;
-	int nclusters;
-
-	//Quad** q;
-	//Grid** grid;
-	PlaneInfo** planes;
-
-	float** colors;
-
     QColor clearColor;
-    QPoint lastPos;
-    int xRot;
-    int yRot;
-    int zRot;
-	float xTrans;
-	float yTrans;
-	float zTrans;
-	float zoomDist;
+   
+	GLuint texture[1];
 
-	RandomPointCloud* rpc;
-	Ply2OpenGL* ply;
-	RansacPlaneEdge rpe;
 
-	int maxLevels;
-	float edgeInlierDistance;
-	float chillPoints;
 
-	int noPlanes;
+	
 
-	int ps;
-	int o;
 
-	PlaneCalculator p;
-
-	bool* readPlane;
+	
 
 };
 
