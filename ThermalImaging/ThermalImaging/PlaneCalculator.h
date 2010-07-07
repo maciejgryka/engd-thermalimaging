@@ -44,6 +44,9 @@ public:
 	void translate(int*, int, int, Vector3f);
 	void translateBack(int*, int, int, Vector3f);
 
+	void PlaneCalculator::rotate(vector<float>&, vector<float>&, vector<float>&, Matrix3f, Vector3f);
+	void PlaneCalculator::rotateBack(vector<float>&, vector<float>&, vector<float>&, Matrix3f, Vector3f);
+
 	/*int* getPointsUsed();
 	int getNumberOfPointsOnPlane();
 

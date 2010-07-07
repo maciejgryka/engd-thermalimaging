@@ -100,7 +100,7 @@ bool RansacPlaneEdge::findEdges()
 			bool pExists(false);
 			for (int ci(0); ci < corners.size(); ci++)
 			{
-				if (sqrt((corners.at(ci).at(0) - interX) * (corners.at(ci).at(0) - interX) + (corners.at(ci).at(2) - interZ) * (corners.at(ci).at(2) - interZ)) < 7.0f) pExists = true;
+				if (sqrt((corners.at(ci).at(0) - interX) * (corners.at(ci).at(0) - interX) + (corners.at(ci).at(2) - interZ) * (corners.at(ci).at(2) - interZ)) < 2.0f) pExists = true;
 			}
 
 			if (pExists) continue;
