@@ -13,6 +13,8 @@ class Texturer {
 public:
 	Texturer() {};
 	~Texturer() {};
+
+	BundleParser& getBundleParser() { return bp; };
 	
 	bool readFile(QString filename)
 	{
@@ -20,12 +22,13 @@ public:
 	}
 
 	/// Takes plane normal, position and 3D corner corrdinates and returns a rectangular texture from the best available image
-	QImage getTexture(Vector3f planeNormal, Vector3f planeTranslation, const vector<vector<float> > &corners);
+	QImage& getTexture(Vector3f planeNormal, Vector3f planeTranslation, const vector<vector<float> > &corners);
 
 private:
 	BundleParser bp;
 
 	int findBestCamera(Vector3f planeTranslation, Vector3f planeNormal, const vector<vector<float> > &corners);
+	bool isCameraInViewList(int camera, const vector<BundleView>& viewList);
 };
 
 #endif

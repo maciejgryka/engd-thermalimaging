@@ -35,6 +35,8 @@ public:
 		return true;
 	}
 
+	vector<BundleView>& getViewList() { return viewList; };
+
 private:
 	Vector3f coords3d;
 	Vector3f color;
