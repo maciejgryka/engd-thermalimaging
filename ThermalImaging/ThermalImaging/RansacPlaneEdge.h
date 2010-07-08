@@ -131,6 +131,8 @@ private:
 	int findLineCoeffs(int pointIndex, int lastLineIndex);
 	int findPointOnLine(int lineIndex, int currentPointIndex);
 	
+	int pointLiesOnLines(int pointIndex);
+
 	bool isFiniteNumber(double x)
 	{
 		return (x <= DBL_MAX && x >= -DBL_MAX);

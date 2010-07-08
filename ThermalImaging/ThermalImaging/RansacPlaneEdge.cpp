@@ -100,7 +100,7 @@ bool RansacPlaneEdge::findEdges()
 			bool pExists(false);
 			for (int ci(0); ci < corners.size(); ci++)
 			{
-				if (sqrt((corners.at(ci).at(0) - interX) * (corners.at(ci).at(0) - interX) + (corners.at(ci).at(2) - interZ) * (corners.at(ci).at(2) - interZ)) < 2.0f) pExists = true;
+				if (sqrt((corners.at(ci).at(0) - interX) * (corners.at(ci).at(0) - interX) + (corners.at(ci).at(2) - interZ) * (corners.at(ci).at(2) - interZ)) < 3.0f) pExists = true;
 			}
 
 			if (pExists) continue;
@@ -119,7 +119,7 @@ bool RansacPlaneEdge::findEdges()
 	if (corners.size() == 0)
 		return false;
 
-	// Now that we have all the corners, we need to put ther in a nice order for later drawing.
+	// Now that we have all the corners, we need to put them in a nice order for later drawing.
 	int *queue;										// holds corner indices in the right order
 	queue = new int[corners.size()];
 	int qPos = 0;
@@ -132,15 +132,18 @@ bool RansacPlaneEdge::findEdges()
 		// find right edge line
 		int lineIndex = findLineCoeffs(corn, lastLineIndex);	// find line the explains this point and is different to the last line
 		
-		if (lineIndex == -1)
+		if (lineIndex < 0)
 			break;
 
 		// find another point on this line
 		// ASSUMPTIONS: only neighbouring (edge-sharing) points are colinear; 
 		//				each edge contains exactly 2 points
 		int pointIndex = findPointOnLine(lineIndex, corn);
+		
+		if (pointIndex < 0)
+			break;
 
-		// add the right point index to the queue
+		// add the correct point index to the queue
 		queue[qPos] = pointIndex;
 		qPos++;
 		
@@ -151,6 +154,17 @@ bool RansacPlaneEdge::findEdges()
 		if (qPos == corners.size()) checkedAll = true;
 	}
 	if (!checkedAll) return false;
+
+	// count on how many lines each point lies - if it's just one it's not a corner, so we can discard it
+	int* lineCount = new int[corners.size()];
+	for (int cornIndex(0); cornIndex < corners.size(); cornIndex++)
+	{
+		lineCount[cornIndex] = pointLiesOnLines(cornIndex);
+		if (lineCount[cornIndex] < 2)
+		{
+			corners.erase(corners.begin() + cornIndex);
+		}
+	}
 
 	// rearrange the corners vector
 	vector<vector<float> > copyCorners = corners;
@@ -247,7 +261,7 @@ int RansacPlaneEdge::findLineCoeffs(int pointIndex, int lastLineIndex)
 			{
 				return li;
 			}
-		} else if (abs(corners.at(pointIndex).at(2) - lineCoeffs.at(li).at(0)*corners.at(pointIndex).at(0) - lineCoeffs.at(li).at(1)) < 0.01)
+		} else if (abs(corners.at(pointIndex).at(2) - lineCoeffs.at(li).at(0)*corners.at(pointIndex).at(0) - lineCoeffs.at(li).at(1)) < 0.5)
 		{
 			if (li != lastLineIndex) 
 			{
@@ -263,23 +277,35 @@ int RansacPlaneEdge::findPointOnLine(int lineIndex, int currentPointIndex)
 {
 	for (int pi(0); pi < corners.size(); pi++)
 	{
+		if (pi == currentPointIndex) continue;
+		float d = abs(corners.at(pi).at(2) - lineCoeffs.at(lineIndex).at(0) * corners.at(pi).at(0) - lineCoeffs.at(lineIndex).at(1));
 		//if (pi == 4)
 		//	return 0;
 		
 		if (!isFiniteNumber(lineCoeffs.at(lineIndex).at(0)))	// if a is infinite, the line is vertical, so we only need to check if point.x == c
 		{
-			if (pi != currentPointIndex && corners.at(pi).at(0) == lineCoeffs.at(lineIndex).at(1))
+			if (corners.at(pi).at(0) == lineCoeffs.at(lineIndex).at(1))
 			{
 				return pi;
 			}
-		} else if (abs(corners.at(pi).at(2) - lineCoeffs.at(lineIndex).at(0) * corners.at(pi).at(0) - lineCoeffs.at(lineIndex).at(1)) < 0.01)
+		} else if (abs(corners.at(pi).at(2) - lineCoeffs.at(lineIndex).at(0) * corners.at(pi).at(0) - lineCoeffs.at(lineIndex).at(1)) < 1.0f)
 		{
-			if (pi != currentPointIndex) 
-			{
-				return pi;
-			}
+			return pi;
 		}
 	}
 	return -1;
 }
-			
+
+int RansacPlaneEdge::pointLiesOnLines(int pointIndex)
+{
+	int onLines = 0;
+
+	for (int lineIndex(0); lineIndex < lineCoeffs.size(); lineIndex++)
+	{
+		if (abs(corners.at(pointIndex).at(2) - lineCoeffs.at(lineIndex).at(0) * corners.at(pointIndex).at(0) - lineCoeffs.at(lineIndex).at(1)) < 1.0f)
+		{
+			onLines++;
+		}
+	}
+	return onLines;
+}
