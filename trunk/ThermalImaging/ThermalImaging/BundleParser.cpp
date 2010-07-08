@@ -16,12 +16,13 @@ MatrixXf BundleParser::getCameraXYPoints(BundleCamera camera, MatrixXf points3d)
 	{
 		Vector3f p = camera.R * points3d.col(colIndex) + camera.t;
 		p[0] = -p[0]/p[2];
-		p[1] = p[1]/p[2];
+		p[1] = -p[1]/p[2];
 
-		points2d.col(colIndex)[0] = camera.focal * undistort(Vector2f(p[0], p[1]), camera.radialDist[0], camera.radialDist[1]) * p[0];
-		points2d.col(colIndex)[1] = camera.focal * undistort(Vector2f(p[0], p[1]), camera.radialDist[0], camera.radialDist[1]) * p[1];
+		//points2d.col(colIndex)[0] = camera.focal * undistort(Vector2f(p[0], p[1]), camera.radialDist[0], camera.radialDist[1]) * p[0];
+		//points2d.col(colIndex)[1] = camera.focal * undistort(Vector2f(p[0], p[1]), camera.radialDist[0], camera.radialDist[1]) * p[1];
+		points2d.col(colIndex)[0] = camera.focal * p[0];
+		points2d.col(colIndex)[1] = camera.focal * p[1];
 	}
-
 	return points2d;
 }
 
