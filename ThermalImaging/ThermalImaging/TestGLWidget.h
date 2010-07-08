@@ -91,6 +91,8 @@ public:
 	void runRPE();
 	void runQuad();
 
+	float* getBoundary(int);
+
 signals:
     void clicked();
 

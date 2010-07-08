@@ -170,7 +170,8 @@ void PlaneInfo::writePlane(QString fileName) {
 	QTextStream ts (&file);
 	ts << "0" << " " << numberOfPoints << "\r\n";
 	ts << (normalSet) << " " << (translationSet) << " " << (rotationSet) << " " 
-		<< (color != NULL) << " " << (pointsUsed != NULL) << " " << (xBorder.size() != 0) << " " << (corners.size() != 0) << "\r\n";
+		<< (color != NULL) << " " << (pointsUsed != NULL) << " " << (xBorder.size() != 0)
+		<< " " << (corners.size() != 0) << " " << (boundaries != NULL) << "\r\n";
 	if (normalSet) {
 		ts << normal(0) << " " << normal(1) << " " << normal(2) << "\r\n";
 	}
@@ -212,6 +213,9 @@ void PlaneInfo::writePlane(QString fileName) {
 			ts << corners.at(i).at(0) << " " << corners.at(i).at(1) << " " << corners.at(i).at(2) << "\r\n";
 		}
 	}
+	if (boundaries != NULL) {
+		ts << boundaries[0] << " " << boundaries[1] << " "<< boundaries[2] << " " << boundaries[3] << "\r\n";
+	}
 	file.close();
 
 	
@@ -241,24 +245,27 @@ void PlaneInfo::readPlane(QString fileName) {
 	QTextStream ts (&file);
 	QString line = ts.readLine();
 	numberOfPoints = line.split(" ")[1].toInt();
-	int* whatInfo = new int[6];
+	int* whatInfo = new int[8];
 	QStringList list = ts.readLine().split(" ");
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 8; i++) {
 		whatInfo[i] = list.at(i).toInt();
 	}
 	if (whatInfo[0] == 1) {
+		normalSet = true;
 		list = ts.readLine().split(" ");
 		for (int i = 0; i < 3; i++) {
 			normal(i) =list.at(i).toFloat();
 		}
 	}
 	if (whatInfo[1] == 1) {
+		translationSet = true;
 		list = ts.readLine().split(" ");
 		for (int i = 0; i < 3; i++) {
 			translationVector(i) =list.at(i).toFloat();
 		}
 	}
 	if (whatInfo[2] == 1) {
+		rotationSet = true;
 		list = ts.readLine().split(" ");
 		for (int i = 0; i < 9; i++) {
 			rotationMatrix(i/3,i%3) = list.at(i).toFloat();
@@ -267,7 +274,7 @@ void PlaneInfo::readPlane(QString fileName) {
 	if (whatInfo[3] == 1) {
 		list = ts.readLine().split(" ");
 		if (color != NULL) {
-			delete color;
+			delete[] color;
 		}
 		color = new float[3];
 		for (int i = 0; i < 3; i++) {
@@ -277,7 +284,7 @@ void PlaneInfo::readPlane(QString fileName) {
 	if (whatInfo[4] == 1) {
 		list = ts.readLine().split(" ");
 		if (pointsUsed != NULL) {
-			delete pointsUsed;
+			delete[] pointsUsed;
 		}
 		pointsUsed = new int[numberOfPoints];
 		for (int i = 0; i < numberOfPoints; i++) {
@@ -303,7 +310,7 @@ void PlaneInfo::readPlane(QString fileName) {
 			zBorder.push_back(list.at(i).toFloat());
 		}
 	}
-	if (whatInfo[5] == 1) {
+	if (whatInfo[6] == 1) {
 		int nCorners = ts.readLine().toInt();
 		for (int i = 0; i < corners.size(); i++) {
 			corners.at(i).clear();
@@ -319,6 +326,16 @@ void PlaneInfo::readPlane(QString fileName) {
 			//corners.at(i).push_back(list.at(0).toFloat());
 			//corners.at(i).push_back(list.at(1).toFloat());
 			//corners.at(i).push_back(list.at(2).toFloat());
+		}
+	}
+	if (whatInfo[7] == 1) {
+		list = ts.readLine().split(" ");
+		if (boundaries != NULL) {
+			delete[] boundaries;
+		}
+		boundaries = new float[4];
+		for (int i = 0; i < 4; i++) {
+			boundaries[i] = list.at(i).toFloat();
 		}
 	}
 
