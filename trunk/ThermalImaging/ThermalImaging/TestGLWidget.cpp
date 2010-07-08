@@ -123,6 +123,7 @@ void TestGLWidget::initializeGL()
     rpc->makePointCloud(noPlanes,ps,o);
     //points = rpc->getPointCloud();
 	points = ply->toTwoDimensionalArray(ply->getVertices());
+	p.setPoints(points);
 
     float** normal = rpc->getNormals();
 
@@ -182,7 +183,6 @@ void TestGLWidget::initializeGL()
             }
             planes[k]->setColor(cols);
                             
-            p.setPoints(points);
             //p->setNormal(norm);
             Vector3f v;
             Matrix3f r;
@@ -201,6 +201,7 @@ void TestGLWidget::initializeGL()
             planes[k]->setPointNumber(numberOfPointsOnBestPlane);
             planes[k]->setRotationMatrix(r);
             planes[k]->setTranslationVector(v);
+			
 
         //if (planes[k]->getXBorder().size() == 0) {
             PlaneLimitFinder *plf = new PlaneLimitFinder();
@@ -215,38 +216,16 @@ void TestGLWidget::initializeGL()
             planes[k]->setPointNumber(plf->getNumberOfPoints());
             p.rotateBack(pointList, -1, nPoints, planes[k]->getRotationMatrix());
             p.translateBack(pointList, -1, nPoints, planes[k]->getTranslationVector());
+
+			planes[k]->writePlane(QString("Data\\plane%1.txt").arg((k+1)));
+
             for (int i = 0; i < nPoints; i++) {
                 if (pointList[i] == -1)
                     pointList[i] = 0;
             }
 
-            float minX = +1000.0f;
-            float maxX = -1000.0f;
-            float minZ = +1000.0f;
-            float maxZ = -1000.0f;
-            float x, z;
-
-            //pop = rpc->getPointCloud();
-
-            for (int i = 0; i < planes[k]->getPointNumber(); i++) {
-                x = points[b[i]][0];
-                z = points[b[i]][2];
-                if (x < minX)
-                    minX = x;
-                if (x > maxX)
-                     maxX = x;
-                if (z < minZ)
-                     minZ = z;
-                if (z > maxZ)
-                     maxZ = z;
-            }
-            //qDebug() << minX << maxZ << maxX << minZ;
-            float* boundaries = new float[4];
-            boundaries[0] = minX;
-            boundaries[1] = maxZ;
-            boundaries[2] = maxX;
-            boundaries[3] = minZ;
-
+			float* boundaries = getBoundary(k);
+			
 			planes[k]->setBoundaries(boundaries);
 
             p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
@@ -260,6 +239,38 @@ void TestGLWidget::initializeGL()
 	}
     runQuad();
         
+}
+
+float* TestGLWidget::getBoundary(int k) {
+    float minX = +1000.0f;
+    float maxX = -1000.0f;
+    float minZ = +1000.0f;
+    float maxZ = -1000.0f;
+    float x, z;
+
+    //pop = rpc->getPointCloud();
+
+	int* b = planes[k]->getPointsUsed();
+
+    for (int i = 0; i < planes[k]->getPointNumber(); i++) {
+        x = points[b[i]][0];
+        z = points[b[i]][2];
+        if (x < minX)
+            minX = x;
+        if (x > maxX)
+             maxX = x;
+        if (z < minZ)
+             minZ = z;
+        if (z > maxZ)
+             maxZ = z;
+    }
+    //qDebug() << minX << maxZ << maxX << minZ;
+    float* boundaries = new float[4];
+    boundaries[0] = minX;
+    boundaries[1] = maxZ;
+    boundaries[2] = maxX;
+    boundaries[3] = minZ;
+	return boundaries;
 }
 
 void TestGLWidget::paintGL()
@@ -445,7 +456,7 @@ void TestGLWidget::rerunQuad() {
 
 void TestGLWidget::runQuad() {
         for (int k = 0; k < noPlanes; k++) {
-				if (readPlane[k])
+				if (planes[k]->getXBorder().size() != 0 && readPlane[k])
 					continue;
                 p.translate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getTranslationVector());
                 p.rotate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getRotationMatrix());
@@ -457,6 +468,10 @@ void TestGLWidget::runQuad() {
                         delete q;
                         delete grid;
                 }
+
+				if (planes[k]->getBoundaries() == NULL) {
+					planes[k]->setBoundaries(getBoundary(k));
+				}
 
                 q = new Quad(0, maxLevels, planes[k]->getPointsUsed(), planes[k]->getPointNumber(),points, planes[k]->getBoundaries());
                 q->subdivide();
@@ -494,11 +509,10 @@ void TestGLWidget::runRPE() {
 
     for (int k = 0; k < noPlanes; k++) {
 			
-		if (readPlane[k]) {
-			readPlane[k] = false;
+		if (planes[k]->getCorners().size() != 0 && readPlane[k]) {		
 			continue;
 		}
-
+		readPlane[k] = false;
         p.translate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getTranslationVector());
         p.rotate(planes[k]->getPointsUsed(), planes[k]->getPointNumber(), planes[k]->getRotationMatrix());
         p.removeDimension(1, planes[k]->getPointsUsed(), planes[k]->getPointNumber());
