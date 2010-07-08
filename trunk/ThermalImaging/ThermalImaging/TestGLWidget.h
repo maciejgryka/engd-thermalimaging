@@ -72,6 +72,7 @@ using namespace std;
 #include "Grid.h"
 
 #include "RansacPlaneEdge.h"
+#include "Texturer.h"
 
 
 class QGLShaderProgram;
@@ -144,6 +145,7 @@ private:
 	RandomPointCloud* rpc;
 	Ply2OpenGL* ply;
 	RansacPlaneEdge rpe;
+	Texturer tx;
 
 	int maxLevels;
 	float edgeInlierDistance;
@@ -157,7 +159,7 @@ private:
 	PlaneCalculator p;
 
 	bool* readPlane;
-
+	void mapTextures(Vector3f translationVector, Matrix3f rotationMatrix, const vector<vector<float> > &corners);
 };
 
 #endif
