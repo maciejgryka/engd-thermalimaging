@@ -6,6 +6,10 @@
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
+#include <QVector>
+#include <QString>
+
+#include <QTDebug>
 
 class Ply2OpenGL {
 
@@ -24,6 +28,9 @@ public:
 	
 	float* getVertices() { return vertices;	};
 
+	float* getNormals() { return normals; };
+	float* getColors() { return colors; };
+
 	int* getIndices() { return indices; };
 	
 	float* getTexCoords() { return texCoords; };
@@ -40,16 +47,27 @@ public:
 
 	float** toTwoDimensionalArray(float*);
 
+	bool hasTexNums() {return texNum;} ;
+	int* getTexNums() {return texNums;} ;
+
+	QVector<QString>* getTextureFiles() {return textureFiles;};
+
 	//float* getColors();
 	//float* getNormals();
 
 private:
 	float* vertices;
+	float* normals;
+	float* colors;
 	int* indices;
 	float* texCoords;
+	int* texNums;
 	QStringList text;
 	//float* colors;
 	//float* normals;
+
+	bool texNum;
+	QVector<QString>* textureFiles;
 
 	int nVertices;
 	int nFaces;
