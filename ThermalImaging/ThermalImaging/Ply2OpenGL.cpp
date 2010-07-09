@@ -16,7 +16,7 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 		if (text.size() == 1) {
 			text = textAsLine.split("\n");
 		}
-		int *comments = new int[text.size()];
+		/*int *comments = new int[text.size()];
 
 		int pos = 0;
 		int nComments = 0;
@@ -29,7 +29,7 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 				nComments++;
 			}
 			comments[pos] = nComments + 1; 
-		}
+		}*/
 		int position = 0;
 
 		if (text[position].compare("ply"))
@@ -38,7 +38,7 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 			return 0;
 		}
 
-		position += comments[position];
+		position++;
 
 		if (text.at(position).compare("format ascii 1.0"))
 		{
@@ -48,11 +48,12 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 
 		QStringList lineList;
 		bool inHeader = true;
-
+		texNum = false;
+		textureFiles = new QVector<QString>();
 		// analyse the PLY header
 		while (inHeader)
 		{
-			position += comments[position];
+			position++;
 
 			if (!text.at(position).compare("end_header"))
 			{
@@ -66,6 +67,8 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 			{
 				nVertices = lineList.at(2).toInt();
 				vertices =	new float[nVertices * vertexSize];
+				normals =	new float[nVertices * vertexSize];
+				colors =	new float[nVertices * vertexSize];
 				//texCoords = new float[nVertices * texCoordSize];
 				//colors =	new float[nVertices * colorSize];
 				//normals =	new float[nVertices * normalSize];
@@ -75,29 +78,62 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 				nFaces = lineList.at(2).toInt();
 				indices = new int[nFaces * verticesPerFace];
 				texCoords = new float[nFaces * verticesPerFace * texCoordSize];
+			} else if (!lineList.at(0).compare("property") && !lineList.at(1).compare("int") && !lineList.at(2).compare("texnumber")) {
+				texNum = true;
+			} else if (!lineList.at(0).compare("comment") && !lineList.at(1).compare("TextureFile")) {
+				QString s = lineList.at(2);
+				textureFiles->append(s);
 			}
 			//header += line;
 		}
 
+		bool nor = false;
+		bool col = false;
 		// assign all the vertex values
-		for (int vert = 0; vert < nVertices; vert++)
-		{
-			position += comments[position];
+		for (int vert = 0; vert < nVertices; vert++) {
+			position++;
+			if (text.at(position).startsWith("comment")) {
+				vert--;
+				continue;
+			}
+			
 			lineList = text.at(position).split(" ");
 			// write vertices
 			vertices[vert*vertexSize]	  = lineList.at(0).toFloat();
 			vertices[vert*vertexSize + 1] = lineList.at(1).toFloat();
 			vertices[vert*vertexSize + 2] = lineList.at(2).toFloat();
+			if (lineList.size() >= 6) {
+				normals[vert*vertexSize]	  = lineList.at(3).toFloat();
+				normals[vert*vertexSize + 1] = lineList.at(4).toFloat();
+				normals[vert*vertexSize + 2] = lineList.at(5).toFloat();
+				nor = true;
+			}
+			if (lineList.size() >= 9) {
+				colors[vert*vertexSize]	  = lineList.at(6).toFloat() / 255.0f;
+				colors[vert*vertexSize + 1] = lineList.at(7).toFloat() / 255.0f;
+				colors[vert*vertexSize + 2] = lineList.at(8).toFloat() / 255.0f;
+				col = true;
+			}
 
 			//// write texture coordinates
 			//texCoords[vert*texCoordSize] = lineList.at(3).toFloat();
 			//texCoords[vert*texCoordSize + 1] = lineList.at(4).toFloat();
 		}
+		if (!nor)
+			delete[] normals;
+		if (!col)
+			delete[] colors;
 
 		// assign all the face values
+		if (texNum)
+			texNums = new int[nFaces];
 		for (int face = 0; face < nFaces; face++)
 		{
-			position += comments[position];
+			position++;
+			if (text.at(position).startsWith("comment")) {
+				face--;
+				continue;
+			}
 			lineList = text.at(position).split(" ");
 		
 			if (lineList.at(0).toInt() != verticesPerFace)
@@ -132,9 +168,13 @@ bool Ply2OpenGL::readPlyFile(QString filename)
 			texCoords[face*verticesPerFace*texCoordSize + 3] = lineList.at( 8).toFloat();
 			texCoords[face*verticesPerFace*texCoordSize + 4] = lineList.at( 9).toFloat();
 			texCoords[face*verticesPerFace*texCoordSize + 5] = lineList.at(10).toFloat();
+
+			if (texNum) {
+				texNums[face] = lineList.at(11).toInt();
+			}
 		}
-		delete[] comments;
-		comments = NULL;
+		//delete[] comments;
+		//comments = NULL;
 	}
 	return true;
 }
