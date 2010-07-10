@@ -41,11 +41,12 @@ QImage& Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, co
 
 int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, const vector<vector<float> > &corners)
 {
+	float minDist(5.0f);
 	// go through each corner and find corresponding real points in the point cloud
 	vector<vector<int> > realCorners;
 	for (int cornIndex(0); cornIndex < corners.size(); cornIndex++)
 	{
-		float minDist(50.0f);
+		float minDist(0.5f);
 		Vector3f c(corners.at(cornIndex).at(0), corners.at(cornIndex).at(1), corners.at(cornIndex).at(2));
 		
 		vector<int> closePoints;
@@ -60,7 +61,7 @@ int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, c
 		}
 		realCorners.push_back(closePoints);
 	}
-
+	
 	int* cameraScore;
 	cameraScore = new int[bp.getNCameras()];
 	for (int cSI(0); cSI < bp.getNCameras(); cSI++)
@@ -69,16 +70,19 @@ int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, c
 	}
 	// then find a camera, which sees all of these real points
 	int maxScore = 0;
-	int bestCam = -1;
+	vector<int> bestCams;
 	for (int cameraIndex(0); cameraIndex < bp.getNCameras(); cameraIndex++)
 	{
+		
 		for (int realCornIndex(0); realCornIndex < realCorners.size(); realCornIndex++)
 		{
-			for (int closePoint(0); closePoint < realCorners.at(realCornIndex).size(); closePoint++)
+			bool stop = false;
+			for (int closePoint(0); closePoint < realCorners.at(realCornIndex).size() && !stop; closePoint++)
 			{
-				if (isCameraInViewList(cameraIndex, bp.getPoint(closePoint).getViewList()))
+				if (isCameraInViewList(cameraIndex, bp.getPoint(realCorners.at(realCornIndex).at(closePoint)).getViewList()))
 				{
 					cameraScore[cameraIndex]++;
+					stop = true;
 					//break;
 				}
 			}
@@ -86,9 +90,68 @@ int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, c
 		if (cameraScore[cameraIndex] > maxScore)
 		{
 			maxScore = cameraScore[cameraIndex];
-			bestCam = cameraIndex;
+			bestCams.clear();
+			bestCams.push_back(cameraIndex);
 		}
 	}
+
+	float minX = +1000.0f;
+	float maxX = -1000.0f;
+	float minY = +1000.0f;
+	float maxY = -1000.0f;
+	float minZ = +1000.0f;
+	float maxZ = -1000.0f;
+	float x,y,z;
+
+	//pop = rpc->getPointCloud();
+
+
+	for (int i = 0; i < corners.size(); i++) {
+		x = corners.at(i).at(0);
+		y = corners.at(i).at(1);
+		z = corners.at(i).at(2);
+		if (x < minX)
+			minX = x;
+		if (x > maxX)
+			 maxX = x;
+		if (y < minY)
+			 minY = y;
+		if (y > maxY)
+			 maxY = y;
+		if (z < minZ)
+			 minZ = z;
+		if (z > maxZ)
+			 maxZ = z;
+	}
+
+
+	Vector3f centroid((maxX + minX) / 2.0f, (maxY + minY) / 2.0f, (maxZ + minZ) / 2.0f);
+
+	float score = 0.0f;
+	int bestCam = 0;
+
+	for (int cameraIndex(0); cameraIndex < bestCams.size(); cameraIndex++) {
+		// find normal of camera
+		BundleCamera cam = bp.getCamera(bestCams.at(cameraIndex));
+		Vector3f viewDirection = cam.R.row(2).normalized();
+
+		// compare normal with with normal of plane and give score
+		Vector3f pN = planeNormal.normalized();
+		float dotP = viewDirection.dot(pN);
+
+		// find offset of camera and center of plane
+		Vector3f closestPointOnLine = cam.t + ((centroid-cam.t).dot(viewDirection)) / viewDirection.dot(viewDirection) * viewDirection;
+		float dis = (closestPointOnLine-centroid).norm();
+		
+		if (score < dotP / sqrt(dis)) {
+			score = dotP / sqrt(dis);
+			bestCam = bestCams.at(cameraIndex);
+		}
+			
+
+		
+	}
+	
 	return bestCam;
 }
 
