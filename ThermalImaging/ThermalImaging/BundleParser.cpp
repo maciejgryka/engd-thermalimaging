@@ -111,7 +111,7 @@ bool BundleParser::readFile(QString filename)
 			position += comments[position];
 			lineList = text[position].split(" ");
 			int nViews = lineList.at(0).toInt();
-			for (int viewIndex(1); viewIndex < nViews; viewIndex++)
+			for (int viewIndex(1); viewIndex < nViews*4; viewIndex+=4)
 			{
 				BundleView bv;
 				bv.setCamera(lineList.at(viewIndex).toInt());
