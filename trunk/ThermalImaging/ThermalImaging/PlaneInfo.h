@@ -6,6 +6,7 @@
 #include <Eigen/Eigen>
 USING_PART_OF_NAMESPACE_EIGEN
 
+#include "cv.h"
 #include "Quad.h"
 #include "Grid.h"
 #include <vector>
@@ -90,7 +91,11 @@ public:
 	{
 		bestPoints = bP;
 		return true;
-	}
+	};
+
+	CvPoint2D32f* hullPoints;
+	int nHullPoints;
+	void convertHullPoints2Corners();
 };
 
 #endif
