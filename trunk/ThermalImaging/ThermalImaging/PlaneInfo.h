@@ -80,7 +80,7 @@ public:
 	vector<vector<float> >& unrotateCorners(vector<vector<float> >& corners);
 
 	void writePlane(QString);
-	void readPlane(QString);
+	void readPlane(QString, int*, int);
 
 	vector<int> getBestPoints() { 
 		return bestPoints; 

@@ -103,6 +103,9 @@ public slots:
 	void setEdgeInlier(int);
 	void rerunQuad();
 	void rerunRPE();
+	void time0(bool);
+	void time1(bool);
+	void time2(bool);
 
 protected:
     void initializeGL();
@@ -125,6 +128,8 @@ private:
 	int npop;
 	int* clusters;
 	int nclusters;
+
+	int time;
 
 	//Quad** q;
 	//Grid** grid;
@@ -158,8 +163,8 @@ private:
 
 	PlaneCalculator p;
 
-	bool* readPlane;
 	void mapTextures(Vector3f translationVector, Matrix3f rotationMatrix, const vector<vector<float> > &corners);
+	bool* readPlane;
 };
 
 #endif
