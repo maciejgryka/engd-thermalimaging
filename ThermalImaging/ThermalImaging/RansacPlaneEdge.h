@@ -1,7 +1,10 @@
 #ifndef RANSACPLANEEDGE
 #define RANSACPLANEEDGE
 
+#include "cv.h"
+#include <stdlib.h>
 #include <math.h>
+#include <ctime>
 #include "Grid.h"
 
 using namespace std;
@@ -9,7 +12,7 @@ using namespace std;
 class RansacPlaneEdge {
 public:
 	RansacPlaneEdge()
-	{ 
+	{
 		maxInliers = 0;
 		boundExtension = 0.5f;
 		pointList = NULL;
@@ -20,6 +23,12 @@ public:
 
 	bool reset()
 	{
+		//intialise random number generator
+		int seed = time(0);
+		//seed = 1278926649;
+		qDebug() << "Seed " << seed;
+		srand(seed);
+
 		maxInliers = 0;
 		boundExtension = 0.5f;
 		/*xBorder.clear();
@@ -45,7 +54,7 @@ public:
 
 	bool findEdges();
 	bool findBestEdge(const vector<int> &pointsUsed);
-	bool setXYZBorders(const vector<float> &xBorder, const vector<float> &yBorder, const vector<float> &zBorder) 
+	bool setXYZBorders(vector<float>& xBorder, vector<float>& yBorder, vector<float>& zBorder) 
 	{
 		if (pointList != NULL)
 			delete[] pointList;
@@ -107,6 +116,10 @@ public:
 	vector<float>& getYBorder() { return yBorder; };
 	vector<float>& getZBorder() { return zBorder; };
 
+	CvPoint2D32f* findPlaneConvexHull();
+	CvPoint2D32f* findPlaneConvexHull(const vector<float>& xBorder, const vector<float>& zBorder);
+	int getNHullPoints() { return nHullPoints; };
+
 private:
 	float inlierDistance;		// threshold to count point as an inlier
 	int maxInliers;				// number of inliers of the best line for far
@@ -137,6 +150,8 @@ private:
 	{
 		return (x <= DBL_MAX && x >= -DBL_MAX);
 	}
+
+	int nHullPoints;
 };
 
 #endif

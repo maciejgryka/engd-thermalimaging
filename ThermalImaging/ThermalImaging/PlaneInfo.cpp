@@ -342,3 +342,17 @@ void PlaneInfo::readPlane(QString fileName) {
 	file.close();
 	
 }
+
+void PlaneInfo::convertHullPoints2Corners()
+{	
+	corners.clear();
+	for (int hullP(0); hullP < nHullPoints; hullP++)
+	{
+		vector<float> hullPoint;
+		hullPoint.push_back(hullPoints[hullP].x);
+		hullPoint.push_back(0.0f);
+		hullPoint.push_back(hullPoints[hullP].y);
+
+		corners.push_back(hullPoint);
+	}
+}

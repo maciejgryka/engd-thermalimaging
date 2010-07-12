@@ -112,25 +112,23 @@ void TestGLWidget::initializeGL()
     glDepthFunc(GL_LEQUAL);                                                         // The Type Of Depth Testing To Do
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);      // Really Nice Perspective Calculations                                                 // Enable Light One
 
-    ply = new Ply2OpenGL();
-    ply->readPlyFile("Data\\side_building.ply");
-    //ply->readPlyFile("C:\\Users\\localadmin\\Desktop\\union.ply");
     noPlanes = 1;
     ps = 1000;
     o = 0;
-    
-    //rpc = new RandomPointCloud();
-    //rpc->makePointCloud(noPlanes,ps,o);
-    //points = rpc->getPointCloud();
+
+	ply = new Ply2OpenGL();
+    ply->readPlyFile("Data\\side_building.ply");
 	points = ply->toTwoDimensionalArray(ply->getVertices());
-	p.setPoints(points);
+	nPoints = ply->getNVertices();
+    
+	//rpc = new RandomPointCloud();
+ //   rpc->makePointCloud(noPlanes,ps,o);
+ //   points = rpc->getPointCloud();
+ //   nPoints = noPlanes*ps+o;
 
     //float** normal = rpc->getNormals();
-
-    //nPoints = noPlanes*ps+o;
-	nPoints = ply->getNVertices();
-    //nPoints = ply->getNVertices();
-    //points = ply->toTwoDimensionalArray(ply->getVertices());
+	p.setPoints(points);
+	
 
 	RansacPlane* r = new RansacPlane();
 	r->setInlierDistance(0.1f);
@@ -321,24 +319,24 @@ void TestGLWidget::paintGL()
   //      glEnd();
 
 		// draw planes
-        //glColor3fv(planes[k]->getColor());
-  //      glBegin(GL_POLYGON);
-		//vector<vector<float> > corners = planes[k]->getCorners();
-  //      for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
-  //      {
-  //              glVertex3f(corners.at(corn).at(0), corners.at(corn).at(1), corners.at(corn).at(2));
-  //      }
-  //      glEnd();
+        glColor3fv(planes[k]->getColor());
+        glBegin(GL_POLYGON);
+		vector<vector<float> > corners = planes[k]->getCorners();
+        for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
+        {
+                glVertex3f(corners.at(corn).at(0), corners.at(corn).at(1), corners.at(corn).at(2));
+        }
+        glEnd();
 
-		//// draw corners
-  //      glPointSize(10.0f);
-  //      glColor3fv(planes[k]->getColor());
-  //      glBegin(GL_POINTS);
-  //      for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
-  //      {
-  //              glVertex3f(corners.at(corn).at(0), corners.at(corn).at(1), corners.at(corn).at(2));
-  //      }
-  //      glEnd();
+		// draw corners
+        glPointSize(10.0f);
+        glColor3fv(planes[k]->getColor());
+        glBegin(GL_POINTS);
+        for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
+        {
+                glVertex3f(corners.at(corn).at(0), corners.at(corn).at(1), corners.at(corn).at(2));
+        }
+        glEnd();
 
 		vector<float> xb = planes[k]->getXBorder();
 		vector<float> yb = planes[k]->getYBorder();
@@ -353,23 +351,23 @@ void TestGLWidget::paintGL()
         }
         glEnd();
 
-		// draw bestPoints
-        glPointSize(10.0f);
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glLineWidth(2.0f);
-        glBegin(GL_POINTS);
-			for (int corn(0); corn < planes[k]->getBestPoints().size(); corn++)
-			{
-			        glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
-			}
-        glEnd();
+		//// draw bestPoints
+  //      glPointSize(10.0f);
+		//glColor3f(1.0f, 0.0f, 0.0f);
+		//glLineWidth(2.0f);
+  //      glBegin(GL_POINTS);
+		//	for (int corn(0); corn < planes[k]->getBestPoints().size(); corn++)
+		//	{
+		//	        glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
+		//	}
+  //      glEnd();
 
-		glBegin(GL_LINES);
-			for (int corn(0); corn < planes[k]->getBestPoints().size(); corn++)
-			{
-			        glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
-			}
-        glEnd();
+		//glBegin(GL_LINES);
+		//	for (int corn(0); corn < planes[k]->getBestPoints().size(); corn++)
+		//	{
+		//	        glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
+		//	}
+  //      glEnd();
 	}
 
 	// draw axes
@@ -549,6 +547,9 @@ void TestGLWidget::runRPE() {
         rpe.setBoundaries(planes[k]->getBoundaries());
         rpe.findEdges();
 
+		planes[k]->hullPoints = rpe.findPlaneConvexHull();
+		planes[k]->nHullPoints = rpe.getNHullPoints();
+		planes[k]->convertHullPoints2Corners();
 		//TODO: remove
 		//planes[k]->setXBorder(rpe.getXBorder());
 		//planes[k]->setZBorder(rpe.getXBorder());
@@ -558,7 +559,7 @@ void TestGLWidget::runRPE() {
         //grid[k]->unrotateBorder(planes[k]->getRotationMatrix(),planes[k]->getTranslationVector())
 		
 
-        planes[k]->setCorners(planes[k]->unrotateCorners(rpe.getCorners()));
+		planes[k]->setCorners(planes[k]->unrotateCorners(planes[k]->getCorners()));
         planes[k]->setBestPoints(rpe.getBestPoints());
 
         p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());

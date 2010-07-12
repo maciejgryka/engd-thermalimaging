@@ -116,62 +116,77 @@ bool RansacPlaneEdge::findEdges()
 		}
 	}
 
-	if (corners.size() == 0)
-		return false;
+	//if (corners.size() == 0)
+	//	return false;
 
-	// Now that we have all the corners, we need to put them in a nice order for later drawing.
-	int *queue;										// holds corner indices in the right order
-	queue = new int[corners.size()];
-	int qPos = 0;
+	//              // count on how many lines each point lies - if it's just one it's not a corner, so we can discard it
+	//int* lineCount = new int[corners.size()];
+	//for (int cornIndex(0); cornIndex < corners.size(); cornIndex++)
+	//{
+	//	lineCount[cornIndex] = pointLiesOnLines(cornIndex);
+	//	if (lineCount[cornIndex] < 2)
+	//	{
+	//		corners.erase(corners.begin() + cornIndex);
+	//	}
+	//}
 
-	int lastLineIndex = -1;
-	bool checkedAll = false;
-	int corn(0);
-	while (!checkedAll)
-	{
-		// find right edge line
-		int lineIndex = findLineCoeffs(corn, lastLineIndex);	// find line the explains this point and is different to the last line
-		
-		if (lineIndex < 0)
-			break;
+	//// Now that we have all the corners, we need to put them in a nice order for later drawing.
+	//int *queue;										// holds corner indices in the right order
+	//queue = new int[corners.size()];
+	//int qPos = 0;
 
-		// find another point on this line
-		// ASSUMPTIONS: only neighbouring (edge-sharing) points are colinear; 
-		//				each edge contains exactly 2 points
-		int pointIndex = findPointOnLine(lineIndex, corn);
-		
-		if (pointIndex < 0)
-			break;
+	//int lastLineIndex = -1;
+	//bool checkedAll = false;
+	//int corn(0);
+	//while (!checkedAll)
+	//{
+	//	// find right edge line
+	//	int lineIndex = findLineCoeffs(corn, lastLineIndex);	// find line the explains this point and is different to the last line
+	//	
+	//	if (lineIndex < 0)
+	//		break;
 
-		// add the correct point index to the queue
-		queue[qPos] = pointIndex;
-		qPos++;
-		
-		lastLineIndex = lineIndex;
-		corn = pointIndex;
-		
-		//if (pointIndex == 0) checkedAll = true;
-		if (qPos == corners.size()) checkedAll = true;
-	}
-	if (!checkedAll) return false;
+	//	// find another point on this line
+	//	// ASSUMPTIONS: only neighbouring (edge-sharing) points are colinear; 
+	//	//				each edge contains exactly 2 points
+	//	int pointIndex = findPointOnLine(lineIndex, corn);
+	//	
+	//	if (pointIndex < 0)
+	//		break;
 
-	// count on how many lines each point lies - if it's just one it's not a corner, so we can discard it
-	int* lineCount = new int[corners.size()];
-	for (int cornIndex(0); cornIndex < corners.size(); cornIndex++)
-	{
-		lineCount[cornIndex] = pointLiesOnLines(cornIndex);
-		if (lineCount[cornIndex] < 2)
-		{
-			corners.erase(corners.begin() + cornIndex);
-		}
-	}
+	//	// add the correct point index to the queue
+	//	queue[qPos] = pointIndex;
+	//	qPos++;
+	//	
+	//	lastLineIndex = lineIndex;
+	//	corn = pointIndex;
+	//	
+	//	//if (pointIndex == 0) checkedAll = true;
+	//	if (qPos == corners.size()) checkedAll = true;
+	//}
+	//if (!checkedAll) return false;
 
-	// rearrange the corners vector
-	vector<vector<float> > copyCorners = corners;
-	for (corn = 0; corn < corners.size(); corn++)
-	{
-		corners.at(corn) = copyCorners.at(queue[corn]);
-	}
+	//// rearrange the corners vector
+	//vector<vector<float> > copyCorners = corners;
+	//for (corn = 0; corn < corners.size(); corn++)
+	//{
+	//	// eliminate spurious corners
+	//	//TODO: why do they appear!?
+	//	bool used = false;
+	//	for (int cc(0); cc <= corn; cc++)
+	//	{
+	//		if (queue[corn] == queue[cc])
+	//		{
+	//			used = true;
+	//		}
+	//	}
+	//	if (!used)
+	//	{
+	//		corners.at(corn) = copyCorners.at(queue[corn]);
+	//	}
+	//}
+
+
 	return true;
 }
 
@@ -243,6 +258,24 @@ bool RansacPlaneEdge::findBestEdge(const vector<int> &pointsUsed)
 		this->pointsUsed.push_back(currentPointsUsed.at(cpu));
 		pointList[currentPointsUsed.at(cpu)] = 1;
 	}
+
+	//TODO: remove this - just here for testing
+	// extend lines by a set amount
+	Vector3f point1 = Vector3f(xBorder.at(currentBestPoints.at(0)), 0.0f, zBorder.at(currentBestPoints.at(0)));
+	Vector3f point2 = Vector3f(xBorder.at(currentBestPoints.at(1)), 0.0f, zBorder.at(currentBestPoints.at(1)));
+	Vector3f diff = point1 - point2;
+	//point1 += 10 * diff;
+	//point2 -= 10 * diff;
+
+	xBorder.at(currentBestPoints.at(0)) = point1[0];
+	zBorder.at(currentBestPoints.at(0)) = point1[2];
+
+	xBorder.at(currentBestPoints.at(1)) = point2[0];
+	zBorder.at(currentBestPoints.at(1)) = point2[2];
+
+	//tempCorners.push_back(point1);
+	//tempCorners.push_back(point2);
+
 	this->bestPoints.push_back(currentBestPoints.at(0));
 	this->bestPoints.push_back(currentBestPoints.at(1));
 	
@@ -308,4 +341,38 @@ int RansacPlaneEdge::pointLiesOnLines(int pointIndex)
 		}
 	}
 	return onLines;
+}
+
+CvPoint2D32f* RansacPlaneEdge::findPlaneConvexHull()
+{
+	return findPlaneConvexHull(this->xBorder, this->zBorder);
+}
+
+CvPoint2D32f* RansacPlaneEdge::findPlaneConvexHull(const vector<float>& xBorder, const vector<float>& zBorder)
+{
+	CvPoint2D32f pt0;
+	CvPoint2D32f* points = new CvPoint2D32f[xBorder.size()];
+	int* hull = new int[xBorder.size()];
+	int hullcount;
+    
+	CvMat pointMat = cvMat( 1, xBorder.size(), CV_32SC2, points );
+    CvMat hullMat = cvMat( 1, xBorder.size(), CV_32SC1, hull );
+
+	for(int i = 0; i < xBorder.size(); i++ )
+    {
+        pt0.x = xBorder.at(i);
+        pt0.y = zBorder.at(i);
+        points[i] = pt0;
+    }
+	cvConvexHull2( &pointMat, &hullMat, CV_CLOCKWISE, 0 );
+    hullcount = hullMat.cols;
+	nHullPoints = hullcount;
+
+	CvPoint2D32f* hullPoints = new CvPoint2D32f[hullcount];
+
+	for (int i = 0; i < hullcount; i++)
+	{
+		hullPoints[i] = points[hull[i]];
+	}
+	return hullPoints;
 }

@@ -155,10 +155,10 @@ int PlaneSnapping::findIntersectionLine(int a, int b) {
 	//************************************************
 
 	// get origins of planes and the normals
-	Vector3f o1 = *planes.at(a)->getTranslationVector();
-	Vector3f n1 = *planes.at(a)->getNormal();
-	Vector3f o2 = *planes.at(b)->getTranslationVector();
-	Vector3f n2 = *planes.at(b)->getNormal();
+	Vector3f o1 = planes.at(a)->getTranslationVector();
+	Vector3f n1 = planes.at(a)->getNormal();
+	Vector3f o2 = planes.at(b)->getTranslationVector();
+	Vector3f n2 = planes.at(b)->getNormal();
 
 	// get direction of the intersection line
 	Vector3f l = n1.cross(n2).normalized();
