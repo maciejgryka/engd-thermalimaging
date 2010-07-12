@@ -67,9 +67,11 @@ TestGLWidget::TestGLWidget(QWidget *parent, QGLWidget *shareWidget)
     zTrans = -10.0;
     zoomDist = 0.0;
 
-    maxLevels = 6;
+    maxLevels = 5;
     edgeInlierDistance = 0.1f;
     chillPoints = 0.1f;
+
+	time = 0;
 
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -113,6 +115,7 @@ void TestGLWidget::initializeGL()
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);      // Really Nice Perspective Calculations                                                 // Enable Light One
 
     noPlanes = 1;
+
     ps = 1000;
     o = 0;
 
@@ -120,18 +123,21 @@ void TestGLWidget::initializeGL()
     ply->readPlyFile("Data\\side_building.ply");
 	points = ply->toTwoDimensionalArray(ply->getVertices());
 	nPoints = ply->getNVertices();
+	colors = ply->toTwoDimensionalArray(ply->getColors());
     
+
 	//rpc = new RandomPointCloud();
  //   rpc->makePointCloud(noPlanes,ps,o);
  //   points = rpc->getPointCloud();
  //   nPoints = noPlanes*ps+o;
 
     //float** normal = rpc->getNormals();
+
 	p.setPoints(points);
 	
-
 	RansacPlane* r = new RansacPlane();
-	r->setInlierDistance(0.1f);
+
+	r->setInlierDistance(0.02f);
 	r->setIterations(10000);
 	//points = ply->toTwoDimensionalArray(ply->getVertices());
 	r->setPoints(points,nPoints);
@@ -141,27 +147,30 @@ void TestGLWidget::initializeGL()
 	int* bestPoints = new int[3];
 	planes = new PlaneInfo*[noPlanes];
 	readPlane = new bool[noPlanes];
+
+	pointList = new int[nPoints];
+	for (int i = 0; i < nPoints; i++) {
+		pointList[i] = 0;
+	}
+
 	for (int k = 0; k < noPlanes; k++) {
 		planes[k] = NULL;
 		readPlane[k] = false;
  		QFile file (QString("Data\\plane%1.txt").arg(k+1));
 		if (file.exists() && file.open(QIODevice::ReadOnly)) {
 			planes[k] = new PlaneInfo();
-			planes[k]->readPlane(QString("Data\\plane%1.txt").arg(k+1));
+			planes[k]->readPlane(QString("Data\\plane%1.txt").arg(k+1), pointList, k+1);
 			readPlane[k] = true;
 		}
 	}
-	pointList = new int[nPoints];
-	for (int i = 0; i < nPoints; i++) {
-		pointList[i] = 0;
-	}
+
 	for (int k = 0; k < noPlanes; k++) {
 		int* b;
 		if (!readPlane[k]) {
 			
 			planes[k] = new PlaneInfo();
 			r->findBestPlane(k+1,numberOfPointsOnBestPlane,ori,norm,bestPoints, pointList);
-			planes[k]->setNormal(norm);
+ 			planes[k]->setNormal(norm);
 
 			/*for (int i = 0; i < nPoints / 10 - 1; i++) {
 				qDebug() << pointList[i * 10 + 0]  << pointList[i * 10 + 1]  << pointList[i * 10 + 2]  << pointList[i * 10 + 3]  << pointList[i * 10 + 4]
@@ -173,9 +182,9 @@ void TestGLWidget::initializeGL()
 				a[i] = i;
 			}*/
 			b = r->convertToNumberList(pointList,nPoints,numberOfPointsOnBestPlane, k+1);
-			//r->printToFile(QString("C:\\Users\\localadmin\\Desktop\\data%1.txt").arg(k),b,numberOfPointsOnBestPlane);
+			r->printToFile(QString("C:\\Users\\localadmin\\Desktop\\data%1.txt").arg(k),b,numberOfPointsOnBestPlane);
 
-            float* cols = new float[3];
+			float* cols = new float[3];
             for (int i = 0; i < 3; i++) {
                     cols[i] = (float) rand() / (float) RAND_MAX;
             }
@@ -286,7 +295,7 @@ void TestGLWidget::paintGL()
 
         
     for (int k = 0; k < noPlanes; k++) {
-        //q[k]->drawQuad();
+        //planes[k]->getQuad()->drawQuad();
         //planes[k]->getGrid()->drawGrid();
 		
 		//TODO: memory leak?
@@ -294,18 +303,21 @@ void TestGLWidget::paintGL()
 		//
 		//*unrotatedGrid = *planes[k]->getGrid();
 		//unrotatedGrid->unrotateBorder(planes[k]->getRotationMatrix(), planes[k]->getTranslationVector());
-		//vector<float> xb = unrotatedGrid->getXBorder();
-  //      vector<float> yb = unrotatedGrid->getYBorder();
-  //      vector<float> zb = unrotatedGrid->getZBorder();
-  //      glPointSize(2.0f);
+		//int k = 0;
+		vector<float> xb = planes[k]->getXBorder();
+        vector<float> yb = planes[k]->getYBorder();
+        vector<float> zb = planes[k]->getZBorder();
+		//p.rotate(xb,yb,zb,planes[k]->getRotationMatrix(), planes[k]->getTranslationVector());
+        glPointSize(2.0f);
 
-		//// Draw border
-		//glBegin(GL_POINTS);
-  //      glColor3fv(planes[k]->getColor());
-  //      for (int i = 0; i < xb.size(); i++) {
-  //              glVertex3f(xb.at(i),yb.at(i),zb.at(i));
-  //      }
-  //      glEnd();
+		// Draw border
+		/*glBegin(GL_POLYGON);
+        glColor3fv(planes[k]->getColor());
+        for (int i = 0; i < xb.size(); i++) {
+                glVertex3f(xb.at(i),yb.at(i),zb.at(i));
+        }
+        glEnd();*/
+		//p.rotateBack(xb,yb,zb,planes[k]->getRotationMatrix(), planes[k]->getTranslationVector());
 
   //      // draw point cloud
 		//glPointSize(2.0f);
@@ -328,28 +340,50 @@ void TestGLWidget::paintGL()
         }
         glEnd();
 
-		// draw corners
-        glPointSize(10.0f);
-        glColor3fv(planes[k]->getColor());
-        glBegin(GL_POINTS);
-        for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
-        {
-                glVertex3f(corners.at(corn).at(0), corners.at(corn).at(1), corners.at(corn).at(2));
-        }
-        glEnd();
+	//	// draw corners
+ //       glPointSize(5.0f);
+ //       glColor3f(1.0f, 1.0f, 1.0f);
+ //       glBegin(GL_POINTS);
+ //       for (int corn(0); corn < planes[k]->getCorners().size(); corn++)
+ //       {
+ //               glVertex3f(corners.at(corn).at(0), corners.at(corn).at(1), corners.at(corn).at(2));
+ //       }
+ //       glEnd();
 
-		vector<float> xb = planes[k]->getXBorder();
-		vector<float> yb = planes[k]->getYBorder();
-		vector<float> zb = planes[k]->getZBorder();
 
-		// Draw border
-		glPointSize(5.0f);
-        glColor3f(0.0f, 0.0f, 1.0f);
-		glBegin(GL_POINTS);
-        for (int i = 0; i < xb.size(); i++) {
-                glVertex3f(xb.at(i),yb.at(i),zb.at(i));
-        }
-        glEnd();
+		//// draw bestPoints
+
+  //      glPointSize(5.0f);
+		//glColor3f(0.0f, 1.0f, 0.0f);
+  //      glBegin(GL_POINTS);
+		//vector<float> xb = planes[k]->getXBorder();
+		//vector<float> yb = planes[k]->getYBorder();
+		//vector<float> zb = planes[k]->getZBorder();
+  //      for (int corn(0); corn < planes[k]->getBestPoints().size(); corn++)
+  //      {
+  //              glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
+  //      }
+  //      glEnd();
+
+
+
+
+	//	// draw axes
+ //       glLineWidth(1.0f);
+ //       glBegin(GL_LINES);
+ //               // X axis
+ //               glColor3f(1.0f, 0.0f, 0.0f);
+ //               glVertex3f(-100.0f, 0.0f, 0.0f);
+ //               glVertex3f(100.0f, 0.0f, 0.0f);
+ //               // Y axis
+ //               glColor3f(0.0f, 1.0f, 0.0f);
+ //               glVertex3f(0.0f, -100.0f, 0.0f);
+ //               glVertex3f(0.0f, 100.0f, 0.0f);
+ //               // Z axis
+ //               glColor3f(0.0f, 0.0f, 1.0f);
+ //               glVertex3f(0.0f, 0.0f, -100.0f);
+ //               glVertex3f(0.0f, 0.0f, 100.0f);
+ //       glEnd();
 
 		//// draw bestPoints
   //      glPointSize(10.0f);
@@ -368,6 +402,7 @@ void TestGLWidget::paintGL()
 		//	        glVertex3f(xb.at(planes[k]->getBestPoints().at(corn)), yb.at(planes[k]->getBestPoints().at(corn)), zb.at(planes[k]->getBestPoints().at(corn)));
 		//	}
   //      glEnd();
+
 	}
 
 	// draw axes
@@ -390,13 +425,28 @@ void TestGLWidget::paintGL()
 	glPointSize(1.0f);
 	glBegin(GL_POINTS);
 	for (int i = 0; i < nPoints; i++) {
-			if (pointList[i] == 0)
-					glColor3f(1.0f,1.0f,1.0f);
+			//if (pointList[i] == 0)
+			//glColor3f(1.0f, 1.0f, 1.0f);
+			glColor3fv(colors[i]);
 			//if (pointList[i] >= 1 && pointList[i] <= noPlanes)
 			//      glColor3f(0.0f,1.0f,0.0f);
 			//if (pointList[i] == -1)
 			//      glColor3f(0.0f,1.0f,1.0f);
 			glVertex3fv(points[i]);
+	}
+	glEnd();
+
+		glPointSize(1.0f);
+	glBegin(GL_POINTS);
+	for (int i = 0; i < planes[0]->getPointNumber(); i++) {
+			//if (pointList[i] == 0)
+			glColor3f(1.0f, 0.0f, 0.0f);
+			//glColor3fv(colors[i]);
+			//if (pointList[i] >= 1 && pointList[i] <= noPlanes)
+			//      glColor3f(0.0f,1.0f,0.0f);
+			//if (pointList[i] == -1)
+			//      glColor3f(0.0f,1.0f,1.0f);
+			glVertex3fv(points[planes[0]->getPointsUsed()[i]]);
 	}
 	glEnd();
 
@@ -529,6 +579,7 @@ void TestGLWidget::runRPE() {
 			
 		if (planes[k]->getCorners().size() != 0 && readPlane[k]) {	
 			readPlane[k] = false;
+			readPlane[k] = false;
 			continue;
 		}
 		readPlane[k] = false;
@@ -566,13 +617,36 @@ void TestGLWidget::runRPE() {
         p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
 		planes[k]->writePlane(QString("Data\\plane%1.txt").arg((k+1)));
 
-		mapTextures(planes[k]->getTranslationVector(), planes[k]->getRotationMatrix(), planes[k]->getCorners());
+		//mapTextures(planes[k]->getTranslationVector(), planes[k]->getRotationMatrix(), planes[k]->getCorners());
     }
-                        
+
 }
 
 void TestGLWidget::mapTextures(Vector3f translationVector, Matrix3f rotationMatrix, const vector<vector<float> > &corners)
 {
+
+	//MatrixXf p1 = MatrixXf(3,1);
+	//p1 << points[1][0], points[1][1], points[1][2];
+	//p1 << -0.8886, -0.3809, -4.8325;
+	//BundleParser bp = tx.getBundleParser();
+	//bp.getCameraXYPoints(0, p1)
+
 	tx.readFile("Data//side_building_bundle.out");
 	tx.getTexture(translationVector, rotationMatrix.row(2).transpose(), corners);
+
+}
+
+void TestGLWidget::time0(bool b) {
+	if (b)
+		time = 0;
+}
+
+void TestGLWidget::time1(bool b) {
+	if (b)
+		time = 1;
+}
+
+void TestGLWidget::time2(bool b) {
+	if (b)
+		time = 2;
 }

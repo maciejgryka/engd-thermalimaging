@@ -221,7 +221,7 @@ void PlaneInfo::writePlane(QString fileName) {
 	
 }
 
-void PlaneInfo::readPlane(QString fileName) {
+void PlaneInfo::readPlane(QString fileName, int* pointList, int planeNumber) {
 	// reads the plane information to the file with the name that is passed into the method
 	// the information are set in the following way
 	// <plane number 1> <number of points on plane 1>
@@ -289,6 +289,7 @@ void PlaneInfo::readPlane(QString fileName) {
 		pointsUsed = new int[numberOfPoints];
 		for (int i = 0; i < numberOfPoints; i++) {
 			pointsUsed[i] = list.at(i).toInt();
+			pointList[pointsUsed[i]] = planeNumber;
 		}
 	}
 	if (whatInfo[5] == 1) {
