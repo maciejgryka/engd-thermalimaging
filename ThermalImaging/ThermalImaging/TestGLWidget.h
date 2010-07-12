@@ -61,7 +61,7 @@ using namespace std;
 
 //#include "thermalimaging.h"
 #include "Ply2OpenGL.h"
-#include "Ransac.h"
+#include "RansacPlane.h"
 #include "RandomPointCloud.h"
 
 #include "PlaneLimitFinder.h"
