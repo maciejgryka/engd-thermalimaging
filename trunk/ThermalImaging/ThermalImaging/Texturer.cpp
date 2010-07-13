@@ -1,6 +1,6 @@
 #include "Texturer.h"
 
-QImage& Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, const vector<vector<float> > &corners)
+QImage& Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, const vector<vector<float> > &corners, QString& directory, int time)
 {
 	// find the best camera
 	
@@ -18,10 +18,10 @@ QImage& Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, co
 	MatrixXf cameraCorners = bp.getCameraXYPoints(cam, corners3d);
 
 	// read list of images corresponding to camera views
-	QStringList imgNames = bp.readImageList("Data\\fanbox_list.txt");
+	QStringList imgNames = bp.readImageList(QString("Data\\%1\\%1_list.txt").arg(directory));
 
 
-	QImage im("images\\fanbox\\" + imgNames.at(bestCamIndex));
+	QImage im(QString("Data\\%1\\time%2\\%3").arg(directory).arg(time).arg(imgNames.at(bestCamIndex)));
 	for (int coli(0); coli < cameraCorners.cols(); coli++)
 	{
 		cameraCorners.col(coli) += Vector2f(im.width()/2, im.height()/2);
@@ -41,7 +41,7 @@ QImage& Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, co
 
 int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, const vector<vector<float> > &corners)
 {
-	float minDist(5.0f);
+	/*float minDist(5.0f);
 	// go through each corner and find corresponding real points in the point cloud
 	vector<vector<int> > realCorners;
 	for (int cornIndex(0); cornIndex < corners.size(); cornIndex++)
@@ -125,14 +125,15 @@ int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, c
 	}
 
 
-	Vector3f centroid((maxX + minX) / 2.0f, (maxY + minY) / 2.0f, (maxZ + minZ) / 2.0f);
+	Vector3f centroid((maxX + minX) / 2.0f, (maxY + minY) / 2.0f, (maxZ + minZ) / 2.0f);*/
 
 	float score = 0.0f;
 	int bestCam = 0;
+	vector<int> bestCams;
 
-	for (int cameraIndex(0); cameraIndex < bestCams.size(); cameraIndex++) {
+	for (int cameraIndex(0); cameraIndex < bp.getNCameras(); cameraIndex++) {
 		// find normal of camera
-		BundleCamera cam = bp.getCamera(bestCams.at(cameraIndex));
+		BundleCamera cam = bp.getCamera(cameraIndex);
 		Vector3f viewDirection = cam.R.row(2).normalized();
 
 		// compare normal with with normal of plane and give score
@@ -140,12 +141,12 @@ int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, c
 		float dotP = viewDirection.dot(pN);
 
 		// find offset of camera and center of plane
-		Vector3f closestPointOnLine = cam.t + ((centroid-cam.t).dot(viewDirection)) / viewDirection.dot(viewDirection) * viewDirection;
-		float dis = (closestPointOnLine-centroid).norm();
+		//Vector3f closestPointOnLine = cam.t + ((centroid-cam.t).dot(viewDirection)) / viewDirection.dot(viewDirection) * viewDirection;
+		//float dis = (closestPointOnLine-centroid).norm();
 		
-		if (score < dotP / sqrt(dis)) {
-			score = dotP / sqrt(dis);
-			bestCam = bestCams.at(cameraIndex);
+		if (0.8 > abs(dotP)) {
+			score = abs(dotP);
+			bestCams.push_back(cameraIndex);
 		}
 			
 

@@ -22,7 +22,7 @@ public:
 	}
 
 	/// Takes plane normal, position and 3D corner corrdinates and returns a rectangular texture from the best available image
-	QImage& getTexture(Vector3f planeNormal, Vector3f planeTranslation, const vector<vector<float> > &corners);
+	QImage& getTexture(Vector3f planeNormal, Vector3f planeTranslation, const vector<vector<float> > &corners, QString&, int);
 
 private:
 	BundleParser bp;

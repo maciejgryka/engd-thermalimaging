@@ -96,6 +96,7 @@ public:
 
 signals:
     void clicked();
+	void changeLegendImage(int);
 
 public slots:
 	void setMaxLevels(int);
@@ -160,6 +161,8 @@ private:
 
 	int ps;
 	int o;
+
+	QString directory;
 
 	PlaneCalculator p;
 
