@@ -73,6 +73,8 @@ MainGLWidget::MainGLWidget(QWidget *parent, QGLWidget *shareWidget)
 	LightPosition[2] = 2.0f;
 	LightPosition[3] = 1.0f;
 
+	time = 0;
+
 	filter = 0;
 	alpha = 1.0f;
 	light = false;
@@ -116,7 +118,7 @@ void MainGLWidget::loadTexture(int i, int v) {
 
 	//qDebug() << textureFiles->size() << textureFiles->last() << textureFiles->first();
 
-	QString file ("images\\");
+	QString file ("Data\\side_building\\");
 	if (v == 1) {
 		file.append("t");
 	}
@@ -247,7 +249,7 @@ void MainGLWidget::initializeGL()
 {
     //glEnable(GL_CULL_FACE);  //###########################
 
-	plyParser.readPlyFile("Data\\wilkins3d2.ply");
+	plyParser.readPlyFile("Data\\side_building\\sbm.ply");
 	vertices = plyParser.getVertices();
 	indices = plyParser.getIndices();
 	texCoords = plyParser.getTexCoords();
@@ -387,14 +389,14 @@ void MainGLWidget::paintGL()
 
 	glUniform1f(blendLoc, alpha);
 
-	for (int i = 0; i < textureFiles->size(); i++) {
-		glUniform1i(texLoc[0], i*2);
-		glUniform1i(texLoc[1], i*2+1);
+	//for (int i = 0; i < textureFiles->size(); i++) {
+		glUniform1i(texLoc[0], time*2);
+		glUniform1i(texLoc[1], time*2+1);
 		glBegin(GL_TRIANGLES);
 			//for (int face = 0; face < 2; face++)
 			for (int face = 0; face < plyParser.getNFaces(); face++)
 			{
-				if (texNum && texNums[face] == i || !texNum) {
+				if (texNum && texNums[face] == time || !texNum) {
 
 					int texIndex = face * plyParser.getVerticesPerFace() * plyParser.getTexCoordSize();
 					//int texIndex = face * 3 * 2;
@@ -411,7 +413,7 @@ void MainGLWidget::paintGL()
 			}
 		glEnd();
 
-	}
+	//}
 
 
 	/*glUniform1i(texLoc[0], 2);
@@ -510,5 +512,24 @@ void MainGLWidget::keyPressEvent(QKeyEvent *e)
 
 void MainGLWidget::thermalVisualPercent(int p) {
 	alpha = (float) p / 100.0f;
+	updateGL();
+}
+
+
+void MainGLWidget::time0(bool b) {
+	if (b)
+		time = 0;
+	updateGL();
+}
+
+void MainGLWidget::time1(bool b) {
+	if (b)
+		time = 1;
+	updateGL();
+}
+
+void MainGLWidget::time2(bool b) {
+	if (b)
+		time = 2;
 	updateGL();
 }
