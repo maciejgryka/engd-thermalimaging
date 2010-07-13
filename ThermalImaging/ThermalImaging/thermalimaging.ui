@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1064</width>
-    <height>960</height>
+    <width>1203</width>
+    <height>845</height>
    </rect>
   </property>
   <property name="sizeIncrement">
@@ -229,8 +229,8 @@
    <widget class="VisibilityLabel" name="hotLabel">
     <property name="geometry">
      <rect>
-      <x>940</x>
-      <y>10</y>
+      <x>920</x>
+      <y>150</y>
       <width>53</width>
       <height>31</height>
      </rect>
@@ -247,8 +247,8 @@
    <widget class="VisibilityLabel" name="coldLabel">
     <property name="geometry">
      <rect>
-      <x>940</x>
-      <y>420</y>
+      <x>920</x>
+      <y>560</y>
       <width>53</width>
       <height>31</height>
      </rect>
@@ -348,8 +348,8 @@
    <widget class="QCheckBox" name="legendCheck">
     <property name="geometry">
      <rect>
-      <x>930</x>
-      <y>470</y>
+      <x>910</x>
+      <y>610</y>
       <width>82</width>
       <height>21</height>
      </rect>
@@ -361,11 +361,11 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="LabelGLWidget" name="labelWidget" native="true">
+   <widget class="QWidget" name="labelWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>940</x>
-      <y>50</y>
+      <x>1070</x>
+      <y>180</y>
       <width>51</width>
       <height>361</height>
      </rect>
@@ -374,8 +374,8 @@
    <widget class="QGroupBox" name="timeBox">
     <property name="geometry">
      <rect>
-      <x>910</x>
-      <y>500</y>
+      <x>890</x>
+      <y>10</y>
       <width>120</width>
       <height>131</height>
      </rect>
@@ -429,6 +429,19 @@
      </property>
     </widget>
    </widget>
+   <widget class="VisibilityLabel" name="legendLabel">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>190</y>
+      <width>41</width>
+      <height>361</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -446,12 +459,6 @@
    <class>VisibilityLabel</class>
    <extends>QLabel</extends>
    <header>VisibilityLabel.h</header>
-  </customwidget>
-  <customwidget>
-   <class>LabelGLWidget</class>
-   <extends>QWidget</extends>
-   <header>labelglwidget.h</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>MainGLWidget</class>
