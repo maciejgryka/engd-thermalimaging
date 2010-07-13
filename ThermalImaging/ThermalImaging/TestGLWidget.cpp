@@ -72,6 +72,7 @@ TestGLWidget::TestGLWidget(QWidget *parent, QGLWidget *shareWidget)
     chillPoints = 0.1f;
 
 	time = 0;
+	directory = QString("side_building");
 
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -120,7 +121,7 @@ void TestGLWidget::initializeGL()
     o = 0;
 
 	ply = new Ply2OpenGL();
-    ply->readPlyFile("Data\\side_building.ply");
+    ply->readPlyFile(QString("Data\\%1\\%1.ply").arg(directory));
 	points = ply->toTwoDimensionalArray(ply->getVertices());
 	nPoints = ply->getNVertices();
 	colors = ply->toTwoDimensionalArray(ply->getColors());
@@ -156,10 +157,10 @@ void TestGLWidget::initializeGL()
 	for (int k = 0; k < noPlanes; k++) {
 		planes[k] = NULL;
 		readPlane[k] = false;
- 		QFile file (QString("Data\\plane%1.txt").arg(k+1));
+ 		QFile file (QString("Data\\%1\\plane%2.txt").arg(directory).arg(k+1));
 		if (file.exists() && file.open(QIODevice::ReadOnly)) {
 			planes[k] = new PlaneInfo();
-			planes[k]->readPlane(QString("Data\\plane%1.txt").arg(k+1), pointList, k+1);
+			planes[k]->readPlane(QString("Data\\%1\\plane%2.txt").arg(directory).arg(k+1), pointList, k+1);
 			readPlane[k] = true;
 		}
 	}
@@ -182,7 +183,7 @@ void TestGLWidget::initializeGL()
 				a[i] = i;
 			}*/
 			b = r->convertToNumberList(pointList,nPoints,numberOfPointsOnBestPlane, k+1);
-			r->printToFile(QString("C:\\Users\\localadmin\\Desktop\\data%1.txt").arg(k),b,numberOfPointsOnBestPlane);
+			r->printToFile(QString("Data\\%1\\pointFile%2.txt").arg(directory).arg(k+1),b,numberOfPointsOnBestPlane);
 
 			float* cols = new float[3];
             for (int i = 0; i < 3; i++) {
@@ -218,13 +219,13 @@ void TestGLWidget::initializeGL()
             plf->findLimits(0);
             clusters = plf->getClusters();
             nclusters = plf->getNumberOfClusters();
-            b = plf->findBiggestCluster(npop, pointList, "C:\\Users\\localadmin\\Desktop\\bigcluster.txt");
+            b = plf->findBiggestCluster(npop, pointList, QString("Data\\%1\\bigcluster%2.txt").arg(directory).arg(k+1));
             planes[k]->setPointsUsed(b);
             planes[k]->setPointNumber(plf->getNumberOfPoints());
             p.rotateBack(pointList, -1, nPoints, planes[k]->getRotationMatrix());
             p.translateBack(pointList, -1, nPoints, planes[k]->getTranslationVector());
 
-			planes[k]->writePlane(QString("Data\\plane%1.txt").arg((k+1)));
+			planes[k]->writePlane(QString("Data\\%1\\plane%2.txt").arg(directory).arg(k+1));
 
             for (int i = 0; i < nPoints; i++) {
                 if (pointList[i] == -1)
@@ -615,9 +616,9 @@ void TestGLWidget::runRPE() {
 
         p.rotateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getRotationMatrix());
         p.translateBack(planes[k]->getPointsUsed(), planes[k]->getPointNumber(),planes[k]->getTranslationVector());
-		planes[k]->writePlane(QString("Data\\plane%1.txt").arg((k+1)));
+		planes[k]->writePlane(QString("Data\\%1\\plane%2.txt").arg(directory).arg(k+1));
 
-		//mapTextures(planes[k]->getTranslationVector(), planes[k]->getRotationMatrix(), planes[k]->getCorners());
+		mapTextures(planes[k]->getTranslationVector(), planes[k]->getRotationMatrix(), planes[k]->getCorners());
     }
 
 }
@@ -631,22 +632,31 @@ void TestGLWidget::mapTextures(Vector3f translationVector, Matrix3f rotationMatr
 	//BundleParser bp = tx.getBundleParser();
 	//bp.getCameraXYPoints(0, p1)
 
-	tx.readFile("Data//side_building_bundle.out");
-	tx.getTexture(translationVector, rotationMatrix.row(2).transpose(), corners);
+	tx.readFile(QString("Data\\%1\\%1_bundle.out").arg(directory));
+	tx.getTexture(translationVector, rotationMatrix.row(2).transpose(), corners, directory, time);
 
 }
 
 void TestGLWidget::time0(bool b) {
-	if (b)
+	if (b) {
 		time = 0;
+		emit changeLegendImage(time);
+		updateGL();
+	}
 }
 
 void TestGLWidget::time1(bool b) {
-	if (b)
+	if (b) {
 		time = 1;
+		emit changeLegendImage(time);
+		updateGL();
+	}
 }
 
 void TestGLWidget::time2(bool b) {
-	if (b)
+	if (b) {
 		time = 2;
+		emit changeLegendImage(time);
+		updateGL();
+	}
 }
