@@ -47,8 +47,8 @@
 #include <GL/glew.h>		// GLEW includes gl.h and glu.h
 #include <QtGui>
 #include <QGLWidget>
-#include <QVector3D>
-#include <QVector2D>
+//#include <QVector3D>
+//#include <QVector2D>
 #include <windows.h>		// Header File For Windows
 #include <stdio.h>			// Header File For Standard Input/Output
 //#include <gl\gl.h>			// Header File For The OpenGL32 Library
@@ -68,6 +68,7 @@ public:
     MainGLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
 	~MainGLWidget();
 	void LoadGLTextures();
+	void loadTexture(int,int);
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
     void rotateBy(int xAngle, int yAngle, int zAngle);
@@ -101,8 +102,8 @@ private:
 	float yTrans;
 	float zTrans;
 	float zoomDist;
-	GLuint texture[2];
-    GLuint texLoc[2];
+	GLuint* texture;
+    GLuint* texLoc;
 	GLuint blendLoc;
 	GLuint v, f, p; //vector and fragment shaders and shader program
 	
@@ -110,6 +111,9 @@ private:
     float* vertices;
 	float* texCoords;
     int* indices;
+	int* texNums;
+	bool texNum;
+	QVector<QString>* textureFiles;
 
 	GLuint	filter;				// Which Filter To Use
 	bool	light;				// Lighting ON/OFF

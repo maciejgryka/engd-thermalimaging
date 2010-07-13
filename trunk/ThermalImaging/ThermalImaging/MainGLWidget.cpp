@@ -55,8 +55,10 @@ MainGLWidget::MainGLWidget(QWidget *parent, QGLWidget *shareWidget)
     zRot = 0;
 	xTrans = 0.0;
 	yTrans = 0.0;
-	zTrans = -10.0;
+	zTrans = -30.0;
 	zoomDist = 0.0;
+
+	texNum = false;
 
 	LightAmbient[0] = 0.5f;
 	LightAmbient[1] = 0.5f;
@@ -107,52 +109,86 @@ void MainGLWidget::setClearColor(const QColor &color)
     updateGL();
 }
 
-void MainGLWidget::LoadGLTextures()									// Load Bitmaps And Convert To Textures
-{
+void MainGLWidget::loadTexture(int i, int v) {
+
 	QImage t;
 	QImage b;
 
-	// Load and assigne textures
-	if ( !b.load( QString("C:\\Work\\VS2008 Projects\\ThermalImaging\\ThermalImaging\\images\\tex.png")) )
-	{
-		//b = QImage( 16, 16, 32 );
-		//b.fill( Qt::green.rgb());
-		cout << "Cannot load texture." << endl;
-	}
-    
-	glGenTextures(2, texture);
-	
-	t = QGLWidget::convertToGLFormat(b);
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits());
+	//qDebug() << textureFiles->size() << textureFiles->last() << textureFiles->first();
 
-	if ( !b.load( QString("C:\\Work\\VS2008 Projects\\ThermalImaging\\ThermalImaging\\images\\tex_therm.png" )) )
-	{
-		//b = QImage( 16, 16, 32 );
-		//b.fill( Qt::green.rgb());
+	QString file ("images\\");
+	if (v == 1) {
+		file.append("t");
+	}
+	file.append(textureFiles->at(i));
+	if ( !b.load(file) ) {
 		cout << "Cannot load texture." << endl;
 	}
 	
 	t = QGLWidget::convertToGLFormat(b);
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
+	glBindTexture(GL_TEXTURE_2D, texture[i*2 + v]);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits());
+	//qDebug() << file << i*2 + v << texture[i*2 + v];
 
+	
 
-	// Activate and bind textures
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
+}
 
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
+void MainGLWidget::LoadGLTextures()									// Load Bitmaps And Convert To Textures
+{
+	// Load and assign textures
+	
+	texture = new GLuint[textureFiles->size() * 2];
+	texLoc = new GLuint[textureFiles->size() * 2];
 
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, texture[2]);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, texture[3]);
+	glGenTextures(textureFiles->size() * 2, texture);
+	
+	for (int i = 0; i < textureFiles->size() ; i++) {
+		
+		loadTexture(i,0);
+		loadTexture(i,1);
+	}
+
+	for (int i = 0; i < textureFiles->size() * 2; i++) {
+		switch(i) {
+			case 0: glActiveTexture(GL_TEXTURE0); break;
+			case 1: glActiveTexture(GL_TEXTURE1); break;
+			case 2: glActiveTexture(GL_TEXTURE2); break;
+			case 3: glActiveTexture(GL_TEXTURE3); break;
+			case 4: glActiveTexture(GL_TEXTURE4); break;
+			case 5: glActiveTexture(GL_TEXTURE5); break;
+			case 6: glActiveTexture(GL_TEXTURE6); break;
+			case 7: glActiveTexture(GL_TEXTURE7); break;
+			case 8: glActiveTexture(GL_TEXTURE8); break;
+			case 9: glActiveTexture(GL_TEXTURE9); break;
+			case 10: glActiveTexture(GL_TEXTURE10); break;
+			case 11: glActiveTexture(GL_TEXTURE11); break;
+			case 12: glActiveTexture(GL_TEXTURE12); break;
+			case 13: glActiveTexture(GL_TEXTURE13); break;
+			case 14: glActiveTexture(GL_TEXTURE14); break;
+			case 15: glActiveTexture(GL_TEXTURE15); break;
+			case 16: glActiveTexture(GL_TEXTURE16); break;
+			case 17: glActiveTexture(GL_TEXTURE17); break;
+			case 18: glActiveTexture(GL_TEXTURE18); break;
+			case 19: glActiveTexture(GL_TEXTURE19); break;
+			case 20: glActiveTexture(GL_TEXTURE20); break;
+			case 21: glActiveTexture(GL_TEXTURE21); break;
+			case 22: glActiveTexture(GL_TEXTURE22); break;
+			case 23: glActiveTexture(GL_TEXTURE23); break;
+			case 24: glActiveTexture(GL_TEXTURE24); break;
+			case 25: glActiveTexture(GL_TEXTURE25); break;
+			case 26: glActiveTexture(GL_TEXTURE26); break;
+			case 27: glActiveTexture(GL_TEXTURE27); break;
+			case 28: glActiveTexture(GL_TEXTURE28); break;
+			case 29: glActiveTexture(GL_TEXTURE29); break;
+			case 30: glActiveTexture(GL_TEXTURE30); break;
+			case 31: glActiveTexture(GL_TEXTURE31); break;
+		}
+		glBindTexture(GL_TEXTURE_2D, texture[i]);
+
+	}
 }
 
 void MainGLWidget::initializeShaders()
@@ -211,6 +247,16 @@ void MainGLWidget::initializeGL()
 {
     //glEnable(GL_CULL_FACE);  //###########################
 
+	plyParser.readPlyFile("Data\\wilkins3d2.ply");
+	vertices = plyParser.getVertices();
+	indices = plyParser.getIndices();
+	texCoords = plyParser.getTexCoords();
+	texNum = plyParser.hasTexNums();
+	if (texNum) {
+		texNums = plyParser.getTexNums();
+	}
+	textureFiles = plyParser.getTextureFiles();
+
 	glewInit();
 	LoadGLTextures();								// Jump To Texture Loading Routine ( NEW )
 	initializeShaders();
@@ -231,11 +277,6 @@ void MainGLWidget::initializeGL()
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);					// Full Brightness.  100% Alpha
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);	// Set The Blending Function For Translucency
 	glAlphaFunc(GL_GREATER,0.1f);
-
-	plyParser.readPlyFile("Data\\wilkins3d2.ply");
-	vertices = plyParser.getVertices();
-	indices = plyParser.getIndices();
-	texCoords = plyParser.getTexCoords();
 }
 
 void MainGLWidget::paintGL()
@@ -250,15 +291,14 @@ void MainGLWidget::paintGL()
     glRotatef(yRot / 16.0f, 0.0f, 1.0f, 0.0f);
     glRotatef(zRot / 16.0f, 0.0f, 0.0f, 1.0f);	
 
-	//GLfloat vertices[] = {-1.0, -1.0,  1.0,		// front face
-	//					   1.0, -1.0,  1.0,
-	//					   1.0,	 1.0,  1.0,
-	//					  -1.0,  1.0,  1.0,
-	//					  
-	//					  -1.0, -1.0, -1.0,		// back face
-	//					  -1.0,  1.0, -1.0,
-	//					   1.0,  1.0, -1.0,
-	//					   1.0, -1.0, -1.0,
+	/*GLfloat vertices[] = {-1.0, -1.0,  1.0,		// front face
+							1.0, -1.0,  1.0,
+							1.0,  1.0,  1.0,
+							-1.0, 1.0,  1.0,
+							1.0, 1.0, 1.0,		// side face
+							3.0,  1.0, 1.0,
+							3.0,  3.0, 1.0,
+							1.0, 3.0, 1.0};
 	//
 	//					  -1.0,  1.0, -1.0,		// top face
 	//					  -1.0,  1.0,  1.0,
@@ -280,17 +320,27 @@ void MainGLWidget::paintGL()
 	//					  -1.0,  1.0,  1.0,
 	//					  -1.0,  1.0, -1.0};
 
-	//GLuint indices[] = { 0,  1,  2,  3,
-	//					 4,  5,  6,  7,
+	GLuint indices[] = { 0, 1, 2,
+						0, 2, 3,
+						4, 5, 6,  
+						4, 6, 7};
 	//					 8,  9, 10, 11,
 	//					12, 13, 14, 15,
 	//					16, 17, 18, 19,
 	//					20, 21, 22, 23};
 
-	//GLfloat texCoords[] = {0.0, 0.0,
-	//					   1.0, 0.0,
-	//					   1.0, 1.0,
-	//					   0.0, 1.0,
+	GLfloat texCoords[] = {0.0, 0.0,
+							1.0, 0.0,
+							1.0, 1.0,
+							0.0, 0.0,
+							1.0, 1.0,
+							0.0, 1.0,
+							0.0, 0.0,
+							1.0, 0.0,
+							1.0, 1.0,
+							0.0, 0.0,
+							1.0, 1.0,
+							0.0, 1.0};*/
 	//					   
 	//					   1.0, 0.0,
 	//					   1.0, 1.0,
@@ -317,19 +367,61 @@ void MainGLWidget::paintGL()
 	//					   1.0, 1.0,
 	//					   0.0, 1.0};
 
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	/*glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < 4; i++) {
+		glVertex3fv(vertices1[i]);
+		glTexCoord2fv(texCoords1[i]);
+	}
+	glEnd();
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < 4; i++) {
+		glVertex3fv(vertices2[i]);
+		glTexCoord2fv(texCoords1[i]);
+	}
+	glEnd();*/
+	// working
 	glEnableClientState(GL_VERTEX_ARRAY);
 	
 	glVertexPointer(plyParser.getVertexSize(), GL_FLOAT, 0, vertices);
 
 	glUniform1f(blendLoc, alpha);
 
-	glUniform1i(texLoc[0], 0);
-	glUniform1i(texLoc[1], 1);
+	for (int i = 0; i < textureFiles->size(); i++) {
+		glUniform1i(texLoc[0], i*2);
+		glUniform1i(texLoc[1], i*2+1);
+		glBegin(GL_TRIANGLES);
+			//for (int face = 0; face < 2; face++)
+			for (int face = 0; face < plyParser.getNFaces(); face++)
+			{
+				if (texNum && texNums[face] == i || !texNum) {
+
+					int texIndex = face * plyParser.getVerticesPerFace() * plyParser.getTexCoordSize();
+					//int texIndex = face * 3 * 2;
+					glTexCoord2f(texCoords[texIndex], texCoords[texIndex+1]);
+					glArrayElement(indices[face*3]);
+					glTexCoord2f(texCoords[texIndex+2], texCoords[texIndex+3]);
+					glArrayElement(indices[face*3 + 1]);
+					glTexCoord2f(texCoords[texIndex+4], texCoords[texIndex+5]);
+					glArrayElement(indices[face*3 + 2]);
+					/*qDebug() << texCoords[texIndex] << texCoords[texIndex+1] << texCoords[texIndex+2] << texCoords[texIndex+3] << texCoords[texIndex+4] << texCoords[texIndex+5];
+					qDebug() << indices[face*3+0] << indices[face*3+1] << indices[face*3+2];
+					qDebug() << face << i;*/
+				}
+			}
+		glEnd();
+
+	}
+
+
+	/*glUniform1i(texLoc[0], 2);
+	glUniform1i(texLoc[1], 3);
 	glBegin(GL_TRIANGLES);
-		for (int face = 0; face < plyParser.getNFaces(); face++)
+		for (int face = 2; face < 4; face++)
+			//for (int face = 0; face < plyParser.getNFaces(); face++)
 		{
-			int texIndex = face * plyParser.getVerticesPerFace() * plyParser.getTexCoordSize();
+			//int texIndex = face * plyParser.getVerticesPerFace() * plyParser.getTexCoordSize();
+			int texIndex = face * 3 * 2;
 			glTexCoord2f(texCoords[texIndex], texCoords[texIndex+1]);
 			glArrayElement(indices[face*3]);
 			glTexCoord2f(texCoords[texIndex+2], texCoords[texIndex+3]);
@@ -337,7 +429,7 @@ void MainGLWidget::paintGL()
 			glTexCoord2f(texCoords[texIndex+4], texCoords[texIndex+5]);
 			glArrayElement(indices[face*3 + 2]);
 		}
-	glEnd();
+	glEnd();*/
 }
 
 void MainGLWidget::resizeGL(int width, int height)
@@ -348,7 +440,7 @@ void MainGLWidget::resizeGL(int width, int height)
 	glLoadIdentity();									// Reset The Projection Matrix
 
 	// Calculate The Aspect Ratio Of The Window
-	gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,0.1f,100.0f);
+	gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,0.1f,1000.0f);
 
 	glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
 	glLoadIdentity();	
@@ -369,7 +461,14 @@ void MainGLWidget::mouseMoveEvent(QMouseEvent *e)
         rotateBy(8 * dy, 8 * dx, 0);
     } else if (e->buttons() & Qt::RightButton) {
         rotateBy(8 * dy, 0, 8 * dx);
+    } else if (e->buttons() & Qt::MidButton) {
+
+		// 0.4142 = tan(22.5 deg) (2.0f * 0.4142135623f *
+        xTrans -= dx * (zTrans - zoomDist) / 1000.0f;
+        yTrans += dy * (zTrans - zoomDist) / 1000.0f;
+        updateGL();
     }
+
     lastPos = e->pos();
 }
 
@@ -380,14 +479,15 @@ void MainGLWidget::mouseReleaseEvent(QMouseEvent * /* event */)
 
 void MainGLWidget::wheelEvent(QWheelEvent *e)
 {
-	zoomDist -= e->delta()/100;
+	if (zTrans-zoomDist < -1.0f || zTrans-zoomDist > -1.0f && e->delta() < 0)
+		zoomDist += (float) e->delta()/2000.0f * (zTrans - zoomDist);
 	updateGL();
 }
 
 void MainGLWidget::keyPressEvent(QKeyEvent *e)
 {
 	float step = 0.3;
-  switch( e->key() )
+ /* switch( e->key() )
   {
   case Qt::Key_W:
 	  yTrans -= step;
@@ -404,7 +504,7 @@ void MainGLWidget::keyPressEvent(QKeyEvent *e)
   case Qt::Key_D:
 	  xTrans += step;
 	  break;
-  }
+  }*/
   updateGL();
 }
 
