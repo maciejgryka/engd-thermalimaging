@@ -12,6 +12,7 @@ public:
 
 public slots:
 	void changeVisibility(int);
+	void changePixmap(int);
 };
 
 #endif
