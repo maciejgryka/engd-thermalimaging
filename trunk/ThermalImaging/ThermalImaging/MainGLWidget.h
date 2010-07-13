@@ -76,6 +76,9 @@ public:
 
 public slots:
 	void thermalVisualPercent(int);
+	void time0(bool);
+	void time1(bool);
+	void time2(bool);
 
 signals:
     void clicked();
@@ -119,6 +122,8 @@ private:
 	bool	light;				// Lighting ON/OFF
 	bool    blend;				// Blending OFF/ON? ( NEW )
 	GLfloat alpha;
+
+	int time;
 
 
 	GLfloat LightAmbient[4];
