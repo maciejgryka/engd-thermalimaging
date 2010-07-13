@@ -290,7 +290,7 @@
      <number>50</number>
     </property>
    </widget>
-   <widget class="TestGLWidget" name="mainWid" native="true">
+   <widget class="MainGLWidget" name="mainWid" native="true">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -381,7 +381,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>Time</string>
+     <string>Saturday 10/07/2010</string>
     </property>
     <widget class="QRadioButton" name="radio0">
      <property name="geometry">
@@ -393,13 +393,16 @@
       </rect>
      </property>
      <property name="text">
-      <string>Time 0</string>
+      <string>5 pm</string>
      </property>
      <property name="checked">
       <bool>true</bool>
      </property>
     </widget>
     <widget class="QRadioButton" name="radio2">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -422,7 +425,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Time 1</string>
+      <string>7 pm</string>
      </property>
     </widget>
    </widget>
@@ -451,9 +454,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>TestGLWidget</class>
+   <class>MainGLWidget</class>
    <extends>QWidget</extends>
-   <header>TestGLWidget.h</header>
+   <header>MainGLWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
