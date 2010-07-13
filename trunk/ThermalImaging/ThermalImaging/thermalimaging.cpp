@@ -5,18 +5,19 @@ ThermalImaging::ThermalImaging(QWidget *parent, Qt::WFlags flags)
 {
 	ui.setupUi(this);
 
-	//ui.legend->setGeometry(QRect(950, 110, 53, 391));
-    //ui.legend->setPixmap(QPixmap(QString::fromUtf8("images/tempLegend.jpg")));
+    ui.legendLabel->setPixmap(QPixmap(QString::fromUtf8("Data\\side_building\\time0\\legend.png")));
 	connect(ui.thermalVisualSlider,SIGNAL(valueChanged(int)),ui.mainWid,SLOT(thermalVisualPercent(int)));
 	connect(ui.legendCheck,SIGNAL(stateChanged(int)),ui.hotLabel,SLOT(changeVisibility(int)));
 	connect(ui.legendCheck,SIGNAL(stateChanged(int)),ui.coldLabel,SLOT(changeVisibility(int)));
 	connect(ui.legendCheck,SIGNAL(stateChanged(int)),ui.labelWidget,SLOT(changeVisibility(int)));
+	connect(ui.legendCheck,SIGNAL(stateChanged(int)),ui.legendLabel,SLOT(changeVisibility(int)));
+
 	//connect(ui.thermalVisualSlider,SIGNAL(sliderMoved(int)),ui.lcdNumber,SLOT(display(int)));
 
 	//connect(ui.clusterSlider,SIGNAL(sliderMoved(int)),ui.mainWid,SLOT(cluster(int)));
 	//connect(ui.clusterSlider,SIGNAL(sliderMoved(int)),ui.clusterView,SLOT(display(int)));
 
-	
+	connect(ui.mainWid,SIGNAL(changeLegendImage(int)), ui.legendLabel,SLOT(changePixmap(int)));
 
 	connect(ui.quadSlider,SIGNAL(sliderMoved(int)),ui.mainWid,SLOT(setMaxLevels(int)));
 	connect(ui.quadSlider,SIGNAL(sliderMoved(int)),ui.quadView,SLOT(setNum(int)));
@@ -25,6 +26,8 @@ ThermalImaging::ThermalImaging(QWidget *parent, Qt::WFlags flags)
 	connect(ui.radio0,SIGNAL(toggled(bool)),ui.mainWid,SLOT(time0(bool)));
 	connect(ui.radio1,SIGNAL(toggled(bool)),ui.mainWid,SLOT(time1(bool)));
 	connect(ui.radio2,SIGNAL(toggled(bool)),ui.mainWid,SLOT(time2(bool)));
+
+	
 
 	connect(ui.edgeSlider,SIGNAL(sliderMoved(int)),ui.mainWid,SLOT(setEdgeInlier(int)));
 	connect(ui.edgeSlider,SIGNAL(sliderMoved(int)),ui.edgeView,SLOT(setNum(int)));

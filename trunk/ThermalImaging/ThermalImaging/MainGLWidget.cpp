@@ -515,21 +515,26 @@ void MainGLWidget::thermalVisualPercent(int p) {
 	updateGL();
 }
 
-
 void MainGLWidget::time0(bool b) {
-	if (b)
+	if (b) {
 		time = 0;
-	updateGL();
+		emit changeLegendImage(time);
+		updateGL();
+	}
 }
 
 void MainGLWidget::time1(bool b) {
-	if (b)
+	if (b) {
 		time = 1;
-	updateGL();
+		emit changeLegendImage(time);
+		updateGL();
+	}
 }
 
 void MainGLWidget::time2(bool b) {
-	if (b)
+	if (b) {
 		time = 2;
-	updateGL();
+		emit changeLegendImage(time);
+		updateGL();
+	}
 }

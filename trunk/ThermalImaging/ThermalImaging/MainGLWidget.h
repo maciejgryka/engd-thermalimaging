@@ -82,6 +82,7 @@ public slots:
 
 signals:
     void clicked();
+	void changeLegendImage(int);
 
 protected:
     void initializeGL();
