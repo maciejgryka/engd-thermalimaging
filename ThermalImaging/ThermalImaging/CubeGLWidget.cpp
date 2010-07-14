@@ -55,7 +55,7 @@ CubeGLWidget::CubeGLWidget(QWidget *parent, QGLWidget *shareWidget)
     zRot = 0;
 	xTrans = 0.0;
 	yTrans = 0.0;
-	zTrans = -30.0;
+	zTrans = -15.0;
 	zoomDist = 0.0;
 
 	texNum = false;
