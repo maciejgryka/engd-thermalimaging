@@ -1,14 +1,34 @@
 #include "Texturer.h"
 
-QImage& Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, const vector<vector<float> > &corners, QString& directory, int time)
+QImage Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, const vector<vector<float> > &corners, QString& directoryName, int time)
 {
 	// find the best camera
+	
+	
+	// read list of images corresponding to camera views
+	QStringList imgNames = bp.readImageList(QString("Data\\%1\\%1_list.txt").arg(directoryName), true);
+
+	QDir directory = QDir(QString("Data\\%1\\time%2").arg(directoryName).arg(time));
+	QStringList files;
+	QString fileName ("*.jpg");
+	files = directory.entryList(QStringList(fileName),
+                                 QDir::Files | QDir::NoSymLinks);
+	vector<int> cameraIndices;
+
+	for (int i = 0; i < files.size(); i++) {
+		QString s (files.at(i).toLower());
+		int camNumber = imgNames.indexOf(s);
+		if (camNumber != -1)
+			cameraIndices.push_back(camNumber);
+	}
+
+
 	
 
 	// project 4 3D corners into 2D camera image (find additional points if necessary to have a minimum of 5)
 	// warp the resulting figure into a rectangle of a good size (use interpolation!)
-	int bestCamIndex = findBestCamera(planeNormal, planeTranslation, corners);
-	
+	vector<int> bestCamInde = findBestCamera(planeNormal, planeTranslation, corners, cameraIndices);
+	int bestCamIndex = 0;
 	BundleCamera cam = bp.getCamera(bestCamIndex);
 	MatrixXf corners3d(3,corners.size());
 	for (int coli(0); coli < corners.size(); coli++)
@@ -18,10 +38,10 @@ QImage& Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, co
 	MatrixXf cameraCorners = bp.getCameraXYPoints(cam, corners3d);
 
 	// read list of images corresponding to camera views
-	QStringList imgNames = bp.readImageList(QString("Data\\%1\\%1_list.txt").arg(directory));
+	//QStringList imgNames = bp.readImageList(QString("Data\\%1\\%1_list.txt").arg(directory));
 
 
-	QImage im(QString("Data\\%1\\time%2\\%3").arg(directory).arg(time).arg(imgNames.at(bestCamIndex)));
+	QImage im(QString("Data\\%1\\time%2\\%3").arg(directoryName).arg(time).arg(imgNames.at(bestCamIndex)));
 	for (int coli(0); coli < cameraCorners.cols(); coli++)
 	{
 		cameraCorners.col(coli) += Vector2f(im.width()/2, im.height()/2);
@@ -39,7 +59,7 @@ QImage& Texturer::getTexture(Vector3f planeNormal, Vector3f planeTranslation, co
 	return im;
 }
 
-int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, const vector<vector<float> > &corners)
+vector<int> Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, const vector<vector<float> > &corners, const vector<int>& cameraIndices)
 {
 	/*float minDist(5.0f);
 	// go through each corner and find corresponding real points in the point cloud
@@ -128,12 +148,11 @@ int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, c
 	Vector3f centroid((maxX + minX) / 2.0f, (maxY + minY) / 2.0f, (maxZ + minZ) / 2.0f);*/
 
 	float score = 0.0f;
-	int bestCam = 0;
 	vector<int> bestCams;
 
-	for (int cameraIndex(0); cameraIndex < bp.getNCameras(); cameraIndex++) {
+	for (int cameraIndex(0); cameraIndex < cameraIndices.size(); cameraIndex++) {
 		// find normal of camera
-		BundleCamera cam = bp.getCamera(cameraIndex);
+		BundleCamera cam = bp.getCamera(cameraIndices.at(cameraIndex));
 		Vector3f viewDirection = cam.R.row(2).normalized();
 
 		// compare normal with with normal of plane and give score
@@ -144,16 +163,16 @@ int Texturer::findBestCamera(Vector3f translationVector, Vector3f planeNormal, c
 		//Vector3f closestPointOnLine = cam.t + ((centroid-cam.t).dot(viewDirection)) / viewDirection.dot(viewDirection) * viewDirection;
 		//float dis = (closestPointOnLine-centroid).norm();
 		
-		if (0.8 > abs(dotP)) {
+		if (0.6 < abs(dotP)) {
 			score = abs(dotP);
-			bestCams.push_back(cameraIndex);
+			bestCams.push_back(cameraIndices.at(cameraIndex));
 		}
 			
 
 		
 	}
 	
-	return bestCam;
+	return bestCams;
 }
 
 bool Texturer::isCameraInViewList(int camera, const vector<BundleView>& viewList)
