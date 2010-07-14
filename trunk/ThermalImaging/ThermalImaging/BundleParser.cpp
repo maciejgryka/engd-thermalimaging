@@ -125,10 +125,14 @@ bool BundleParser::readFile(QString filename)
 	return true;
 }
 
+QStringList BundleParser::readImageList(QString filename) {
+	return readImageList(filename, false);
+}
+
 // reads the list of images
 //TODO: reads only image names, still need to specify folder somehow
 //TODO: it's slow because it's not using readAll(), but this file is always small, so it doesn't really matter
-QStringList BundleParser::readImageList(QString filename)
+QStringList BundleParser::readImageList(QString filename, bool lower)
 {
 	QFile listFile(filename);
 	QStringList imgPaths;
@@ -149,7 +153,10 @@ QStringList BundleParser::readImageList(QString filename)
 		for (int pathIndex(0); pathIndex < imgPaths.size(); pathIndex++)
 		{
 			QStringList splitPath = imgPaths.at(pathIndex).split("/");
-			imgNames << splitPath.at(splitPath.size()-1);
+			if (lower)
+				imgNames << splitPath.at(splitPath.size()-1).toLower();
+			else
+				imgNames << splitPath.at(splitPath.size()-1);
 		}
 	}
 	return imgNames;
