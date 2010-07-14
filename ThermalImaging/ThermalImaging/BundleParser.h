@@ -26,6 +26,7 @@ public:
 	
 	bool readFile(QString filename);
 	QStringList readImageList(QString filename);
+	QStringList readImageList(QString filename, bool lower);
 	
 	BundleCamera& getCamera(int cameraIndex)
 	{
